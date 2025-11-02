@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Src\Catalog\Domain\Entities\Attribute;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
+use Src\Catalog\Application\Services\ProductAttributeSyncService;
 
 class UpdateProductAction
 {
@@ -16,27 +17,7 @@ class UpdateProductAction
 
         return DB::transactionWithRetry(function () use ($product, $data, $attributesInput) {
             $product->update($data);
-
-            $validAttributeIds = Attribute::where('product_category_id', $product->product_category_id)->pluck('id')->all();
-            ProductAttributeValue::where('product_id', $product->id)->whereNotIn('attribute_id', $validAttributeIds)->delete();
-
-            $attrs = Attribute::whereIn('id', $validAttributeIds)->get();
-            foreach ($attrs as $attr) {
-                $raw = $attributesInput[$attr->id] ?? null;
-                $payload = ['value_text'=>null,'value_number'=>null,'value_boolean'=>null,'value_json'=>null];
-
-                if ($raw === null || $raw === '') {
-                    ProductAttributeValue::where('product_id',$product->id)->where('attribute_id',$attr->id)->delete();
-                    continue;
-                }
-                switch ($attr->data_type) {
-                    case 'number': case 'percentage': $payload['value_number'] = is_numeric($raw) ? (float)$raw : null; break;
-                    case 'boolean': $payload['value_boolean'] = (bool)$raw; break;
-                    case 'json': $payload['value_json'] = is_string($raw) ? json_decode($raw, true) : $raw; break;
-                    default: $payload['value_text'] = (string)$raw;
-                }
-                ProductAttributeValue::updateOrCreate(['product_id'=>$product->id,'attribute_id'=>$attr->id], $payload);
-            }
+            app(ProductAttributeSyncService::class)->sync($product, $attributesInput);
             return $product;
         });
     }

@@ -1,17 +1,14 @@
 <?php
 namespace Src\Content\Application\Actions;
 
-use Illuminate\Support\Str;
 use Src\Content\Domain\Entities\CmsPage;
+use Src\Content\Application\DTOs\CmsPageDTO;
 
 class UpdateCmsPageAction
 {
-    public function execute(CmsPage $page, array $data): CmsPage
+    public function execute(CmsPage $page, CmsPageDTO $dto): CmsPage
     {
-        if (empty($data['slug']) && isset($data['title'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
-        $page->update($data);
+        $page->update($dto->toArray());
         return $page;
     }
 }

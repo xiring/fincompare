@@ -7,7 +7,8 @@ class ContentServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Bindings for content module can be placed here when needed
+        $this->app->bind(\Src\Content\Domain\Repositories\BlogPostRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentBlogPostRepository::class);
+        $this->app->bind(\Src\Content\Domain\Repositories\CmsPageRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentCmsPageRepository::class);
     }
 }
 

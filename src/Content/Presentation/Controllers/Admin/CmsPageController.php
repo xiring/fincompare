@@ -11,6 +11,7 @@ use Src\Content\Application\Actions\CreateCmsPageAction;
 use Src\Content\Application\Actions\ShowCmsPageAction;
 use Src\Content\Application\Actions\UpdateCmsPageAction;
 use Src\Content\Application\Actions\DeleteCmsPageAction;
+use Src\Content\Application\DTOs\CmsPageDTO;
 
 class CmsPageController extends Controller
 {
@@ -39,7 +40,7 @@ class CmsPageController extends Controller
 
     public function store(CmsPageRequest $request, CreateCmsPageAction $create)
     {
-        $page = $create->execute($request->validated());
+        $page = $create->execute(CmsPageDTO::fromArray($request->validated()));
         if ($request->wantsJson()) return response()->json($page, 201);
         return redirect()->route('admin.cms-pages.index')->with('status', 'Page created');
     }
@@ -60,7 +61,7 @@ class CmsPageController extends Controller
 
     public function update(CmsPageRequest $request, CmsPage $cms_page, UpdateCmsPageAction $update)
     {
-        $item = $update->execute($cms_page, $request->validated());
+        $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
         if ($request->wantsJson()) return response()->json($item);
         return redirect()->route('admin.cms-pages.index')->with('status', 'Page updated');
     }

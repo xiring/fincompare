@@ -11,6 +11,7 @@ use Src\Content\Application\Actions\CreateBlogPostAction;
 use Src\Content\Application\Actions\ShowBlogPostAction;
 use Src\Content\Application\Actions\UpdateBlogPostAction;
 use Src\Content\Application\Actions\DeleteBlogPostAction;
+use Src\Content\Application\DTOs\BlogPostDTO;
 
 class BlogPostController extends Controller
 {
@@ -39,7 +40,7 @@ class BlogPostController extends Controller
 
     public function store(BlogPostRequest $request, CreateBlogPostAction $create)
     {
-        $post = $create->execute($request->validated());
+        $post = $create->execute(BlogPostDTO::fromArray($request->validated()));
         if ($request->wantsJson()) return response()->json($post, 201);
         return redirect()->route('admin.blogs.index')->with('status', 'Blog post created');
     }
@@ -60,7 +61,7 @@ class BlogPostController extends Controller
 
     public function update(BlogPostRequest $request, BlogPost $blog, UpdateBlogPostAction $update)
     {
-        $post = $update->execute($blog, $request->validated());
+        $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
         if ($request->wantsJson()) return response()->json($post);
         return redirect()->route('admin.blogs.index')->with('status', 'Blog post updated');
     }
