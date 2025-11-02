@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Src\Shared\Domain\ValueObjects\SeoMeta;
+use Src\Shared\Infrastructure\Casts\TagsCast;
 
 class BlogPost extends Model
 {
@@ -19,12 +23,40 @@ class BlogPost extends Model
     ];
 
     protected $casts = [
-        'tags' => 'array',
+        'tags' => TagsCast::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()->logFillable()->useLogName('blog_posts');
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $model) {
+            if (empty($model->slug) && !empty($model->title)) {
+                $model->slug = Str::slug($model->title);
+            }
+        });
+    }
+
+    public function seo(): Attribute
+    {
+        return Attribute::get(function () {
+            return new SeoMeta(
+                title: $this->seo_title,
+                description: $this->seo_description,
+                keywords: $this->seo_keywords,
+            );
+        })->set(function ($value) {
+            if ($value instanceof SeoMeta) {
+                return $value->toArray();
+            }
+            if (is_array($value)) {
+                return SeoMeta::fromArray($value)->toArray();
+            }
+            return [];
+        });
     }
 }
 

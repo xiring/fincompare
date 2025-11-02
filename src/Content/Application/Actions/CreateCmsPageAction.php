@@ -1,17 +1,14 @@
 <?php
 namespace Src\Content\Application\Actions;
 
-use Illuminate\Support\Str;
 use Src\Content\Domain\Entities\CmsPage;
+use Src\Content\Application\DTOs\CmsPageDTO;
 
 class CreateCmsPageAction
 {
-    public function execute(array $data): CmsPage
+    public function execute(CmsPageDTO $dto): CmsPage
     {
-        if (empty($data['slug']) && !empty($data['title'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
-        return CmsPage::create($data);
+        return CmsPage::create($dto->toArray());
     }
 }
 

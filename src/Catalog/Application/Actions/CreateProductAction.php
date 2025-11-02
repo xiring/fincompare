@@ -3,9 +3,8 @@ namespace Src\Catalog\Application\Actions;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Src\Catalog\Domain\Entities\Attribute;
 use Src\Catalog\Domain\Entities\Product;
-use Src\Catalog\Domain\Entities\ProductAttributeValue;
+use Src\Catalog\Application\Services\ProductAttributeSyncService;
 
 class CreateProductAction
 {
@@ -16,20 +15,7 @@ class CreateProductAction
 
         return DB::transactionWithRetry(function () use ($data, $attributesInput) {
             $product = Product::create($data);
-            $attrs = Attribute::where('product_category_id', $product->product_category_id)->get();
-            foreach ($attrs as $attr) {
-                $raw = $attributesInput[$attr->id] ?? null;
-                if ($raw === null || $raw === '') continue;
-
-                $payload = ['value_text'=>null,'value_number'=>null,'value_boolean'=>null,'value_json'=>null];
-                switch ($attr->data_type) {
-                    case 'number': case 'percentage': $payload['value_number'] = is_numeric($raw) ? (float)$raw : null; break;
-                    case 'boolean': $payload['value_boolean'] = (bool)$raw; break;
-                    case 'json': $payload['value_json'] = is_string($raw) ? json_decode($raw, true) : $raw; break;
-                    default: $payload['value_text'] = (string)$raw;
-                }
-                ProductAttributeValue::updateOrCreate(['product_id'=>$product->id,'attribute_id'=>$attr->id], $payload);
-            }
+            app(ProductAttributeSyncService::class)->sync($product, $attributesInput);
             return $product;
         });
     }
