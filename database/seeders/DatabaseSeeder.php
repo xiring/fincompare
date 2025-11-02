@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             AttributesTableSeeder::class,
             ProductsTableSeeder::class,
             LeadsTableSeeder::class,
+            BlogPostsTableSeeder::class,
+            CmsPagesTableSeeder::class,
         ]);
     }
 }
