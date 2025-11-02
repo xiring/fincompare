@@ -19,29 +19,57 @@
                         <x-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
                             {{ __('Partners') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.product-categories.index')" :active="request()->routeIs('admin.product-categories.*')">
-                            {{ __('Categories') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
-                            {{ __('Products') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.attributes.index')" :active="request()->routeIs('admin.attributes.*')">
-                            {{ __('Attributes') }}
-                        </x-nav-link>
+                        <x-dropdown align="left" width="48" class="flex items-center">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+                                    <span>{{ __('Catalog') }}</span>
+                                    <svg class="ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('admin.product-categories.index')" :active="request()->routeIs('admin.product-categories.*')">
+                                    {{ __('Categories') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                                    {{ __('Products') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.attributes.index')" :active="request()->routeIs('admin.attributes.*')">
+                                    {{ __('Attributes') }}
+                                </x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
                         <x-nav-link :href="route('admin.leads.index')" :active="request()->routeIs('admin.leads.*')">
                             {{ __('Leads') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.activity.index')" :active="request()->routeIs('admin.activity.*')">
                             {{ __('Activity') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                            {{ __('Users') }}
+                        @if(auth()->user()?->hasRole('admin'))
+                            <x-dropdown align="left" width="48" class="flex items-center">
+                                <x-slot name="trigger">
+                                    <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+                                        <span>{{ __('Access') }}</span>
+                                        <svg class="ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                                        {{ __('Users') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">
+                                        {{ __('Roles') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.permissions.index')" :active="request()->routeIs('admin.permissions.*')">
+                                        {{ __('Permissions') }}
+                                    </x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        @endif
+                        <x-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')">
+                            {{ __('Blogs') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">
-                            {{ __('Roles') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.permissions.index')" :active="request()->routeIs('admin.permissions.*')">
-                            {{ __('Permissions') }}
+                        <x-nav-link :href="route('admin.cms-pages.index')" :active="request()->routeIs('admin.cms-pages.*')">
+                            {{ __('CMS Pages') }}
                         </x-nav-link>
                     @endauth
                 </div>
@@ -103,6 +131,7 @@
                 <x-responsive-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
                     {{ __('Partners') }}
                 </x-responsive-nav-link>
+                <div class="px-4 text-xs uppercase text-gray-500 mt-2">{{ __('Catalog') }}</div>
                 <x-responsive-nav-link :href="route('admin.product-categories.index')" :active="request()->routeIs('admin.product-categories.*')">
                     {{ __('Categories') }}
                 </x-responsive-nav-link>
@@ -118,14 +147,23 @@
                 <x-responsive-nav-link :href="route('admin.activity.index')" :active="request()->routeIs('admin.activity.*')">
                     {{ __('Activity') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    {{ __('Users') }}
+                @if(auth()->user()?->hasRole('admin'))
+                    <div class="px-4 text-xs uppercase text-gray-500 mt-2">{{ __('Access') }}</div>
+                    <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        {{ __('Users') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">
+                        {{ __('Roles') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.permissions.index')" :active="request()->routeIs('admin.permissions.*')">
+                        {{ __('Permissions') }}
+                    </x-responsive-nav-link>
+                @endif
+                <x-responsive-nav-link :href="route('admin.blogs.index')" :active="request()->routeIs('admin.blogs.*')">
+                    {{ __('Blogs') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">
-                    {{ __('Roles') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.permissions.index')" :active="request()->routeIs('admin.permissions.*')">
-                    {{ __('Permissions') }}
+                <x-responsive-nav-link :href="route('admin.cms-pages.index')" :active="request()->routeIs('admin.cms-pages.*')">
+                    {{ __('CMS Pages') }}
                 </x-responsive-nav-link>
             @endauth
         </div>

@@ -14,9 +14,10 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-	<body class="font-sans text-gray-900 antialiased min-h-screen flex flex-col">
+    <body class="font-sans text-gray-900 antialiased min-h-screen flex flex-col">
         <div class="flex-1 flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
 			<x-toast />
+            @stack('styles')
             <div>
                 <a href="/">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
@@ -27,6 +28,7 @@
                 {{ $slot }}
             </div>
         </div>
+        @stack('scripts')
         <x-footer />
     </body>
 </html>

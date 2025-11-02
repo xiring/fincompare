@@ -18,6 +18,7 @@
 		<div class="min-h-screen bg-gray-100 flex flex-col">
             @include('layouts.navigation')
 			<x-toast />
+            @stack('styles')
 
             <!-- Page Heading -->
             @if (isset($header))
@@ -32,6 +33,7 @@
             <main class="flex-1">
                 {{ $slot }}
             </main>
+            @stack('scripts')
             <x-footer />
         </div>
     </body>

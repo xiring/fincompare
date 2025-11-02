@@ -21,6 +21,10 @@ use Src\Catalog\Domain\Entities\ProductAttributeValue;
 use Src\Catalog\Domain\Policies\ProductAttributeValuePolicy;
 use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Domain\Policies\LeadPolicy;
+use Src\Content\Domain\Entities\BlogPost;
+use Src\Content\Domain\Policies\BlogPostPolicy;
+use Src\Content\Domain\Entities\CmsPage;
+use Src\Content\Domain\Policies\CmsPagePolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -34,6 +38,8 @@ class AuthServiceProvider extends ServiceProvider
         Attribute::class => AttributePolicy::class,
         ProductAttributeValue::class => ProductAttributeValuePolicy::class,
         Lead::class => LeadPolicy::class,
+        BlogPost::class => BlogPostPolicy::class,
+        CmsPage::class => CmsPagePolicy::class,
     ];
 
     public function boot(): void

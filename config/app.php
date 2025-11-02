@@ -175,6 +175,7 @@ return [
         Src\Auth\Infrastructure\Providers\AuthModuleServiceProvider::class,
         Src\Shared\Infrastructure\Providers\HorizonServiceProvider::class,
         Src\Shared\Infrastructure\Providers\TelescopeServiceProvider::class,
+        Src\Content\Infrastructure\Providers\ContentServiceProvider::class,
     ])->toArray(),
 
     /*

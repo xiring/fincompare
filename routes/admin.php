@@ -9,6 +9,9 @@ Route::middleware(['web','auth'])->prefix('admin')->name('admin.')->group(functi
     Route::get('products/import', [\Src\Catalog\Presentation\Controllers\Admin\ProductImportController::class,'create'])->name('products.import');
     Route::post('products/import', [\Src\Catalog\Presentation\Controllers\Admin\ProductImportController::class,'store'])->name('products.import.store');
     Route::resource('products', \Src\Catalog\Presentation\Controllers\Admin\ProductController::class);
+    Route::post('uploads/wysiwyg', [\Src\Content\Presentation\Controllers\UploadController::class,'storeWysiwygImage'])->name('uploads.wysiwyg');
+    Route::resource('blogs', \Src\Content\Presentation\Controllers\Admin\BlogPostController::class);
+    Route::resource('cms-pages', \Src\Content\Presentation\Controllers\Admin\CmsPageController::class);
     Route::resource('leads', \Src\Leads\Presentation\Controllers\Admin\LeadController::class)->only(['index','show','update']);
     Route::get('leads-export', [\Src\Leads\Presentation\Controllers\Admin\LeadController::class,'exportCsv'])->name('leads.export');
 
