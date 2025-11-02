@@ -1,20 +1,64 @@
 <x-guest-layout>
-    <div x-data="productDetails({ id: {{ $product->id }}, compareIds: @json(session('compare_ids', [])) })" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div class="flex items-center gap-4">
-            <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/56' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-14 h-14 rounded bg-gray-100 object-contain">
-            <div>
-                <h1 class="text-2xl font-bold">{{ $product->name }}</h1>
-                <p class="text-sm text-gray-600">{{ $product->partner->name ?? '' }}</p>
+    <div x-data="productDetails({ id: {{ $product->id }}, compareIds: @json(session('compare_ids', [])) })" class="max-w-5xl mx-auto">
+        <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
+                <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl"></div>
             </div>
-        </div>
+            <div class="relative px-4 sm:px-6 lg:px-8 py-10">
+                <nav class="text-sm text-white/80 mb-4">
+                    <a href="/" class="hover:underline">Home</a>
+                    <span class="mx-1">/</span>
+                    <a href="{{ route('products.public.index') }}" class="hover:underline">Products</a>
+                    <span class="mx-1">/</span>
+                    <span class="text-white">{{ $product->name }}</span>
+                </nav>
+                <div class="flex items-start gap-4">
+                    <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                    <div class="flex-1">
+                        <h1 class="text-3xl font-extrabold tracking-tight">{{ $product->name }}</h1>
+                        <div class="mt-1 flex items-center gap-3 text-sm text-white/90">
+                            <span>{{ $product->partner->name ?? 'Partner' }}</span>
+                            @if(($product->is_featured ?? false))
+                                <span class="px-2 py-0.5 text-xs rounded-full bg-amber-300 text-slate-900 font-semibold">Featured</span>
+                            @endif
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-white/20">{{ ucfirst($product->status ?? 'active') }}</span>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-3">
+                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center px-5 py-3 rounded-xl bg-amber-400 text-slate-900 font-semibold shadow hover:bg-amber-300">Send Inquiry</a>
+                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white' : 'bg-white text-indigo-700'" class="inline-flex items-center px-4 py-3 rounded-xl font-semibold">
+                            <span x-text="inCompare ? 'In Compare' : 'Add to Compare'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <div class="mt-6">
+        <div class="px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-in-up">
+                <div class="p-4 rounded-2xl bg-white border">
+                    <div class="text-xs text-gray-500">Interest Rate</div>
+                    <div class="text-lg font-semibold text-gray-900">{{ $product->attribute_highlights['interest_rate'] ?? '—' }}</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white border">
+                    <div class="text-xs text-gray-500">Max Amount</div>
+                    <div class="text-lg font-semibold text-gray-900">{{ $product->attribute_highlights['max_amount'] ?? '—' }}</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white border">
+                    <div class="text-xs text-gray-500">Partner</div>
+                    <div class="text-lg font-semibold text-gray-900">{{ $product->partner->name ?? '—' }}</div>
+                </div>
+            </div>
+
+        <div class="mt-6 px-4 sm:px-6 lg:px-8 animate-fade-in-up">
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
                     <button @click="tab='overview'" :class="tab==='overview' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Overview</button>
                     <button @click="tab='features'" :class="tab==='features' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Features</button>
                     <button @click="tab='eligibility'" :class="tab==='eligibility' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Eligibility</button>
                     <button @click="tab='documents'" :class="tab==='documents' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Documents</button>
+                    <button @click="tab='faq'" :class="tab==='faq' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">FAQ</button>
                 </nav>
             </div>
 
@@ -55,11 +99,26 @@
             </div>
         </div>
 
-        <div class="mt-10 flex items-center gap-3">
+        <div class="mt-10 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
             <button @click="copyLink" type="button" class="inline-flex items-center px-4 py-2 rounded-md bg-gray-100 text-gray-700 font-medium">Copy Link</button>
             <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-amber-500 text-white' : 'bg-white text-gray-700 border'" class="inline-flex items-center px-4 py-2 rounded-md font-medium border">@{{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}</button>
             <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center px-6 py-3 rounded-md bg-indigo-600 text-white font-semibold">Send Inquiry</a>
             <a href="{{ route('compare') }}" class="inline-flex items-center px-4 py-2 rounded-md bg-slate-800 text-white font-medium" x-show="inCompare">Compare Now</a>
+        </div>
+
+        <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/70 backdrop-blur border-t" x-cloak>
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
+                    <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-amber-500 text-white' : 'bg-white text-gray-700 border'" class="px-3 py-2 rounded-lg text-sm font-medium border">
+                        <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
+                    </button>
+                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold">Apply Now</a>
+                </div>
+            </div>
         </div>
     </div>
 </x-guest-layout>

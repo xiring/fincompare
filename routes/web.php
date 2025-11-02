@@ -18,6 +18,15 @@ Route::get('/', function () {
     return view()->file(base_path('src/Shared/Presentation/Views/Public/home.blade.php'));
 });
 
+// Static pages
+Route::view('/about', 'Shared.Presentation.Views.Public.about')->name('about');
+Route::view('/privacy', 'Shared.Presentation.Views.Public.privacy')->name('privacy');
+Route::view('/terms', 'Shared.Presentation.Views.Public.terms')->name('terms');
+Route::view('/contact', 'Shared.Presentation.Views.Public.contact')->name('contact');
+Route::view('/faq', 'Shared.Presentation.Views.Public.faq')->name('faq');
+Route::get('/blog', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'show'])->name('blog.show');
+
 // Public catalog
 Route::get('/products', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'index'])->name('products.public.index');
 Route::get('/products/{product}', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'show'])->name('products.public.show');

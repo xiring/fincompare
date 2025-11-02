@@ -1,29 +1,44 @@
 <x-guest-layout>
-    <div x-data="comparePage({
-            products: @json(($products ?? [])->map(fn($p)=>['id'=>$p->id,'name'=>$p->name])->values()),
+    <!-- Gradient header to match design system -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <h1 class="text-3xl font-extrabold tracking-tight">Compare Products</h1>
+            <p class="mt-1 text-white/90">See specs side-by-side. Toggle highlights to spot differences quickly.</p>
+        </div>
+    </section>
+
+    <div x-data='comparePage({
+            products: @json(($products ?? [])->map(fn($p)=>['id'=>$p->id,'name'=>$p->name,'logo'=>$p->partner->logo_url ?? null])->values()),
             features: @json(array_values(array_map(fn($f)=>['key'=>$f['key'] ?? $f->key,'label'=>$f['label'] ?? $f->label], $features ?? []))),
             values: @json($values ?? [])
-        })" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        })' class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold">Compare Products</h1>
             <div class="flex items-center gap-3">
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                     <input type="checkbox" x-model="highlightDiff" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                     Highlight differences
                 </label>
-                <button @click="clearAll" type="button" class="px-3 py-2 rounded-md border text-sm">Clear all</button>
+                <button @click="clearAll" type="button" class="px-3 py-2 rounded-md border text-sm bg-white">Clear all</button>
             </div>
+            <a href="{{ route('products.public.index') }}" class="text-sm text-white bg-indigo-600 hover:bg-indigo-500 rounded-md px-3 py-2">Add more products</a>
         </div>
 
-        <div class="overflow-x-auto bg-white border rounded-lg">
+        <div class="overflow-x-auto bg-white border rounded-lg hidden md:block animate-fade-in-up">
             <table class="min-w-full divide-y">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Feature</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50 z-10">Feature</th>
                         <template x-for="p in products" :key="p.id">
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span x-text="p.name"></span>
+                                    <div class="flex items-center gap-2">
+                                        <img :src="p.logo || 'https://via.placeholder.com/28'" alt="" class="w-7 h-7 rounded bg-gray-100 object-contain">
+                                        <span x-text="p.name"></span>
+                                    </div>
                                     <button @click="removeProduct(p.id)" class="text-xs text-red-600 hover:underline">Remove</button>
                                 </div>
                             </th>
@@ -33,14 +48,37 @@
                 <tbody class="divide-y">
                     <template x-for="f in features" :key="f.key">
                         <tr>
-                            <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="f.label"></td>
+                            <td class="px-4 py-3 text-sm font-medium text-gray-900 sticky left-0 bg-white z-10" x-text="f.label"></td>
                             <template x-for="p in products" :key="p.id + '-' + f.key">
-                                <td class="px-4 py-3 text-sm" :class="cellClass(p.id, f.key)" x-text="values[p.id]?.[f.key] ?? '—'"></td>
+                                <td class="px-4 py-3 text-sm align-top" :class="cellClass(p.id, f.key)" x-text="(values[p.id] && values[p.id][f.key]) ? values[p.id][f.key] : '—'"></td>
                             </template>
                         </tr>
                     </template>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Stacked mobile view -->
+        <div class="md:hidden space-y-4">
+            <template x-for="p in products" :key="p.id">
+                <div class="bg-white border rounded-2xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <img :src="p.logo || 'https://via.placeholder.com/32'" class="w-8 h-8 rounded bg-gray-100 object-contain">
+                            <div class="font-semibold" x-text="p.name"></div>
+                        </div>
+                        <button @click="removeProduct(p.id)" class="text-xs text-red-600 hover:underline">Remove</button>
+                    </div>
+                    <dl class="divide-y">
+                        <template x-for="f in features" :key="'m-'+p.id+'-'+f.key">
+                            <div class="py-2 grid grid-cols-3 gap-3">
+                                <dt class="text-sm text-gray-600 col-span-1" x-text="f.label"></dt>
+                                <dd class="text-sm text-gray-900 col-span-2" x-text="(values[p.id] && values[p.id][f.key]) ? values[p.id][f.key] : '—'"></dd>
+                            </div>
+                        </template>
+                    </dl>
+                </div>
+            </template>
         </div>
 
         <div class="mt-4 flex justify-end">
