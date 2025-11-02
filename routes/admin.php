@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web','auth'])->prefix('admin')->name('admin.')->group(function(){
+Route::middleware(['web','auth','throttle:120,1'])->prefix('admin')->name('admin.')->group(function(){
     Route::resource('partners', \Src\Partners\Presentation\Controllers\Admin\PartnerController::class);
     Route::resource('product-categories', \Src\Catalog\Presentation\Controllers\Admin\ProductCategoryController::class);
     Route::resource('attributes', \Src\Catalog\Presentation\Controllers\Admin\AttributeController::class)->except(['show']);

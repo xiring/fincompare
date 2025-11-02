@@ -13,6 +13,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \Src\Shared\Infrastructure\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Src\Shared\Infrastructure\Http\Middleware\SecurityHeaders::class,
     ];
 
     protected $middlewareGroups = [

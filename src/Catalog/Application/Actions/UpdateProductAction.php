@@ -14,7 +14,7 @@ class UpdateProductAction
         if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
         $data['is_featured'] = (bool)($data['is_featured'] ?? false);
 
-        return DB::transaction(function () use ($product, $data, $attributesInput) {
+        return DB::transactionWithRetry(function () use ($product, $data, $attributesInput) {
             $product->update($data);
 
             $validAttributeIds = Attribute::where('product_category_id', $product->product_category_id)->pluck('id')->all();

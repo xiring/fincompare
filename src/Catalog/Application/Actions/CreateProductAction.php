@@ -14,7 +14,7 @@ class CreateProductAction
         if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
         $data['is_featured'] = (bool)($data['is_featured'] ?? false);
 
-        return DB::transaction(function () use ($data, $attributesInput) {
+        return DB::transactionWithRetry(function () use ($data, $attributesInput) {
             $product = Product::create($data);
             $attrs = Attribute::where('product_category_id', $product->product_category_id)->get();
             foreach ($attrs as $attr) {
