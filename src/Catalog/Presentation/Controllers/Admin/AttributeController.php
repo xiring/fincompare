@@ -1,0 +1,77 @@
+<?php
+namespace Src\Catalog\Presentation\Controllers\Admin;
+
+use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Src\Catalog\Domain\Entities\Attribute;
+use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Presentation\Requests\AttributeRequest;
+use Src\Catalog\Application\Actions\CreateAttributeAction;
+use Src\Catalog\Application\Actions\UpdateAttributeAction;
+use Src\Catalog\Application\Actions\DeleteAttributeAction;
+use Src\Catalog\Application\Actions\GetAttributesByCategoryAction;
+use Src\Catalog\Application\DTOs\AttributeDTO;
+
+class AttributeController extends Controller
+{
+    use AuthorizesRequests;
+
+    public function __construct()
+    {
+        $this->authorizeResource(Attribute::class, 'attribute');
+    }
+
+    public function index(Request $request)
+    {
+        $query = Attribute::query()->with('productCategory')
+            ->when($request->get('product_category_id'), fn($q,$cid)=>$q->where('product_category_id',$cid))
+            ->when($request->get('q'), fn($q,$qStr)=>$q->where('name','like','%'.$qStr.'%'))
+            ->orderBy('product_category_id')->orderBy('sort_order');
+        $items = $query->paginate(20);
+        if ($request->wantsJson()) return response()->json($items);
+        $categories = ProductCategory::orderBy('name')->get(['id','name']);
+        return view('admin.attributes.index', compact('items','categories'));
+    }
+
+    public function create(Request $request)
+    {
+        if ($request->wantsJson()) return response()->json(['message'=>'Provide attribute payload to store.']);
+        $categories = ProductCategory::orderBy('name')->get(['id','name']);
+        return view('admin.attributes.create', compact('categories'));
+    }
+
+    public function store(AttributeRequest $request, CreateAttributeAction $create)
+    {
+        $attr = $create->execute(AttributeDTO::fromArray($request->validated()));
+        if ($request->wantsJson()) return response()->json($attr, 201);
+        return redirect()->route('admin.product-categories.edit', $attr->product_category_id)->with('status', 'Attribute created');
+    }
+
+    public function edit(Attribute $attribute)
+    {
+        if (request()->wantsJson()) return response()->json($attribute);
+        return view('admin.attributes.edit', compact('attribute'));
+    }
+
+    public function update(AttributeRequest $request, Attribute $attribute, UpdateAttributeAction $update)
+    {
+        $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
+        if ($request->wantsJson()) return response()->json($attr);
+        return redirect()->route('admin.product-categories.edit', $attr->product_category_id)->with('status', 'Attribute updated');
+    }
+
+    public function destroy(Attribute $attribute, DeleteAttributeAction $delete)
+    {
+        $delete->execute($attribute);
+        if (request()->wantsJson()) return response()->json(null, 204);
+        return back()->with('status', 'Attribute deleted');
+    }
+
+    public function byCategory(ProductCategory $product_category, GetAttributesByCategoryAction $byCategory)
+    {
+        return response()->json($byCategory->execute($product_category->id));
+    }
+}
+
+

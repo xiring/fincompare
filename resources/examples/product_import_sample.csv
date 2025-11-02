@@ -1,0 +1,6 @@
+name,partner_id,product_category_id,slug,description,is_featured,status,attributes
+"Cashback Card A",1,1,,"Great for groceries and gas.",true,active,"{\"10\":\"3% cashback\",\"11\":true,\"12\":\"VISA\"}"
+"Travel Card B",2,1,travel-card-b,"Earn miles and lounge access.",false,active,"{\"10\":\"1.5% cashback\",\"11\":false,\"12\":\"MASTERCARD\"}"
+"Personal Loan C",3,2,personal-loan-c,"Fast approval personal loan.",false,inactive,"{\"20\":\"5.99\",\"21\":36,\"22\":\"No prepayment penalty\"}"
+
+
