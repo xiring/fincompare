@@ -15,8 +15,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view()->file(base_path('src/Shared/Presentation/Views/Public/home.blade.php'));
 });
+
+// Public catalog
+Route::get('/products', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'index'])->name('products.public.index');
+Route::get('/products/{product}', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'show'])->name('products.public.show');
+Route::post('/compare/toggle', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'toggleCompare'])->name('compare.toggle');
+Route::get('/compare', [\Src\Catalog\Presentation\Controllers\Public\ProductController::class,'compare'])->name('compare');
+
+// Public lead capture
+Route::get('/lead', [\Src\Leads\Presentation\Controllers\Public\LeadController::class,'create'])->name('leads.create');
+Route::post('/leads', [\Src\Leads\Presentation\Controllers\Public\LeadController::class,'store'])->name('leads.store');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
