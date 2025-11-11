@@ -8,20 +8,34 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white border rounded-2xl p-6">
             <h2 class="font-semibold mb-3">Send a message</h2>
-            <form class="space-y-4">
+            @if (session('status') === 'message-sent')
+                <div class="mb-4 rounded-md bg-green-50 text-green-700 px-3 py-2 text-sm">
+                    Thank you! Your message has been sent.
+                </div>
+            @endif
+            <form class="space-y-4" action="{{ route('contact.store') }}" method="post">
+                @csrf
+                <input type="hidden" name="submitted_at" value="{{ now()->timestamp }}">
+                <div class="hidden" aria-hidden="true">
+                    <label>Leave this field empty</label>
+                    <input type="text" name="hp" tabindex="-1" autocomplete="off">
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Name</label>
-                    <input class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    <input required name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('name')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    <input required name="email" type="email" value="{{ old('email') }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('email')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Message</label>
-                    <textarea rows="4" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    <textarea required name="message" rows="4" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('message') }}</textarea>
+                    @error('message')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
-                <button type="button" class="px-5 py-2 rounded-md bg-indigo-600 text-white">Submit</button>
+                <button type="submit" class="px-5 py-2 rounded-md bg-indigo-600 text-white">Submit</button>
             </form>
         </div>
         <div class="space-y-4">

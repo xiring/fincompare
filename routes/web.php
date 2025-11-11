@@ -23,6 +23,9 @@ Route::view('/about', 'Shared.Presentation.Views.Public.about')->name('about');
 Route::view('/privacy', 'Shared.Presentation.Views.Public.privacy')->name('privacy');
 Route::view('/terms', 'Shared.Presentation.Views.Public.terms')->name('terms');
 Route::view('/contact', 'Shared.Presentation.Views.Public.contact')->name('contact');
+Route::post('/contact', [\Src\Shared\Presentation\Controllers\Public\ContactController::class,'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 Route::view('/faq', 'Shared.Presentation.Views.Public.faq')->name('faq');
 Route::get('/blog', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'show'])->name('blog.show');
