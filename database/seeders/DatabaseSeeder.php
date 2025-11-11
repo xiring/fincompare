@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             LeadsTableSeeder::class,
             BlogPostsTableSeeder::class,
             CmsPagesTableSeeder::class,
+            SiteSettingSeeder::class,
         ]);
     }
 }
