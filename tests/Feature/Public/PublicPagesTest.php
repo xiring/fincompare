@@ -3,10 +3,10 @@
 /**
  * Public pages tests.
  *
- * @covers \Src\Shared\Presentation\Controllers\Public\FrontendController::home
- * @covers \Src\Shared\Presentation\Controllers\Public\FrontendController::about
- * @covers \Src\Shared\Presentation\Controllers\Public\FrontendController::privacy
- * @covers \Src\Shared\Presentation\Controllers\Public\FrontendController::terms
+ * @covers \App\Shared\Presentation\Controllers\Public\FrontendController::home
+ * @covers \App\Shared\Presentation\Controllers\Public\FrontendController::about
+ * @covers \App\Shared\Presentation\Controllers\Public\FrontendController::privacy
+ * @covers \App\Shared\Presentation\Controllers\Public\FrontendController::terms
  * @covers \Src\Content\Presentation\Controllers\Public\BlogController::index
  * @covers \Src\Content\Presentation\Controllers\Public\BlogController::show
  */

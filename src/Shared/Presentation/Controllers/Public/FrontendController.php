@@ -1,7 +1,10 @@
 <?php
 
-namespace Src\Shared\Presentation\Controllers\Public;
+namespace App\Shared\Presentation\Controllers\Public;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Routing\Controller;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 
@@ -14,63 +17,51 @@ class FrontendController extends Controller
 
     /**
      * Handle Home.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function home()
+    public function home(): Factory|View|\Illuminate\View\View
     {
-        return view('Shared.Presentation.Views.Public.home');
+        return view('public.home');
     }
 
     /**
      * Handle About.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function about()
+    public function about(): Application|Factory|View|\Illuminate\View\View
     {
-        return view('Shared.Presentation.Views.Public.about');
+        return view('public.about');
     }
 
     /**
      * Handle Privacy.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function privacy()
+    public function privacy(): Factory|View|\Illuminate\View\View
     {
-        return view('Shared.Presentation.Views.Public.privacy');
+        return view('public.privacy');
     }
 
     /**
      * Handle Terms.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function terms()
+    public function terms(): Factory|View|\Illuminate\View\View
     {
-        return view('Shared.Presentation.Views.Public.terms');
+        return view('public.terms');
     }
 
     /**
      * Handle Contact.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function contact()
+    public function contact(): Factory|View|\Illuminate\View\View
     {
-        return view('Shared.Presentation.Views.Public.contact');
+        return view('public.contact');
     }
 
     /**
      * Handle Faq.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function faq(FaqRepositoryInterface $faqsRepo)
+    public function faq(): Factory|View|\Illuminate\View\View
     {
         $faqs = $this->faqsRepo->list(['sort' => 'created_at', 'dir' => 'asc']);
 
-        return view('Shared.Presentation.Views.Public.faq', compact('faqs'));
+        return view('public.faq', compact('faqs'));
     }
 }

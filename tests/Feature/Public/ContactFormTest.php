@@ -3,7 +3,7 @@
 /**
  * Contact form tests.
  *
- * @covers \Src\Shared\Presentation\Controllers\Public\ContactController::store
+ * @covers \App\Shared\Presentation\Controllers\Public\ContactController::store
  */
 
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;

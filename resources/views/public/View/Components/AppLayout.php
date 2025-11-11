@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Shared\Presentation\View\Components;
+namespace View\Components;
 
 use Illuminate\View\Component;
 use Illuminate\View\View;

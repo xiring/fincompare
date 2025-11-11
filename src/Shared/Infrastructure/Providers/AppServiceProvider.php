@@ -7,14 +7,11 @@ use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Src\Shared\Presentation\View\Components\AppLayout;
-use Src\Shared\Presentation\View\Components\GuestLayout;
 
 /**
  * AppServiceProvider service provider.
@@ -35,12 +32,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Register component namespace so <x-app-layout> and <x-guest-layout> still resolve
-        Blade::componentNamespace('Src\\Shared\\Presentation\\View\\Components', '');
-
-        // Explicit aliases for unprefixed component tags
-        Blade::component('app-layout', AppLayout::class);
-        Blade::component('guest-layout', GuestLayout::class);
+        // Anonymous components are placed under resources/views/components,
+        // so <x-app-layout> and <x-guest-layout> resolve without manual registration.
 
         // Make model factories work with Src\* namespaced models
         Factory::guessFactoryNamesUsing(function (string $modelName) {
