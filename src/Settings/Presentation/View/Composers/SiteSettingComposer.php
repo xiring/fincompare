@@ -12,8 +12,11 @@ class SiteSettingComposer
 
     public function compose(View $view): void
     {
-        $settings = $this->repository->get();
-        $view->with('siteSettings', $settings);
+        static $cachedSettings = null;
+        if ($cachedSettings === null) {
+            $cachedSettings = $this->repository->get();
+        }
+        $view->with('siteSettings', $cachedSettings);
     }
 }
 
