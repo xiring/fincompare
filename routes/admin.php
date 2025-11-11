@@ -14,6 +14,7 @@ Route::middleware(['web','auth','throttle:120,1','role:admin|editor|viewer'])->p
     Route::post('uploads/wysiwyg', [\Src\Content\Presentation\Controllers\UploadController::class,'storeWysiwygImage'])->name('uploads.wysiwyg');
     Route::resource('blogs', \Src\Content\Presentation\Controllers\Admin\BlogPostController::class);
     Route::resource('cms-pages', \Src\Content\Presentation\Controllers\Admin\CmsPageController::class);
+    Route::resource('faqs', \Src\Content\Presentation\Controllers\Admin\FaqController::class)->except(['show']);
     Route::resource('leads', \Src\Leads\Presentation\Controllers\Admin\LeadController::class)->only(['index','show','update']);
     Route::get('leads-export', [\Src\Leads\Presentation\Controllers\Admin\LeadController::class,'exportCsv'])->name('leads.export');
 

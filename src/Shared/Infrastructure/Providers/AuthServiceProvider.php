@@ -25,6 +25,8 @@ use Src\Content\Domain\Entities\BlogPost;
 use Src\Content\Domain\Policies\BlogPostPolicy;
 use Src\Content\Domain\Entities\CmsPage;
 use Src\Content\Domain\Policies\CmsPagePolicy;
+use Src\Content\Domain\Entities\Faq;
+use Src\Content\Domain\Policies\FaqPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -40,6 +42,7 @@ class AuthServiceProvider extends ServiceProvider
         Lead::class => LeadPolicy::class,
         BlogPost::class => BlogPostPolicy::class,
         CmsPage::class => CmsPagePolicy::class,
+        Faq::class => FaqPolicy::class,
     ];
 
     public function boot(): void
