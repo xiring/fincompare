@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Tests\TestCase;
+use Src\Auth\Domain\Entities\User;
+use Spatie\Permission\Models\Role;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,4 +53,35 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Log in as a user with the given role (default: admin).
+ */
+function actingAsRole(string $roleName = 'admin'): User
+{
+	$user = User::factory()->create();
+	Role::firstOrCreate(['name' => $roleName]);
+	$user->assignRole($roleName);
+	test()->actingAs($user);
+	return $user;
+}
+
+/**
+ * Log in as admin and return the authenticated user.
+ */
+function actingAsAdmin(): User
+{
+	return actingAsRole('admin');
+}
+
+/**
+ * Assign a role to the provided user and authenticate as them.
+ */
+function actAs(User $user, string $roleName = 'admin'): User
+{
+	Role::firstOrCreate(['name' => $roleName]);
+	$user->assignRole($roleName);
+	test()->actingAs($user);
+	return $user;
 }
