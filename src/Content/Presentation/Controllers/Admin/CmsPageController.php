@@ -27,6 +27,8 @@ class CmsPageController extends Controller
         $items = $list->execute([
             'q'=>$request->get('q'),
             'status'=>$request->get('status'),
+            'sort'=>$request->get('sort'),
+            'dir'=>$request->get('dir'),
         ], (int)$request->get('per_page', 20));
         if ($request->wantsJson()) return response()->json($items);
         return view('admin.cms_pages.index', compact('items'));

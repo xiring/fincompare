@@ -26,6 +26,8 @@ class FaqController extends Controller
     {
         $items = $list->execute([
             'q'=>$request->get('q'),
+            'sort'=>$request->get('sort'),
+            'dir'=>$request->get('dir'),
         ], (int)$request->get('per_page', 20));
         if ($request->wantsJson()) return response()->json($items);
         return view('admin.faqs.index', compact('items'));
