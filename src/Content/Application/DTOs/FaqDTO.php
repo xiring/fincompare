@@ -1,6 +1,11 @@
 <?php
 namespace Src\Content\Application\DTOs;
 
+/**
+ * FaqDTO data transfer object.
+ *
+ * @package Src\Content\Application\DTOs
+ */
 class FaqDTO
 {
     public function __construct(

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * Faq class.
+ *
+ * @package Src\Content\Domain\Entities
+ */
 class Faq extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

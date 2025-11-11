@@ -9,6 +9,11 @@ use Spatie\Permission\Traits\HasRoles;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * User class.
+ *
+ * @package Src\Auth\Domain\Entities
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes, HasRoles, LogsActivity;

@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Attribute class.
+ *
+ * @package Src\Catalog\Domain\Entities
+ */
 class Attribute extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

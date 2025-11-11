@@ -4,6 +4,11 @@ namespace Src\Shared\Infrastructure\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+/**
+ * Kernel class.
+ *
+ * @package Src\Shared\Infrastructure\Console
+ */
 class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule): void

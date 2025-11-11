@@ -4,6 +4,11 @@ namespace Src\Auth\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Spatie\Permission\Models\Role;
 
+/**
+ * RolePolicy policy.
+ *
+ * @package Src\Auth\Domain\Policies
+ */
 class RolePolicy
 {
     public function viewAny(User $user): bool { return $user->can('manage roles'); }

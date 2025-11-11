@@ -5,6 +5,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
 use Src\Catalog\Domain\Entities\ProductCategory;
 
+/**
+ * ProductCategoryRepositoryInterface interface.
+ *
+ * @package Src\Catalog\Domain\Repositories
+ */
 interface ProductCategoryRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

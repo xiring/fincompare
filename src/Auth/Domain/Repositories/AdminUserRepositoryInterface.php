@@ -5,6 +5,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Auth\Domain\Entities\User;
 use Src\Auth\Application\DTOs\AdminUserDTO;
 
+/**
+ * AdminUserRepositoryInterface interface.
+ *
+ * @package Src\Auth\Domain\Repositories
+ */
 interface AdminUserRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

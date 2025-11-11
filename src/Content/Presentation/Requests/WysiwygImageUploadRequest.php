@@ -4,6 +4,11 @@ namespace Src\Content\Presentation\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
+/**
+ * WysiwygImageUploadRequest form request.
+ *
+ * @package Src\Content\Presentation\Requests
+ */
 class WysiwygImageUploadRequest extends FormRequest
 {
     public function authorize(): bool

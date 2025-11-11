@@ -5,6 +5,11 @@ use Src\Settings\Domain\Entities\SiteSetting;
 use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
 use Src\Settings\Application\DTOs\SiteSettingDTO;
 
+/**
+ * UpdateSiteSettingAction application action.
+ *
+ * @package Src\Settings\Application\Actions
+ */
 class UpdateSiteSettingAction
 {
     public function __construct(private readonly SiteSettingRepositoryInterface $repository)

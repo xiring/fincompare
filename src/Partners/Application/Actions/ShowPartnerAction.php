@@ -3,6 +3,11 @@ namespace Src\Partners\Application\Actions;
 
 use Src\Partners\Domain\Entities\Partner;
 
+/**
+ * ShowPartnerAction application action.
+ *
+ * @package Src\Partners\Application\Actions
+ */
 class ShowPartnerAction
 {
     public function execute(Partner $partner): Partner

@@ -71,6 +71,10 @@
         </div>
     </div>
     <script>
+        /**
+         * Handle Infinite posts.
+         * @return mixed
+         */
         function infinitePosts(initialNext){
             return {
                 next: initialNext,

@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Src\Auth\Domain\Entities\User;
 
+/**
+ * UpdateUserPasswordAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class UpdateUserPasswordAction
 {
     public function execute(User $user, string $currentPassword, string $newPassword): void

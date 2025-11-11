@@ -28,6 +28,11 @@ use Src\Content\Domain\Policies\CmsPagePolicy;
 use Src\Content\Domain\Entities\Faq;
 use Src\Content\Domain\Policies\FaqPolicy;
 
+/**
+ * AuthServiceProvider service provider.
+ *
+ * @package Src\Shared\Infrastructure\Providers
+ */
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [

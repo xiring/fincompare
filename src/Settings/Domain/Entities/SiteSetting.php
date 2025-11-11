@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * SiteSetting class.
+ *
+ * @package Src\Settings\Domain\Entities
+ */
 class SiteSetting extends Model
 {
     use HasFactory, LogsActivity;

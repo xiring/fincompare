@@ -3,6 +3,11 @@ namespace Src\Settings\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * UpdateSiteSettingRequest form request.
+ *
+ * @package Src\Settings\Presentation\Requests
+ */
 class UpdateSiteSettingRequest extends FormRequest
 {
     public function authorize(): bool

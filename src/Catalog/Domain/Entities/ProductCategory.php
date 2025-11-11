@@ -8,6 +8,11 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * ProductCategory class.
+ *
+ * @package Src\Catalog\Domain\Entities
+ */
 class ProductCategory extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

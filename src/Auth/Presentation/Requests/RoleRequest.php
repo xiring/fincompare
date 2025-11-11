@@ -3,6 +3,11 @@ namespace Src\Auth\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * RoleRequest form request.
+ *
+ * @package Src\Auth\Presentation\Requests
+ */
 class RoleRequest extends FormRequest
 {
     public function authorize(): bool { return true; }

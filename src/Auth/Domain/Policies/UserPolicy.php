@@ -3,6 +3,11 @@ namespace Src\Auth\Domain\Policies;
 
 use Src\Auth\Domain\Entities\User;
 
+/**
+ * UserPolicy policy.
+ *
+ * @package Src\Auth\Domain\Policies
+ */
 class UserPolicy
 {
     public function viewAny(User $user): bool { return $user->can('manage users'); }

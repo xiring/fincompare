@@ -5,8 +5,18 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Src\Content\Domain\Entities\BlogPost;
 
+/**
+ * BlogController controller.
+ *
+ * @package Src\Content\Presentation\Controllers\Public
+ */
 class BlogController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $q = (string)$request->get('q');
@@ -47,6 +57,11 @@ class BlogController extends Controller
         return view()->file(base_path('src/Shared/Presentation/Views/Public/blog_index.blade.php'), compact('posts','categories','tags','category','tag','sort','q'));
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
     public function show(string $slug)
     {
         $post = BlogPost::query()->where('slug', $slug)->where('status','published')->firstOrFail();

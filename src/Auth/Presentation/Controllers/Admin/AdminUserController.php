@@ -12,6 +12,11 @@ use Src\Auth\Application\Actions\UpdateAdminUserAction;
 use Src\Auth\Application\Actions\DeleteAdminUserAction;
 use Src\Auth\Application\DTOs\AdminUserDTO;
 
+/**
+ * AdminUserController controller.
+ *
+ * @package Src\Auth\Presentation\Controllers\Admin
+ */
 class AdminUserController extends Controller
 {
     use AuthorizesRequests;
@@ -21,6 +26,11 @@ class AdminUserController extends Controller
         $this->authorizeResource(User::class, 'user');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListAdminUsersAction $list)
     {
         $items = $list->execute([
@@ -32,6 +42,11 @@ class AdminUserController extends Controller
         return view('admin.users.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message'=>'Provide user payload to store.']);
@@ -39,6 +54,11 @@ class AdminUserController extends Controller
         return view('admin.users.create', compact('roles'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(\Src\Auth\Presentation\Requests\AdminUserStoreRequest $request, CreateAdminUserAction $create)
     {
         $user = $create->execute(AdminUserDTO::fromArray($request->validated()));
@@ -46,6 +66,11 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('status','User created');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, User $user)
     {
         if ($request->wantsJson()) return response()->json($user->load('roles'));
@@ -53,6 +78,11 @@ class AdminUserController extends Controller
         return view('admin.users.edit', compact('user','roles'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, User $user, UpdateAdminUserAction $update)
     {
         $user = $update->execute($user, AdminUserDTO::fromArray($request->validated()));
@@ -60,6 +90,11 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('status','User updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, User $user, DeleteAdminUserAction $delete)
     {
         $delete->execute($user);

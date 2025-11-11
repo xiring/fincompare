@@ -5,6 +5,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * RedirectIfAuthenticated class.
+ *
+ * @package Src\Shared\Infrastructure\Http\Middleware
+ */
 class RedirectIfAuthenticated
 {
     public function handle(Request $request, Closure $next, string ...$guards): Response

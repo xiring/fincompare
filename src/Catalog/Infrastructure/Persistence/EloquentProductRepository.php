@@ -6,8 +6,19 @@ use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Repositories\ProductFilters;
 use Src\Catalog\Domain\Repositories\ProductRepositoryInterface;
 
+/**
+ * EloquentProductRepository repository.
+ *
+ * @package Src\Catalog\Infrastructure\Persistence
+ */
 class EloquentProductRepository implements ProductRepositoryInterface
 {
+    /**
+     * Handle Filtered.
+     *
+     * @param ProductFilters $filters
+     * @return mixed
+     */
     public function filtered(ProductFilters $filters)
     {
         $query = Product::with(['partner'])

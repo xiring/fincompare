@@ -7,11 +7,13 @@ use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
 
+/**
+ * TelescopeServiceProvider service provider.
+ *
+ * @package App\Providers
+ */
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         // Telescope::night();
@@ -30,9 +32,6 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         });
     }
 
-    /**
-     * Prevent sensitive request details from being logged by Telescope.
-     */
     protected function hideSensitiveRequestDetails(): void
     {
         if ($this->app->environment('local')) {
@@ -48,11 +47,6 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         ]);
     }
 
-    /**
-     * Register the Telescope gate.
-     *
-     * This gate determines who can access Telescope in non-local environments.
-     */
     protected function gate(): void
     {
         Gate::define('viewTelescope', function ($user) {

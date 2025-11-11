@@ -3,6 +3,11 @@ namespace Src\Auth\Application\Actions;
 
 use Src\Auth\Domain\Entities\User;
 
+/**
+ * UpdateUserProfileAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class UpdateUserProfileAction
 {
     public function execute(User $user, array $data): User

@@ -4,6 +4,11 @@ namespace Src\Shared\Infrastructure\Providers;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Telescope\Telescope;
 
+/**
+ * TelescopeServiceProvider service provider.
+ *
+ * @package Src\Shared\Infrastructure\Providers
+ */
 class TelescopeServiceProvider extends ServiceProvider
 {
     public function register(): void

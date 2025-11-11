@@ -12,8 +12,18 @@ use Src\Leads\Application\Actions\ExportLeadsCsvAction;
 use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Leads\Domain\Entities\Lead;
 
+/**
+ * LeadController controller.
+ *
+ * @package Src\Leads\Presentation\Controllers\Admin
+ */
 class LeadController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListLeadsAction $list)
     {
         $items = $list->execute([
@@ -26,6 +36,11 @@ class LeadController extends Controller
         return view('admin.leads.index', compact('items'));
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, Lead $lead, ShowLeadAction $show)
     {
         $lead = $show->execute($lead);
@@ -33,6 +48,11 @@ class LeadController extends Controller
         return view('admin.leads.show', compact('lead'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(LeadUpdateRequest $request, Lead $lead, UpdateLeadAction $update)
     {
         $lead = $update->execute($lead, LeadDTO::fromArray($request->validated()));
@@ -40,6 +60,13 @@ class LeadController extends Controller
         return redirect()->route('admin.leads.show', $lead)->with('status', 'Lead updated');
     }
 
+    /**
+     * Handle Export csv.
+     *
+     * @param Request $request
+     * @param ExportLeadsCsvAction $export
+     * @return mixed
+     */
     public function exportCsv(Request $request, ExportLeadsCsvAction $export)
     {
         $filename = 'leads_export_'.now()->format('Ymd_His').'.csv';

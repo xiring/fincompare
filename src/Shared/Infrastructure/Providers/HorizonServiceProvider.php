@@ -4,6 +4,11 @@ namespace Src\Shared\Infrastructure\Providers;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Horizon\Horizon;
 
+/**
+ * HorizonServiceProvider service provider.
+ *
+ * @package Src\Shared\Infrastructure\Providers
+ */
 class HorizonServiceProvider extends ServiceProvider
 {
     public function boot(): void

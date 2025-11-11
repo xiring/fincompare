@@ -6,6 +6,11 @@ use Src\Auth\Application\DTOs\AdminUserDTO;
 use Src\Auth\Domain\Entities\User;
 use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 
+/**
+ * EloquentAdminUserRepository repository.
+ *
+ * @package Src\Auth\Infrastructure\Persistence
+ */
 class EloquentAdminUserRepository implements AdminUserRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

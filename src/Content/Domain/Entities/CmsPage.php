@@ -10,6 +10,11 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
+/**
+ * CmsPage class.
+ *
+ * @package Src\Content\Domain\Entities
+ */
 class CmsPage extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

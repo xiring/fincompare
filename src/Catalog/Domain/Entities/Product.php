@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Src\Partners\Domain\Entities\Partner;
 
+/**
+ * Product class.
+ *
+ * @package Src\Catalog\Domain\Entities
+ */
 class Product extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

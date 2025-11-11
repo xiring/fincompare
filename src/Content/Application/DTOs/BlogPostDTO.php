@@ -3,6 +3,11 @@ namespace Src\Content\Application\DTOs;
 
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
+/**
+ * BlogPostDTO data transfer object.
+ *
+ * @package Src\Content\Application\DTOs
+ */
 class BlogPostDTO
 {
     public function __construct(

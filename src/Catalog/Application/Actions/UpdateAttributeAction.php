@@ -5,6 +5,11 @@ use Src\Catalog\Application\DTOs\AttributeDTO;
 use Src\Catalog\Domain\Entities\Attribute;
 use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 
+/**
+ * UpdateAttributeAction application action.
+ *
+ * @package Src\Catalog\Application\Actions
+ */
 class UpdateAttributeAction
 {
     public function __construct(private AttributeRepositoryInterface $repo) {}

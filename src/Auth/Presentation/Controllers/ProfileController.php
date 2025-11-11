@@ -9,8 +9,18 @@ use Src\Auth\Application\Actions\UpdateUserProfileAction;
 use Src\Auth\Presentation\Requests\UpdatePasswordRequest;
 use Src\Auth\Presentation\Requests\UpdateProfileRequest;
 
+/**
+ * ProfileController controller.
+ *
+ * @package Src\Auth\Presentation\Controllers
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function edit(Request $request)
     {
         return view('profile.edit', [ 'user' => $request->user() ]);

@@ -116,6 +116,10 @@
     </div>
 
     <script>
+        /**
+         * Handle Compare store.
+         * @return mixed
+         */
         function compareStore(){
             return {
                 selected: [],
@@ -144,6 +148,10 @@
                 resetFilters(){ this.filters = {}; },
             }
         }
+        /**
+         * Handle Infinite products.
+         * @return mixed
+         */
         function infiniteProducts(initialNext){
             return {
                 next: initialNext,

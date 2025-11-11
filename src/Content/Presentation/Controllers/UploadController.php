@@ -5,8 +5,18 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * UploadController controller.
+ *
+ * @package Src\Content\Presentation\Controllers
+ */
 class UploadController extends Controller
 {
+    /**
+     * Handle Store wysiwyg image.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function storeWysiwygImage(\Src\Content\Presentation\Requests\WysiwygImageUploadRequest $request)
     {
         $request->validate([

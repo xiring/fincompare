@@ -123,6 +123,10 @@
 </x-guest-layout>
 
 <script>
+    /**
+     * Handle Lead form.
+     * @return mixed
+     */
     function leadForm() {
         return {
             step: 1,

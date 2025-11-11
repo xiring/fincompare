@@ -4,6 +4,11 @@ namespace Src\Content\Presentation\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * CmsPageRequest form request.
+ *
+ * @package Src\Content\Presentation\Requests
+ */
 class CmsPageRequest extends FormRequest
 {
     public function authorize(): bool { return $this->user() !== null; }

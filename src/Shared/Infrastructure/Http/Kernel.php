@@ -3,6 +3,11 @@ namespace Src\Shared\Infrastructure\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
+/**
+ * Kernel class.
+ *
+ * @package Src\Shared\Infrastructure\Http
+ */
 class Kernel extends HttpKernel
 {
     protected $middleware = [

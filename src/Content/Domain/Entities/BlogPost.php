@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 use Src\Shared\Infrastructure\Casts\TagsCast;
 
+/**
+ * BlogPost class.
+ *
+ * @package Src\Content\Domain\Entities
+ */
 class BlogPost extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

@@ -4,6 +4,11 @@ namespace Src\Leads\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Leads\Domain\Entities\Lead;
 
+/**
+ * LeadPolicy policy.
+ *
+ * @package Src\Leads\Domain\Policies
+ */
 class LeadPolicy
 {
     public function viewAny(User $user): bool { return true; }

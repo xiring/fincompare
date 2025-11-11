@@ -65,6 +65,10 @@
             </div>
         </div>
         <script>
+            /**
+             * Handle Counter.
+             * @return mixed
+             */
             function counter(target, duration, mode){
                 return {
                     display: '0',
@@ -297,6 +301,10 @@
         </div>
     </section>
     <script>
+        /**
+         * Handle Reveal.
+         * @return mixed
+         */
         function reveal(){
             return {
                 visible: false,

@@ -5,6 +5,11 @@ use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
 use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 
+/**
+ * DeleteProductAction application action.
+ *
+ * @package Src\Catalog\Application\Actions
+ */
 class DeleteProductAction
 {
     public function __construct(private AdminProductRepositoryInterface $repo) {}

@@ -3,6 +3,11 @@ namespace Src\Content\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * ContentServiceProvider service provider.
+ *
+ * @package Src\Content\Infrastructure\Providers
+ */
 class ContentServiceProvider extends ServiceProvider
 {
     public function register(): void

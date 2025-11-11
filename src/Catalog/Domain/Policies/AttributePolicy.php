@@ -4,6 +4,11 @@ namespace Src\Catalog\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Catalog\Domain\Entities\Attribute;
 
+/**
+ * AttributePolicy policy.
+ *
+ * @package Src\Catalog\Domain\Policies
+ */
 class AttributePolicy
 {
     public function viewAny(User $user): bool { return true; }

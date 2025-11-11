@@ -1,6 +1,11 @@
 <?php
 namespace Src\Shared\Application\DTOs;
 
+/**
+ * ContactMessageDTO data transfer object.
+ *
+ * @package Src\Shared\Application\DTOs
+ */
 class ContactMessageDTO
 {
     public function __construct(

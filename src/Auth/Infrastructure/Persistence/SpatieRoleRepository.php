@@ -7,6 +7,11 @@ use Spatie\Permission\Models\Permission;
 use Src\Auth\Application\DTOs\RoleDTO;
 use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
 
+/**
+ * SpatieRoleRepository repository.
+ *
+ * @package Src\Auth\Infrastructure\Persistence
+ */
 class SpatieRoleRepository implements RoleRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

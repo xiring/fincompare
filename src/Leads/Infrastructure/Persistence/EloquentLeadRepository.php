@@ -7,6 +7,11 @@ use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 
+/**
+ * EloquentLeadRepository repository.
+ *
+ * @package Src\Leads\Infrastructure\Persistence
+ */
 class EloquentLeadRepository implements LeadRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

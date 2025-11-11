@@ -88,6 +88,10 @@
 </x-guest-layout>
 
 <script>
+    /**
+     * Handle Compare page.
+     * @return mixed
+     */
     function comparePage(initial) {
         return {
             products: initial.products || [],

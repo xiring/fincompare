@@ -7,6 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Src\Shared\Application\DTOs\ContactMessageDTO;
 
+/**
+ * ContactMessageReceived class.
+ *
+ * @package Src\Shared\Application\Mail
+ */
 class ContactMessageReceived extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;

@@ -7,8 +7,18 @@ use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Partners\Domain\Entities\Partner;
 
+/**
+ * ProductController controller.
+ *
+ * @package Src\Catalog\Presentation\Controllers\Public
+ */
 class ProductController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $categoryId = $request->integer('category_id');
@@ -40,6 +50,11 @@ class ProductController extends Controller
         return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products','category','category_attributes','categories','partners'));
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
     public function show(Product $product)
     {
         $attributes = $product->attributeValues()->with('attribute')->get()->map(function($av){
@@ -55,6 +70,12 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Handle Compare.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
     public function compare(Request $request)
     {
         $ids = $request->get('products');
@@ -80,6 +101,11 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Handle Toggle compare.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function toggleCompare(Request $request)
     {
         $id = (int)$request->input('id');

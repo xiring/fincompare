@@ -13,6 +13,11 @@ use Src\Content\Application\Actions\UpdateCmsPageAction;
 use Src\Content\Application\Actions\DeleteCmsPageAction;
 use Src\Content\Application\DTOs\CmsPageDTO;
 
+/**
+ * CmsPageController controller.
+ *
+ * @package Src\Content\Presentation\Controllers\Admin
+ */
 class CmsPageController extends Controller
 {
     use AuthorizesRequests;
@@ -22,6 +27,11 @@ class CmsPageController extends Controller
         $this->authorizeResource(CmsPage::class, 'cms_page');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListCmsPagesAction $list)
     {
         $items = $list->execute([
@@ -34,12 +44,22 @@ class CmsPageController extends Controller
         return view('admin.cms_pages.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message' => 'Provide page payload to store.']);
         return view('admin.cms_pages.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(CmsPageRequest $request, CreateCmsPageAction $create)
     {
         $page = $create->execute(CmsPageDTO::fromArray($request->validated()));
@@ -47,6 +67,11 @@ class CmsPageController extends Controller
         return redirect()->route('admin.cms-pages.index')->with('status', 'Page created');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
     {
         $cms_page = $show->execute($cms_page);
@@ -54,6 +79,11 @@ class CmsPageController extends Controller
         return view('admin.cms_pages.edit', compact('cms_page'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
     {
         $cms_page = $show->execute($cms_page);
@@ -61,6 +91,11 @@ class CmsPageController extends Controller
         return view('admin.cms_pages.edit', compact('cms_page'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(CmsPageRequest $request, CmsPage $cms_page, UpdateCmsPageAction $update)
     {
         $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
@@ -68,6 +103,11 @@ class CmsPageController extends Controller
         return redirect()->route('admin.cms-pages.index')->with('status', 'Page updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, CmsPage $cms_page, DeleteCmsPageAction $delete)
     {
         $delete->execute($cms_page);

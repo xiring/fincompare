@@ -5,8 +5,18 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Spatie\Activitylog\Models\Activity;
 
+/**
+ * ActivityLogController controller.
+ *
+ * @package Src\Shared\Presentation\Controllers
+ */
 class ActivityLogController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $query = Activity::query()

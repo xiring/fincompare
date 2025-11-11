@@ -4,8 +4,20 @@ namespace Src\Content\Infrastructure\Persistence;
 use Src\Content\Domain\Repositories\BlogPostRepositoryInterface;
 use Src\Content\Domain\Entities\BlogPost;
 
+/**
+ * EloquentBlogPostRepository repository.
+ *
+ * @package Src\Content\Infrastructure\Persistence
+ */
 class EloquentBlogPostRepository implements BlogPostRepositoryInterface
 {
+    /**
+     * Handle Paginate.
+     *
+     * @param array $filters
+     * @param int $perPage
+     * @return mixed
+     */
     public function paginate(array $filters = [], int $perPage = 20)
     {
         $query = BlogPost::query()

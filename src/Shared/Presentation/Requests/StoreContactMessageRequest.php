@@ -3,6 +3,11 @@ namespace Src\Shared\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * StoreContactMessageRequest form request.
+ *
+ * @package Src\Shared\Presentation\Requests
+ */
 class StoreContactMessageRequest extends FormRequest
 {
     public function authorize(): bool
@@ -23,6 +28,12 @@ class StoreContactMessageRequest extends FormRequest
         ];
     }
 
+    /**
+     * Handle With validator.
+     *
+     * @param mixed $validator
+     * @return void
+     */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {

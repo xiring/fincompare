@@ -3,6 +3,11 @@ namespace Src\Auth\Application\Actions;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 
+/**
+ * AuthenticateUserAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class AuthenticateUserAction
 {
     public function __construct(private StatefulGuard $guard) {}

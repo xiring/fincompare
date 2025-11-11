@@ -4,6 +4,11 @@ namespace Src\Catalog\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Catalog\Domain\Entities\Product;
 
+/**
+ * ProductPolicy policy.
+ *
+ * @package Src\Catalog\Domain\Policies
+ */
 class ProductPolicy
 {
     public function viewAny(User $user): bool { return true; }

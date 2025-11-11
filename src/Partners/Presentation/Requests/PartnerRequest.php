@@ -3,6 +3,11 @@ namespace Src\Partners\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * PartnerRequest form request.
+ *
+ * @package Src\Partners\Presentation\Requests
+ */
 class PartnerRequest extends FormRequest
 {
     public function authorize(): bool

@@ -3,8 +3,22 @@ namespace Src\Shared\Infrastructure\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
+/**
+ * TagsCast class.
+ *
+ * @package Src\Shared\Infrastructure\Casts
+ */
 class TagsCast implements CastsAttributes
 {
+    /**
+     * Handle Get.
+     *
+     * @param mixed $model
+     * @param string $key
+     * @param mixed $value
+     * @param array $attributes
+     * @return array
+     */
     public function get($model, string $key, $value, array $attributes): array
     {
         if (is_array($value)) return $value;
@@ -16,6 +30,15 @@ class TagsCast implements CastsAttributes
         return [];
     }
 
+    /**
+     * Handle Set.
+     *
+     * @param mixed $model
+     * @param string $key
+     * @param mixed $value
+     * @param array $attributes
+     * @return array
+     */
     public function set($model, string $key, $value, array $attributes): array
     {
         $tags = $this->normalize(is_array($value) ? $value : (array)$value);

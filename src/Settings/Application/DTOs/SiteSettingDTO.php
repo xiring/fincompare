@@ -1,6 +1,11 @@
 <?php
 namespace Src\Settings\Application\DTOs;
 
+/**
+ * SiteSettingDTO data transfer object.
+ *
+ * @package Src\Settings\Application\DTOs
+ */
 class SiteSettingDTO
 {
     public function __construct(

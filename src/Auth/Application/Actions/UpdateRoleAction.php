@@ -5,6 +5,11 @@ use Src\Auth\Application\DTOs\RoleDTO;
 use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
 use Spatie\Permission\Models\Role;
 
+/**
+ * UpdateRoleAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class UpdateRoleAction
 {
     public function __construct(private RoleRepositoryInterface $repo) {}

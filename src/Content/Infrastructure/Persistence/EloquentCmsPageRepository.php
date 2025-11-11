@@ -4,8 +4,20 @@ namespace Src\Content\Infrastructure\Persistence;
 use Src\Content\Domain\Repositories\CmsPageRepositoryInterface;
 use Src\Content\Domain\Entities\CmsPage;
 
+/**
+ * EloquentCmsPageRepository repository.
+ *
+ * @package Src\Content\Infrastructure\Persistence
+ */
 class EloquentCmsPageRepository implements CmsPageRepositoryInterface
 {
+    /**
+     * Handle Paginate.
+     *
+     * @param array $filters
+     * @param int $perPage
+     * @return mixed
+     */
     public function paginate(array $filters = [], int $perPage = 20)
     {
         $query = CmsPage::query()

@@ -13,6 +13,11 @@ use Src\Content\Application\Actions\UpdateFaqAction;
 use Src\Content\Application\Actions\DeleteFaqAction;
 use Src\Content\Application\DTOs\FaqDTO;
 
+/**
+ * FaqController controller.
+ *
+ * @package Src\Content\Presentation\Controllers\Admin
+ */
 class FaqController extends Controller
 {
     use AuthorizesRequests;
@@ -22,6 +27,11 @@ class FaqController extends Controller
         $this->authorizeResource(Faq::class, 'faq');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListFaqsAction $list)
     {
         $items = $list->execute([
@@ -33,12 +43,22 @@ class FaqController extends Controller
         return view('admin.faqs.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message' => 'Provide FAQ payload to store.']);
         return view('admin.faqs.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(FaqRequest $request, CreateFaqAction $create)
     {
         $faq = $create->execute(FaqDTO::fromArray($request->validated()));
@@ -46,6 +66,11 @@ class FaqController extends Controller
         return redirect()->route('admin.faqs.index')->with('status', 'FAQ created');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, Faq $faq, ShowFaqAction $show)
     {
         $faq = $show->execute($faq);
@@ -53,6 +78,11 @@ class FaqController extends Controller
         return view('admin.faqs.edit', compact('faq'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(FaqRequest $request, Faq $faq, UpdateFaqAction $update)
     {
         $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
@@ -60,6 +90,11 @@ class FaqController extends Controller
         return redirect()->route('admin.faqs.index')->with('status', 'FAQ updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, Faq $faq, DeleteFaqAction $delete)
     {
         $delete->execute($faq);

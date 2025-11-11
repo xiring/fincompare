@@ -3,6 +3,11 @@ namespace Src\Catalog\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * AttributeRequest form request.
+ *
+ * @package Src\Catalog\Presentation\Requests
+ */
 class AttributeRequest extends FormRequest
 {
     public function authorize(): bool

@@ -6,6 +6,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Leads\Domain\Entities\Lead;
 
+/**
+ * LeadRepositoryInterface interface.
+ *
+ * @package Src\Leads\Domain\Repositories
+ */
 interface LeadRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

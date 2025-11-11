@@ -14,6 +14,11 @@ use Src\Catalog\Presentation\Requests\ProductRequest;
 use Src\Partners\Domain\Entities\Partner;
 use Src\Catalog\Domain\Entities\ProductCategory;
 
+/**
+ * ProductController controller.
+ *
+ * @package Src\Catalog\Presentation\Controllers\Admin
+ */
 class ProductController extends Controller
 {
     use AuthorizesRequests;
@@ -23,6 +28,11 @@ class ProductController extends Controller
         $this->authorizeResource(Product::class, 'product');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListProductsAction $list)
     {
         $items = $list->execute([
@@ -34,6 +44,11 @@ class ProductController extends Controller
         return view('admin.products.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message' => 'Provide product payload to store.']);
@@ -42,6 +57,11 @@ class ProductController extends Controller
         return view('admin.products.create', compact('partners','categories'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(ProductRequest $request, CreateProductAction $create)
     {
         $data = $request->validated();
@@ -65,6 +85,11 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('status', 'Product created');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, Product $product, ShowProductAction $show)
     {
         $product = $show->execute($product);
@@ -74,6 +99,11 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product','partners','categories'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, Product $product, ShowProductAction $show)
     {
         $product = $show->execute($product);
@@ -83,6 +113,11 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product','partners','categories'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(ProductRequest $request, Product $product, UpdateProductAction $update)
     {
         $data = $request->validated();
@@ -107,6 +142,11 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('status', 'Product updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, Product $product, DeleteProductAction $delete)
     {
         $delete->execute($product);

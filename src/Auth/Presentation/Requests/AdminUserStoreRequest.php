@@ -3,6 +3,11 @@ namespace Src\Auth\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * AdminUserStoreRequest form request.
+ *
+ * @package Src\Auth\Presentation\Requests
+ */
 class AdminUserStoreRequest extends FormRequest
 {
     public function authorize(): bool { return true; }

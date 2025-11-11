@@ -4,6 +4,11 @@ namespace Src\Auth\Application\Actions;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Auth\Domain\Repositories\PermissionRepositoryInterface;
 
+/**
+ * ListPermissionsAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class ListPermissionsAction
 {
     public function __construct(private PermissionRepositoryInterface $repo) {}

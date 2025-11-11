@@ -4,6 +4,11 @@ namespace Src\Content\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Content\Domain\Entities\BlogPost;
 
+/**
+ * BlogPostPolicy policy.
+ *
+ * @package Src\Content\Domain\Policies
+ */
 class BlogPostPolicy
 {
     public function viewAny(User $user): bool { return true; }

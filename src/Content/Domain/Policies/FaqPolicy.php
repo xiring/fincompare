@@ -4,6 +4,11 @@ namespace Src\Content\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Content\Domain\Entities\Faq;
 
+/**
+ * FaqPolicy policy.
+ *
+ * @package Src\Content\Domain\Policies
+ */
 class FaqPolicy
 {
     public function viewAny(User $user): bool { return true; }

@@ -4,6 +4,11 @@ namespace Src\Catalog\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
 
+/**
+ * ProductAttributeValuePolicy policy.
+ *
+ * @package Src\Catalog\Domain\Policies
+ */
 class ProductAttributeValuePolicy
 {
     public function viewAny(User $user): bool { return true; }

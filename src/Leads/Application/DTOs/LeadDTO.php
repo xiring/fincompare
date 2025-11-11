@@ -1,6 +1,11 @@
 <?php
 namespace Src\Leads\Application\DTOs;
 
+/**
+ * LeadDTO data transfer object.
+ *
+ * @package Src\Leads\Application\DTOs
+ */
 class LeadDTO
 {
     public function __construct(

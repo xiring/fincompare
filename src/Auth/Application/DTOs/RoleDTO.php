@@ -1,6 +1,11 @@
 <?php
 namespace Src\Auth\Application\DTOs;
 
+/**
+ * RoleDTO data transfer object.
+ *
+ * @package Src\Auth\Application\DTOs
+ */
 class RoleDTO
 {
     public function __construct(

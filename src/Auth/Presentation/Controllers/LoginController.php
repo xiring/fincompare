@@ -8,8 +8,18 @@ use Src\Auth\Application\Actions\AuthenticateUserAction;
 use Src\Auth\Application\Actions\LogoutUserAction;
 use Src\Auth\Presentation\Requests\LoginRequest;
 
+/**
+ * LoginController controller.
+ *
+ * @package Src\Auth\Presentation\Controllers
+ */
 class LoginController extends Controller
 {
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function create(Request $request)
     {
         if ($request->user()) return redirect()->intended('/dashboard');

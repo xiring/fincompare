@@ -9,6 +9,11 @@ use Src\Auth\Infrastructure\Persistence\EloquentAdminUserRepository;
 use Src\Auth\Infrastructure\Persistence\SpatiePermissionRepository;
 use Src\Auth\Infrastructure\Persistence\SpatieRoleRepository;
 
+/**
+ * AuthModuleServiceProvider service provider.
+ *
+ * @package Src\Auth\Infrastructure\Providers
+ */
 class AuthModuleServiceProvider extends ServiceProvider
 {
     public function register(): void

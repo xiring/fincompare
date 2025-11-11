@@ -6,6 +6,11 @@ use Illuminate\Support\Collection;
 use Src\Catalog\Application\DTOs\AttributeDTO;
 use Src\Catalog\Domain\Entities\Attribute;
 
+/**
+ * AttributeRepositoryInterface interface.
+ *
+ * @package Src\Catalog\Domain\Repositories
+ */
 interface AttributeRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

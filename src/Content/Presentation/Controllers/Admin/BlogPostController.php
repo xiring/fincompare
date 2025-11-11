@@ -13,6 +13,11 @@ use Src\Content\Application\Actions\UpdateBlogPostAction;
 use Src\Content\Application\Actions\DeleteBlogPostAction;
 use Src\Content\Application\DTOs\BlogPostDTO;
 
+/**
+ * BlogPostController controller.
+ *
+ * @package Src\Content\Presentation\Controllers\Admin
+ */
 class BlogPostController extends Controller
 {
     use AuthorizesRequests;
@@ -22,6 +27,11 @@ class BlogPostController extends Controller
         $this->authorizeResource(BlogPost::class, 'blog');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListBlogPostsAction $list)
     {
         $items = $list->execute([
@@ -34,12 +44,22 @@ class BlogPostController extends Controller
         return view('admin.blogs.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message' => 'Provide blog post payload to store.']);
         return view('admin.blogs.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(BlogPostRequest $request, CreateBlogPostAction $create)
     {
         $post = $create->execute(BlogPostDTO::fromArray($request->validated()));
@@ -47,6 +67,11 @@ class BlogPostController extends Controller
         return redirect()->route('admin.blogs.index')->with('status', 'Blog post created');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, BlogPost $blog, ShowBlogPostAction $show)
     {
         $blog = $show->execute($blog);
@@ -54,6 +79,11 @@ class BlogPostController extends Controller
         return view('admin.blogs.edit', compact('blog'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, BlogPost $blog, ShowBlogPostAction $show)
     {
         $blog = $show->execute($blog);
@@ -61,6 +91,11 @@ class BlogPostController extends Controller
         return view('admin.blogs.edit', compact('blog'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(BlogPostRequest $request, BlogPost $blog, UpdateBlogPostAction $update)
     {
         $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
@@ -68,6 +103,11 @@ class BlogPostController extends Controller
         return redirect()->route('admin.blogs.index')->with('status', 'Blog post updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, BlogPost $blog, DeleteBlogPostAction $delete)
     {
         $delete->execute($blog);

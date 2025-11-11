@@ -4,6 +4,11 @@ namespace Src\Partners\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Src\Partners\Domain\Entities\Partner;
 
+/**
+ * PartnerPolicy policy.
+ *
+ * @package Src\Partners\Domain\Policies
+ */
 class PartnerPolicy
 {
     public function viewAny(User $user): bool { return true; }

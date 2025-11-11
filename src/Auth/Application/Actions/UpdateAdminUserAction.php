@@ -5,6 +5,11 @@ use Src\Auth\Application\DTOs\AdminUserDTO;
 use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 use Src\Auth\Domain\Entities\User;
 
+/**
+ * UpdateAdminUserAction application action.
+ *
+ * @package Src\Auth\Application\Actions
+ */
 class UpdateAdminUserAction
 {
     public function __construct(private AdminUserRepositoryInterface $repo) {}

@@ -4,6 +4,11 @@ namespace Src\Catalog\Presentation\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * ProductImportRequest form request.
+ *
+ * @package Src\Catalog\Presentation\Requests
+ */
 class ProductImportRequest extends FormRequest
 {
     public function authorize(): bool

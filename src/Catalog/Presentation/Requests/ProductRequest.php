@@ -3,6 +3,11 @@ namespace Src\Catalog\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * ProductRequest form request.
+ *
+ * @package Src\Catalog\Presentation\Requests
+ */
 class ProductRequest extends FormRequest
 {
     public function authorize(): bool

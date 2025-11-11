@@ -6,6 +6,11 @@ use Illuminate\Support\Str;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Application\Services\ProductAttributeSyncService;
 
+/**
+ * CreateProductAction application action.
+ *
+ * @package Src\Catalog\Application\Actions
+ */
 class CreateProductAction
 {
     public function execute(array $data, array $attributesInput): Product

@@ -3,6 +3,11 @@ namespace Src\Content\Application\DTOs;
 
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
+/**
+ * CmsPageDTO data transfer object.
+ *
+ * @package Src\Content\Application\DTOs
+ */
 class CmsPageDTO
 {
     public function __construct(

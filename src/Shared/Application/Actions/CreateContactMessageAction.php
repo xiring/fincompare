@@ -4,6 +4,11 @@ namespace Src\Shared\Application\Actions;
 use Src\Shared\Domain\Entities\ContactMessage;
 use Src\Shared\Application\DTOs\ContactMessageDTO;
 
+/**
+ * CreateContactMessageAction application action.
+ *
+ * @package Src\Shared\Application\Actions
+ */
 class CreateContactMessageAction
 {
     public function execute(ContactMessageDTO $dto): ContactMessage

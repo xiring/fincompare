@@ -8,6 +8,11 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Src\Auth\Domain\Entities\User;
 
+/**
+ * SocialLoginController controller.
+ *
+ * @package Src\Auth\Presentation\Controllers
+ */
 class SocialLoginController extends Controller
 {
     protected array $allowedProviders = ['google','github'];

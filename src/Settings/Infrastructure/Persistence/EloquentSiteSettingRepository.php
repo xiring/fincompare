@@ -5,6 +5,11 @@ use Src\Settings\Domain\Entities\SiteSetting;
 use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * EloquentSiteSettingRepository repository.
+ *
+ * @package Src\Settings\Infrastructure\Persistence
+ */
 class EloquentSiteSettingRepository implements SiteSettingRepositoryInterface
 {
     private const CACHE_KEY = 'site_settings.single';

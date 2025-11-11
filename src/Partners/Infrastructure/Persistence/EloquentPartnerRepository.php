@@ -7,6 +7,11 @@ use Src\Partners\Application\DTOs\PartnerDTO;
 use Src\Partners\Domain\Entities\Partner;
 use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 
+/**
+ * EloquentPartnerRepository repository.
+ *
+ * @package Src\Partners\Infrastructure\Persistence
+ */
 class EloquentPartnerRepository implements PartnerRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

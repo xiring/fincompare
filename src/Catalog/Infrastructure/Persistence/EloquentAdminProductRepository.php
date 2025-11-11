@@ -7,6 +7,11 @@ use Src\Catalog\Application\DTOs\ProductDTO;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 
+/**
+ * EloquentAdminProductRepository repository.
+ *
+ * @package Src\Catalog\Infrastructure\Persistence
+ */
 class EloquentAdminProductRepository implements AdminProductRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

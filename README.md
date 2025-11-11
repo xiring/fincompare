@@ -93,3 +93,9 @@ php artisan route:clear && php artisan config:clear && php artisan cache:clear
 # Generate IDE helper models (optional if you use barryvdh/laravel-ide-helper)
 # php artisan ide-helper:models -M
 ```
+
+### Genereate Docblok
+```bash
+ php scripts/generate_docblocks.php
+
+```

@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * RouteServiceProvider service provider.
+ *
+ * @package Src\Shared\Infrastructure\Providers
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     //public const HOME = '/dashboard';

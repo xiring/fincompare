@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Src\Catalog\Domain\Entities\Product;
 
+/**
+ * Partner class.
+ *
+ * @package Src\Partners\Domain\Entities
+ */
 class Partner extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

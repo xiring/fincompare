@@ -9,6 +9,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Src\Catalog\Application\Actions\CreateProductAction;
 
+/**
+ * ImportProductsJob job.
+ *
+ * @package Src\Catalog\Application\Jobs
+ */
 class ImportProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -77,10 +82,6 @@ class ImportProductsJob implements ShouldQueue
         ]);
     }
 
-    /**
-     * Expected headers (case-insensitive):
-     * name, partner_id, product_category_id, slug, description, is_featured, status, attributes
-     */
     private function mapRowToData(array $row, array $headers): ?array
     {
         $indexed = [];

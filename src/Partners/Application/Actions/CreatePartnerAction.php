@@ -5,6 +5,11 @@ use Src\Partners\Application\DTOs\PartnerDTO;
 use Src\Partners\Domain\Entities\Partner;
 use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 
+/**
+ * CreatePartnerAction application action.
+ *
+ * @package Src\Partners\Application\Actions
+ */
 class CreatePartnerAction
 {
     public function __construct(private PartnerRepositoryInterface $repo) {}

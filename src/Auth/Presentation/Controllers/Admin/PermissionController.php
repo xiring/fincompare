@@ -11,6 +11,11 @@ use Src\Auth\Application\Actions\UpdatePermissionAction;
 use Src\Auth\Application\Actions\DeletePermissionAction;
 use Src\Auth\Application\DTOs\PermissionDTO;
 
+/**
+ * PermissionController controller.
+ *
+ * @package Src\Auth\Presentation\Controllers\Admin
+ */
 class PermissionController extends Controller
 {
     use AuthorizesRequests;
@@ -20,6 +25,11 @@ class PermissionController extends Controller
         $this->authorizeResource(Permission::class, 'permission');
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, ListPermissionsAction $list)
     {
         $items = $list->execute([
@@ -31,12 +41,22 @@ class PermissionController extends Controller
         return view('admin.permissions.index', compact('items'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         if ($request->wantsJson()) return response()->json(['message'=>'Provide permission payload to store.']);
         return view('admin.permissions.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(\Src\Auth\Presentation\Requests\PermissionRequest $request, CreatePermissionAction $create)
     {
         $perm = $create->execute(PermissionDTO::fromArray($request->validated()));
@@ -44,12 +64,22 @@ class PermissionController extends Controller
         return redirect()->route('admin.permissions.index')->with('status','Permission created');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit(Request $request, Permission $permission)
     {
         if ($request->wantsJson()) return response()->json($permission);
         return view('admin.permissions.edit', compact('permission'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, Permission $permission, UpdatePermissionAction $update)
     {
         $permission = $update->execute($permission, PermissionDTO::fromArray($request->validated()));
@@ -57,6 +87,11 @@ class PermissionController extends Controller
         return redirect()->route('admin.permissions.index')->with('status','Permission updated');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, Permission $permission, DeletePermissionAction $delete)
     {
         $delete->execute($permission);

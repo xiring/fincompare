@@ -4,8 +4,20 @@ namespace Src\Content\Infrastructure\Persistence;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 use Src\Content\Domain\Entities\Faq;
 
+/**
+ * EloquentFaqRepository repository.
+ *
+ * @package Src\Content\Infrastructure\Persistence
+ */
 class EloquentFaqRepository implements FaqRepositoryInterface
 {
+    /**
+     * Handle Paginate.
+     *
+     * @param array $filters
+     * @param int $perPage
+     * @return mixed
+     */
     public function paginate(array $filters = [], int $perPage = 20)
     {
         $query = Faq::query()
@@ -23,6 +35,12 @@ class EloquentFaqRepository implements FaqRepositoryInterface
         return $query->paginate($perPage);
     }
 
+    /**
+     * Handle List.
+     *
+     * @param array $filters
+     * @return mixed
+     */
     public function list(array $filters = [])
     {
         $query = Faq::query()

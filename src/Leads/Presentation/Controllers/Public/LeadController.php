@@ -7,8 +7,19 @@ use Src\Leads\Application\Actions\CaptureLeadAction;
 use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Catalog\Domain\Entities\Product;
 
+/**
+ * LeadController controller.
+ *
+ * @package Src\Leads\Presentation\Controllers\Public
+ */
 class LeadController extends Controller
 {
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
     public function create(Request $request)
     {
         $product = null;
@@ -18,6 +29,11 @@ class LeadController extends Controller
         return view()->file(base_path('src/Leads/Presentation/Views/Public/lead_form.blade.php'), compact('product'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, CaptureLeadAction $capture)
     {
         $data = $request->validate([

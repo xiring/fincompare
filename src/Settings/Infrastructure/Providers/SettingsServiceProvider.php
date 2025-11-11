@@ -7,6 +7,11 @@ use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
 use Src\Settings\Infrastructure\Persistence\EloquentSiteSettingRepository;
 use Src\Settings\Presentation\View\Composers\SiteSettingComposer;
 
+/**
+ * SettingsServiceProvider service provider.
+ *
+ * @package Src\Settings\Infrastructure\Providers
+ */
 class SettingsServiceProvider extends ServiceProvider
 {
     public function register(): void

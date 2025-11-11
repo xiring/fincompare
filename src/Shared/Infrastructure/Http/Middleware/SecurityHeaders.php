@@ -4,8 +4,20 @@ namespace Src\Shared\Infrastructure\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
+/**
+ * SecurityHeaders class.
+ *
+ * @package Src\Shared\Infrastructure\Http\Middleware
+ */
 class SecurityHeaders
 {
+    /**
+     * Handle the job or request.
+     *
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
+     */
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);

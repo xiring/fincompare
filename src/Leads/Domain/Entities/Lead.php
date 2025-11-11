@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Catalog\Domain\Entities\Product;
 
+/**
+ * Lead class.
+ *
+ * @package Src\Leads\Domain\Entities
+ */
 class Lead extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;

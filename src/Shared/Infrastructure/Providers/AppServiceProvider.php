@@ -15,6 +15,11 @@ use Src\Shared\Presentation\View\Components\GuestLayout;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 
+/**
+ * AppServiceProvider service provider.
+ *
+ * @package Src\Shared\Infrastructure\Providers
+ */
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void

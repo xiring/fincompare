@@ -4,6 +4,11 @@ namespace Src\Leads\Application\Actions;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 
+/**
+ * ListLeadsAction application action.
+ *
+ * @package Src\Leads\Application\Actions
+ */
 class ListLeadsAction
 {
     public function __construct(private LeadRepositoryInterface $repo) {}

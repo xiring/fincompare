@@ -4,6 +4,11 @@ namespace Src\Shared\Infrastructure\Http\Middleware;
 use Illuminate\Http\Middleware\TrustProxies as Middleware;
 use Illuminate\Http\Request;
 
+/**
+ * TrustProxies class.
+ *
+ * @package Src\Shared\Infrastructure\Http\Middleware
+ */
 class TrustProxies extends Middleware
 {
     protected $proxies;

@@ -5,6 +5,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Permission;
 use Src\Auth\Application\DTOs\PermissionDTO;
 
+/**
+ * PermissionRepositoryInterface interface.
+ *
+ * @package Src\Auth\Domain\Repositories
+ */
 interface PermissionRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

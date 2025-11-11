@@ -4,6 +4,11 @@ namespace Src\Settings\Presentation\View\Composers;
 use Illuminate\View\View;
 use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
 
+/**
+ * SiteSettingComposer view composer.
+ *
+ * @package Src\Settings\Presentation\View\Composers
+ */
 class SiteSettingComposer
 {
     public function __construct(private readonly SiteSettingRepositoryInterface $repository)

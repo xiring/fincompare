@@ -5,6 +5,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Partners\Application\DTOs\PartnerDTO;
 use Src\Partners\Domain\Entities\Partner;
 
+/**
+ * PartnerRepositoryInterface interface.
+ *
+ * @package Src\Partners\Domain\Repositories
+ */
 interface PartnerRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;

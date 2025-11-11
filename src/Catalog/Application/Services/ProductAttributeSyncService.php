@@ -5,6 +5,11 @@ use Src\Catalog\Domain\Entities\Attribute;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
 
+/**
+ * ProductAttributeSyncService class.
+ *
+ * @package Src\Catalog\Application\Services
+ */
 class ProductAttributeSyncService
 {
     public function sync(Product $product, array $attributesInput): void
@@ -36,6 +41,13 @@ class ProductAttributeSyncService
         }
     }
 
+    /**
+     * Handle Map value payload.
+     *
+     * @param string $dataType
+     * @param mixed $raw
+     * @return array
+     */
     private function mapValuePayload(string $dataType, mixed $raw): array
     {
         $payload = ['value_text' => null, 'value_number' => null, 'value_boolean' => null, 'value_json' => null];

@@ -6,6 +6,11 @@ use Spatie\Permission\Models\Permission;
 use Src\Auth\Application\DTOs\PermissionDTO;
 use Src\Auth\Domain\Repositories\PermissionRepositoryInterface;
 
+/**
+ * SpatiePermissionRepository repository.
+ *
+ * @package Src\Auth\Infrastructure\Persistence
+ */
 class SpatiePermissionRepository implements PermissionRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator

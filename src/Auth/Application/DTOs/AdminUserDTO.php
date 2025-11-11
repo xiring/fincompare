@@ -1,6 +1,11 @@
 <?php
 namespace Src\Auth\Application\DTOs;
 
+/**
+ * AdminUserDTO data transfer object.
+ *
+ * @package Src\Auth\Application\DTOs
+ */
 class AdminUserDTO
 {
     public function __construct(

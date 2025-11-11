@@ -5,6 +5,11 @@ use Src\Catalog\Application\DTOs\ProductCategoryDTO;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
 
+/**
+ * UpdateProductCategoryAction application action.
+ *
+ * @package Src\Catalog\Application\Actions
+ */
 class UpdateProductCategoryAction
 {
     public function __construct(private ProductCategoryRepositoryInterface $repo) {}

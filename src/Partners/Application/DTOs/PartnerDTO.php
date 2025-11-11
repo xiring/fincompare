@@ -1,6 +1,11 @@
 <?php
 namespace Src\Partners\Application\DTOs;
 
+/**
+ * PartnerDTO data transfer object.
+ *
+ * @package Src\Partners\Application\DTOs
+ */
 class PartnerDTO
 {
     public function __construct(

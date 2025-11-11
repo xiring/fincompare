@@ -10,6 +10,11 @@ use Src\Shared\Presentation\Requests\StoreContactMessageRequest;
 use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
 use Src\Shared\Application\Mail\ContactMessageReceived;
 
+/**
+ * ContactController controller.
+ *
+ * @package Src\Shared\Presentation\Controllers\Public
+ */
 class ContactController extends Controller
 {
     public function store(

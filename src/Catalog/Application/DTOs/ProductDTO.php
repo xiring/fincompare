@@ -1,6 +1,11 @@
 <?php
 namespace Src\Catalog\Application\DTOs;
 
+/**
+ * ProductDTO data transfer object.
+ *
+ * @package Src\Catalog\Application\DTOs
+ */
 class ProductDTO
 {
     public function __construct(

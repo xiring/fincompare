@@ -11,6 +11,11 @@ use Src\Catalog\Infrastructure\Persistence\EloquentAttributeRepository;
 use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 use Src\Catalog\Infrastructure\Persistence\EloquentAdminProductRepository;
 
+/**
+ * CatalogServiceProvider service provider.
+ *
+ * @package Src\Catalog\Infrastructure\Providers
+ */
 class CatalogServiceProvider extends ServiceProvider
 {
     public function register(): void

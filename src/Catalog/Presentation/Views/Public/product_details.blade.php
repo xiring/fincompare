@@ -124,6 +124,10 @@
 </x-guest-layout>
 
 <script>
+    /**
+     * Handle Product details.
+     * @return mixed
+     */
     function productDetails(initial) {
         return {
             tab: 'overview',

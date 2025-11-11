@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\DB;
 use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Application\DTOs\LeadDTO;
 
+/**
+ * CaptureLeadAction application action.
+ *
+ * @package Src\Leads\Application\Actions
+ */
 class CaptureLeadAction
 {
     public function execute(LeadDTO $dto): Lead

@@ -4,6 +4,11 @@ namespace Src\Auth\Domain\Policies;
 use Src\Auth\Domain\Entities\User;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * PermissionPolicy policy.
+ *
+ * @package Src\Auth\Domain\Policies
+ */
 class PermissionPolicy
 {
     public function viewAny(User $user): bool { return $user->can('manage permissions'); }
