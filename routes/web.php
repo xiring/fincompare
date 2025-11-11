@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view()->file(base_path('src/Shared/Presentation/Views/Public/home.blade.php'));
-});
+})->name('home');
 
 // Static pages
 Route::view('/about', 'Shared.Presentation.Views.Public.about')->name('about');
@@ -42,9 +42,9 @@ Route::post('/leads', [\Src\Leads\Presentation\Controllers\Public\LeadController
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role:admin|editor|viewer'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'role:admin|editor|viewer'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');

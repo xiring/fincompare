@@ -15,6 +15,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $editor = Role::firstOrCreate(['name' => 'editor']);
         $viewer = Role::firstOrCreate(['name' => 'viewer']);
+        $consumer = Role::firstOrCreate(['name' => 'consumer']);
 
         // Example permissions
         foreach (['manage partners','manage categories','manage attributes','manage products','manage leads'] as $perm) {

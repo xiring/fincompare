@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web','auth','throttle:120,1'])->prefix('admin')->name('admin.')->group(function(){
+Route::middleware(['web','auth','throttle:120,1','role:admin|editor|viewer'])->prefix('admin')->name('admin.')->group(function(){
     Route::get('settings', [\Src\Settings\Presentation\Controllers\Admin\SiteSettingController::class,'edit'])->name('settings.edit');
     Route::patch('settings', [\Src\Settings\Presentation\Controllers\Admin\SiteSettingController::class,'update'])->name('settings.update');
     Route::resource('partners', \Src\Partners\Presentation\Controllers\Admin\PartnerController::class);

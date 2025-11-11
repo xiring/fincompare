@@ -30,6 +30,16 @@
                     <x-nav-link :href="url('/faq')" :active="request()->is('faq')">
                         {{ __('FAQ') }}
                     </x-nav-link>
+                    @guest
+                        <x-nav-link :href="route('oauth.redirect', ['provider' => 'google'])" :active="request()->is('login')">
+                            {{ __('Google Sign in') }}
+                        </x-nav-link>
+                    @endguest
+                    @auth
+                        <x-nav-link :href="route('logout')" :active="false" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            {{ __('Logout') }}
+                        </x-nav-link>
+                    @endauth
                 </div>
             </div>
 
@@ -57,6 +67,14 @@
             <a href="{{ url('/about') }}" class="block ps-3 pe-4 py-2 text-base font-medium {{ request()->is('about') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">About Us</a>
             <a href="{{ url('/contact') }}" class="block ps-3 pe-4 py-2 text-base font-medium {{ request()->is('contact') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Contact Us</a>
             <a href="{{ url('/faq') }}" class="block ps-3 pe-4 py-2 text-base font-medium {{ request()->is('faq') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">FAQ</a>
+            @auth
+            <x-nav-link :href="route('logout')" :active="false" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block ps-3 pe-4 py-2 text-base font-medium">
+                {{ __('Logout') }}
+            </x-nav-link>
+            @endauth
         </div>
     </div>
 </nav>
+<form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+    @csrf
+</form>
