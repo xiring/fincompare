@@ -19,6 +19,7 @@ class SiteSettingSeeder extends Seeder
             'seo_description' => null,
             'email_address' => null,
             'contact_number' => null,
+            'address' => null,
             'map_url' => null,
             'facebook_url' => null,
             'instgram_url' => null,

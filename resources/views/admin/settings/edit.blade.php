@@ -76,6 +76,12 @@
                         </div>
 
                         <div class="md:col-span-2">
+                            <x-input-label for="address" value="Address" />
+                            <x-text-input id="address" name="address" value="{{ old('address', $settings->address) }}" class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('address')" class="mt-2" />
+                        </div>
+
+                        <div class="md:col-span-2">
                             <x-input-label for="map_url" value="Map URL" />
                             <x-text-input id="map_url" name="map_url" value="{{ old('map_url', $settings->map_url) }}" class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('map_url')" class="mt-2" />

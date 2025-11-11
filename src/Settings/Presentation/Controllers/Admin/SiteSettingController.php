@@ -18,7 +18,7 @@ class SiteSettingController extends Controller
 
     public function update(UpdateSiteSettingRequest $request, UpdateSiteSettingAction $action): RedirectResponse
     {
-        $data = $request->validated();
+        $data = collect($request->validated())->except(['logo','favicon'])->toArray();
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('uploads/settings', 'public');

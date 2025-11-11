@@ -27,11 +27,22 @@
         <div class="space-y-4">
             <div class="p-6 bg-white border rounded-2xl">
                 <h3 class="font-semibold">Email</h3>
-                <p class="text-sm text-gray-700 mt-1"><a href="mailto:hello@example.com" class="text-indigo-700 hover:underline">hello@example.com</a></p>
+                <p class="text-sm text-gray-700 mt-1"><a href="mailto:{{ $siteSettings->email_address }}" class="text-indigo-700 hover:underline">{{ $siteSettings->email_address }}</a></p>
             </div>
             <div class="p-6 bg-white border rounded-2xl">
                 <h3 class="font-semibold">Office</h3>
-                <p class="text-sm text-gray-700 mt-1">123 Market Street, Suite 100, City</p>
+                <p class="text-sm text-gray-700 mt-1">{{ $siteSettings->address }}</p>
+                <p class="text-sm text-gray-700 mt-1"><a href="tel:{{ $siteSettings->contact_number }}" class="text-indigo-700 hover:underline">{{ $siteSettings->contact_number }}</a></p>
+            </div>
+            <div class="bg-white border rounded-2xl overflow-hidden">
+                <div class="aspect-video">
+                    <iframe
+                        src="{{ $siteSettings->map_url }}"
+                        class="w-full h-full border-0"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
             </div>
         </div>
     </div>

@@ -22,6 +22,7 @@ class SiteSetting extends Model
         'seo_description',
         'email_address',
         'contact_number',
+        'address',
         'map_url',
         'facebook_url',
         'instgram_url',

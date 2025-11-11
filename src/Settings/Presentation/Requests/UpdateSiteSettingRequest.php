@@ -22,6 +22,7 @@ class UpdateSiteSettingRequest extends FormRequest
             'seo_description' => ['nullable','string','max:255'],
             'email_address' => ['nullable','string','max:255'],
             'contact_number' => ['nullable','string','max:255'],
+            'address' => ['nullable','string','max:255'],
             'map_url' => ['nullable','string','max:255'],
             'facebook_url' => ['nullable','string','max:255'],
             'instgram_url' => ['nullable','string','max:255'],

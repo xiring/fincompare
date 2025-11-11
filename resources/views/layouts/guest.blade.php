@@ -42,6 +42,6 @@
             </div>
         </div>
         @stack('scripts')
-        <x-footer-guest />
+        <x-footer />
     </body>
 </html>
