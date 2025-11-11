@@ -14,19 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view()->file(base_path('src/Shared/Presentation/Views/Public/home.blade.php'));
-})->name('home');
+Route::get('/', [\Src\Shared\Presentation\Controllers\Public\FrontendController::class, 'home'])->name('home');
 
 // Static pages
-Route::view('/about', 'Shared.Presentation.Views.Public.about')->name('about');
-Route::view('/privacy', 'Shared.Presentation.Views.Public.privacy')->name('privacy');
-Route::view('/terms', 'Shared.Presentation.Views.Public.terms')->name('terms');
+Route::get('/about', [\Src\Shared\Presentation\Controllers\Public\FrontendController::class, 'about'])->name('about');
+Route::get('/privacy', [\Src\Shared\Presentation\Controllers\Public\FrontendController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [\Src\Shared\Presentation\Controllers\Public\FrontendController::class, 'terms'])->name('terms');
 Route::view('/contact', 'Shared.Presentation.Views.Public.contact')->name('contact');
 Route::post('/contact', [\Src\Shared\Presentation\Controllers\Public\ContactController::class,'store'])
     ->middleware('throttle:5,1')
     ->name('contact.store');
-Route::view('/faq', 'Shared.Presentation.Views.Public.faq')->name('faq');
+Route::get('/faq', [\Src\Shared\Presentation\Controllers\Public\FrontendController::class, 'faq'])->name('faq');
 Route::get('/blog', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\Src\Content\Presentation\Controllers\Public\BlogController::class, 'show'])->name('blog.show');
 

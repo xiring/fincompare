@@ -22,6 +22,20 @@ class EloquentFaqRepository implements FaqRepositoryInterface
         $query->orderBy($sort, $dir);
         return $query->paginate($perPage);
     }
+
+    public function list(array $filters = [])
+    {
+        $query = Faq::query()
+            ->when($filters['q'] ?? null, fn($q,$s)=>$q->where('question','like','%'.$s.'%'));
+
+        $sort = $filters['sort'] ?? 'created_at';
+        $dir = strtolower($filters['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+        $allowed = ['created_at','question','id'];
+        if (! in_array($sort, $allowed, true)) {
+            $sort = 'created_at';
+        }
+        return $query->orderBy($sort, $dir)->get(['id','question','answer','created_at']);
+    }
 }
 
 
