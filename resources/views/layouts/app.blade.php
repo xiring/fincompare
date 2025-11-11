@@ -37,5 +37,6 @@
             @stack('scripts')
             <x-footer />
         </div>
+        <x-cookie-consent />
     </body>
 </html>

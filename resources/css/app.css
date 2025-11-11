@@ -13,3 +13,6 @@
 }
 .animate-fade-in-up { animation: fade-in-up 600ms ease-out both; }
 .animate-fade-in { animation: fade-in 600ms ease-out both; }
+
+/* Hide until Alpine initializes */
+[x-cloak] { display: none !important; }
