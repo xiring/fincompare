@@ -16,16 +16,15 @@ class CmsPageFactory extends Factory
     public function definition(): array
     {
         $title = ucfirst(fake()->unique()->sentence(3));
+
         return [
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100,999),
+            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 999),
             'seo_title' => $title,
             'seo_description' => fake()->sentence(12),
             'seo_keywords' => implode(', ', fake()->words(6)),
             'content' => '<p>'.implode('</p><p>', fake()->paragraphs(2)).'</p>',
-            'status' => fake()->randomElement(['draft','published']),
+            'status' => fake()->randomElement(['draft', 'published']),
         ];
     }
 }
-
-

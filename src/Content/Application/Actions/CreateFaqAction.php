@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Content\Application\Actions;
 
-use Src\Content\Domain\Entities\Faq;
 use Src\Content\Application\DTOs\FaqDTO;
+use Src\Content\Domain\Entities\Faq;
 
 /**
  * CreateFaqAction application action.
- *
- * @package Src\Content\Application\Actions
  */
 class CreateFaqAction
 {
@@ -16,5 +15,3 @@ class CreateFaqAction
         return Faq::create($dto->toArray());
     }
 }
-
-

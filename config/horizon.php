@@ -10,7 +10,7 @@ return [
 
     'prefix' => env('HORIZON_PREFIX', env('APP_NAME', 'laravel').'_horizon:'),
 
-    'middleware' => ['web','auth'],
+    'middleware' => ['web', 'auth'],
 
     'waits' => [
         'redis:default' => 60,
@@ -38,7 +38,7 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default','imports'],
+                'queue' => ['default', 'imports'],
                 'balance' => 'simple',
                 'minProcesses' => 1,
                 'maxProcesses' => 10,
@@ -51,7 +51,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default','imports'],
+                'queue' => ['default', 'imports'],
                 'balance' => 'off',
                 'processes' => 3,
                 'tries' => 1,
@@ -59,5 +59,3 @@ return [
         ],
     ],
 ];
-
-

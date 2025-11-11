@@ -17,19 +17,17 @@ use Src\Content\Domain\Entities\BlogPost;
 uses(RefreshDatabase::class);
 
 it('shows home page', function () {
-	$this->get(route('home'))->assertOk();
+    $this->get(route('home'))->assertOk();
 });
 
 it('shows static pages', function () {
-	$this->get(route('about'))->assertOk();
-	$this->get(route('privacy'))->assertOk();
-	$this->get(route('terms'))->assertOk();
+    $this->get(route('about'))->assertOk();
+    $this->get(route('privacy'))->assertOk();
+    $this->get(route('terms'))->assertOk();
 });
 
 it('shows blog index and blog post page', function () {
-	$published = BlogPost::factory()->create(['status' => 'published']);
-	$this->get(route('blog.index'))->assertOk();
-	$this->get(route('blog.show', $published->slug))->assertOk();
+    $published = BlogPost::factory()->create(['status' => 'published']);
+    $this->get(route('blog.index'))->assertOk();
+    $this->get(route('blog.show', $published->slug))->assertOk();
 });
-
-

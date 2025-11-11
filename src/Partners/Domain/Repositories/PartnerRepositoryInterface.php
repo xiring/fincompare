@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Partners\Domain\Repositories;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -7,16 +8,16 @@ use Src\Partners\Domain\Entities\Partner;
 
 /**
  * PartnerRepositoryInterface interface.
- *
- * @package Src\Partners\Domain\Repositories
  */
 interface PartnerRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+
     public function find(int $id): ?Partner;
+
     public function create(PartnerDTO $dto): Partner;
+
     public function update(Partner $partner, PartnerDTO $dto): Partner;
+
     public function delete(Partner $partner): void;
 }
-
-

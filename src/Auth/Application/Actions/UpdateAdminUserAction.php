@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
 use Src\Auth\Application\DTOs\AdminUserDTO;
-use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 use Src\Auth\Domain\Entities\User;
+use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 
 /**
  * UpdateAdminUserAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class UpdateAdminUserAction
 {
@@ -19,5 +18,3 @@ class UpdateAdminUserAction
         return $this->repo->update($user, $dto);
     }
 }
-
-

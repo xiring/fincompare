@@ -17,6 +17,7 @@ class UserFactory extends Factory
      * @var class-string<\Illuminate\Database\Eloquent\Model>
      */
     protected $model = \Src\Auth\Domain\Entities\User::class;
+
     /**
      * The current password being used by the factory.
      */

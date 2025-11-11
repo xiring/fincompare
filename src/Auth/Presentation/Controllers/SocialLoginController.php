@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Presentation\Controllers;
 
 use Illuminate\Http\RedirectResponse;
@@ -10,16 +11,15 @@ use Src\Auth\Domain\Entities\User;
 
 /**
  * SocialLoginController controller.
- *
- * @package Src\Auth\Presentation\Controllers
  */
 class SocialLoginController extends Controller
 {
-    protected array $allowedProviders = ['google','github'];
+    protected array $allowedProviders = ['google', 'github'];
 
     public function redirect(string $provider): RedirectResponse
     {
         abort_unless(in_array($provider, $this->allowedProviders, true), 404);
+
         return Socialite::driver($provider)->redirect();
     }
 
@@ -46,5 +46,3 @@ class SocialLoginController extends Controller
         return redirect()->intended(route('home'));
     }
 }
-
-

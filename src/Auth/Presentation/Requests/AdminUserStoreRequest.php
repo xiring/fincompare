@@ -1,26 +1,26 @@
 <?php
+
 namespace Src\Auth\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * AdminUserStoreRequest form request.
- *
- * @package Src\Auth\Presentation\Requests
  */
 class AdminUserStoreRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:255'],
-            'email' => ['required','email','max:255','unique:users,email'],
-            'password' => ['required','min:8','confirmed'],
-            'roles' => ['sometimes','array'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'min:8', 'confirmed'],
+            'roles' => ['sometimes', 'array'],
         ];
     }
 }
-
-

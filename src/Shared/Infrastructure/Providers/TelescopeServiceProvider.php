@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -6,8 +7,6 @@ use Laravel\Telescope\Telescope;
 
 /**
  * TelescopeServiceProvider service provider.
- *
- * @package Src\Shared\Infrastructure\Providers
  */
 class TelescopeServiceProvider extends ServiceProvider
 {
@@ -21,13 +20,14 @@ class TelescopeServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (!class_exists(Telescope::class)) return;
+        if (! class_exists(Telescope::class)) {
+            return;
+        }
 
         Telescope::auth(function ($request) {
             $user = $request->user();
+
             return $user && method_exists($user, 'hasRole') && $user->hasRole('admin');
         });
     }
 }
-
-

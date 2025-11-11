@@ -6,8 +6,8 @@
  * @covers \Src\Catalog\Presentation\Controllers\Admin\ProductController::index
  */
 
-use Src\Auth\Domain\Entities\User;
 use Spatie\Permission\Models\Role;
+use Src\Auth\Domain\Entities\User;
 use Src\Catalog\Domain\Entities\Product;
 
 it('lists products as JSON for an authenticated user', function () {
@@ -23,5 +23,3 @@ it('lists products as JSON for an authenticated user', function () {
     $response->assertJsonStructure(['data']);
     $this->assertCount(3, $response->json('data'));
 });
-
-

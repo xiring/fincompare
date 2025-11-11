@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
 use Illuminate\Support\Facades\Hash;
@@ -7,8 +8,6 @@ use Src\Auth\Domain\Entities\User;
 
 /**
  * UpdateUserPasswordAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class UpdateUserPasswordAction
 {
@@ -21,5 +20,3 @@ class UpdateUserPasswordAction
         $user->update(['password' => $newPassword]);
     }
 }
-
-

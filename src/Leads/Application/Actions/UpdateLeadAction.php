@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Leads\Application\Actions;
 
 use Src\Leads\Application\DTOs\LeadDTO;
@@ -7,8 +8,6 @@ use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 
 /**
  * UpdateLeadAction application action.
- *
- * @package Src\Leads\Application\Actions
  */
 class UpdateLeadAction
 {
@@ -19,5 +18,3 @@ class UpdateLeadAction
         return $this->repo->update($lead, $dto);
     }
 }
-
-

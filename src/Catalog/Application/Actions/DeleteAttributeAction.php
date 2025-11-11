@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Domain\Entities\Attribute;
@@ -6,8 +7,6 @@ use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 
 /**
  * DeleteAttributeAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class DeleteAttributeAction
 {
@@ -18,5 +17,3 @@ class DeleteAttributeAction
         $this->repo->delete($attribute);
     }
 }
-
-

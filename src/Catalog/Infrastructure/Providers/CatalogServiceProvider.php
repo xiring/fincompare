@@ -1,20 +1,19 @@
 <?php
+
 namespace Src\Catalog\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Src\Catalog\Domain\Repositories\ProductRepositoryInterface;
-use Src\Catalog\Infrastructure\Persistence\EloquentProductRepository;
-use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
-use Src\Catalog\Infrastructure\Persistence\EloquentProductCategoryRepository;
-use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
-use Src\Catalog\Infrastructure\Persistence\EloquentAttributeRepository;
 use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
+use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
+use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
+use Src\Catalog\Domain\Repositories\ProductRepositoryInterface;
 use Src\Catalog\Infrastructure\Persistence\EloquentAdminProductRepository;
+use Src\Catalog\Infrastructure\Persistence\EloquentAttributeRepository;
+use Src\Catalog\Infrastructure\Persistence\EloquentProductCategoryRepository;
+use Src\Catalog\Infrastructure\Persistence\EloquentProductRepository;
 
 /**
  * CatalogServiceProvider service provider.
- *
- * @package Src\Catalog\Infrastructure\Providers
  */
 class CatalogServiceProvider extends ServiceProvider
 {

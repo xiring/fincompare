@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Shared\Presentation\Controllers\Public;
 
 use Illuminate\Routing\Controller;
@@ -6,14 +7,10 @@ use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 
 /**
  * FrontendController controller.
- *
- * @package Src\Shared\Presentation\Controllers\Public
  */
 class FrontendController extends Controller
 {
-    public function __construct(private readonly FaqRepositoryInterface $faqsRepo) {
-
-    }
+    public function __construct(private readonly FaqRepositoryInterface $faqsRepo) {}
 
     /**
      * Handle Home.
@@ -73,8 +70,7 @@ class FrontendController extends Controller
     public function faq(FaqRepositoryInterface $faqsRepo)
     {
         $faqs = $this->faqsRepo->list(['sort' => 'created_at', 'dir' => 'asc']);
+
         return view('Shared.Presentation.Views.Public.faq', compact('faqs'));
     }
 }
-
-

@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Shared\Domain\ValueObjects;
 
 /**
  * SeoMeta class.
- *
- * @package Src\Shared\Domain\ValueObjects
  */
 class SeoMeta
 {
@@ -32,5 +31,3 @@ class SeoMeta
         ];
     }
 }
-
-

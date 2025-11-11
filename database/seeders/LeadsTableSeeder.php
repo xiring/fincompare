@@ -14,7 +14,7 @@ class LeadsTableSeeder extends Seeder
         $categories = ProductCategory::all();
         foreach ($categories as $category) {
             $product = Product::where('product_category_id', $category->id)->inRandomOrder()->first();
-            for ($i=0; $i<5; $i++) {
+            for ($i = 0; $i < 5; $i++) {
                 Lead::firstOrCreate(
                     [
                         'email' => "lead{$category->id}_{$i}@example.com",
@@ -23,7 +23,7 @@ class LeadsTableSeeder extends Seeder
                     ],
                     [
                         'full_name' => 'Lead '.$i,
-                        'mobile_number' => '+1-555-010'.random_int(0,9),
+                        'mobile_number' => '+1-555-010'.random_int(0, 9),
                         'message' => 'Interested in '.$category->name,
                         'status' => 'new',
                         'source' => 'seeder',
@@ -34,5 +34,3 @@ class LeadsTableSeeder extends Seeder
         }
     }
 }
-
-

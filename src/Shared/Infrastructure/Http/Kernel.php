@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 /**
  * Kernel class.
- *
- * @package Src\Shared\Infrastructure\Http
  */
 class Kernel extends HttpKernel
 {
@@ -50,11 +49,9 @@ class Kernel extends HttpKernel
         'signed' => \Src\Shared\Infrastructure\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-		// Spatie permission middleware (note: namespace is Middleware, not Middlewares)
-		'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-		'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-		'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        // Spatie permission middleware (note: namespace is Middleware, not Middlewares)
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
     ];
 }
-
-

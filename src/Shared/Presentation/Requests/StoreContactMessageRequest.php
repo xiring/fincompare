@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Shared\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * StoreContactMessageRequest form request.
- *
- * @package Src\Shared\Presentation\Requests
  */
 class StoreContactMessageRequest extends FormRequest
 {
@@ -18,13 +17,13 @@ class StoreContactMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:255'],
-            'email' => ['required','max:255','email:rfc,dns'],
-            'message' => ['required','string','max:5000'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'max:255', 'email:rfc,dns'],
+            'message' => ['required', 'string', 'max:5000'],
             // Honeypot must be present and empty
-            'hp' => ['present','string','size:0'],
+            'hp' => ['present', 'string', 'size:0'],
             // Timestamp from form render, used to enforce a minimal submit time window
-            'submitted_at' => ['required','integer'],
+            'submitted_at' => ['required', 'integer'],
         ];
     }
 
@@ -32,7 +31,6 @@ class StoreContactMessageRequest extends FormRequest
      * Handle With validator.
      *
      * @param mixed $validator
-     * @return void
      */
     public function withValidator($validator): void
     {
@@ -47,5 +45,3 @@ class StoreContactMessageRequest extends FormRequest
         });
     }
 }
-
-

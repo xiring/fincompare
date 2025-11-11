@@ -16,9 +16,10 @@ class PartnerFactory extends Factory
     public function definition(): array
     {
         $name = fake()->company();
+
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . fake()->unique()->numberBetween(100,999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 999),
             'logo_path' => null,
             'website_url' => fake()->url(),
             'contact_email' => fake()->companyEmail(),
@@ -27,5 +28,3 @@ class PartnerFactory extends Factory
         ];
     }
 }
-
-

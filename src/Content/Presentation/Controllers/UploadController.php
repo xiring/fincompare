@@ -1,14 +1,11 @@
 <?php
+
 namespace Src\Content\Presentation\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * UploadController controller.
- *
- * @package Src\Content\Presentation\Controllers
  */
 class UploadController extends Controller
 {
@@ -20,7 +17,7 @@ class UploadController extends Controller
     public function storeWysiwygImage(\Src\Content\Presentation\Requests\WysiwygImageUploadRequest $request)
     {
         $request->validate([
-            'image' => ['required','image','mimes:jpg,jpeg,png,gif,webp','max:5120'], // 5MB
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'], // 5MB
         ]);
 
         $file = $request->file('image');
@@ -30,5 +27,3 @@ class UploadController extends Controller
         return response()->json(['url' => $url]);
     }
 }
-
-

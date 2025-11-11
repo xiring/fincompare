@@ -1,24 +1,21 @@
 <?php
+
 namespace Src\Shared\Application\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Src\Shared\Application\DTOs\ContactMessageDTO;
 
 /**
  * ContactMessageReceived class.
- *
- * @package Src\Shared\Application\Mail
  */
 class ContactMessageReceived extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public ContactMessageDTO $dto)
-    {
-    }
+    public function __construct(public ContactMessageDTO $dto) {}
 
     public function build(): self
     {
@@ -29,5 +26,3 @@ class ContactMessageReceived extends Mailable implements ShouldQueue
             ]);
     }
 }
-
-

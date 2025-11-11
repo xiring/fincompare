@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Catalog\Application\DTOs;
 
 /**
  * AttributeDTO data transfer object.
- *
- * @package Src\Catalog\Application\DTOs
  */
 class AttributeDTO
 {
@@ -22,14 +21,14 @@ class AttributeDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            product_category_id: (int)$data['product_category_id'],
+            product_category_id: (int) $data['product_category_id'],
             name: $data['name'],
             slug: $data['slug'] ?? null,
             data_type: $data['data_type'] ?? 'text',
             unit: $data['unit'] ?? null,
-            is_filterable: (bool)($data['is_filterable'] ?? false),
-            is_required: (bool)($data['is_required'] ?? false),
-            sort_order: (int)($data['sort_order'] ?? 0),
+            is_filterable: (bool) ($data['is_filterable'] ?? false),
+            is_required: (bool) ($data['is_required'] ?? false),
+            sort_order: (int) ($data['sort_order'] ?? 0),
         );
     }
 
@@ -47,5 +46,3 @@ class AttributeDTO
         ];
     }
 }
-
-

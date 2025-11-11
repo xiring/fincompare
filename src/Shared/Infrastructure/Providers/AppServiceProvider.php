@@ -1,24 +1,23 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
+use Illuminate\Contracts\Auth\Factory as AuthFactory;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Src\Shared\Presentation\View\Components\AppLayout;
 use Src\Shared\Presentation\View\Components\GuestLayout;
-use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Contracts\Auth\Factory as AuthFactory;
 
 /**
  * AppServiceProvider service provider.
- *
- * @package Src\Shared\Infrastructure\Providers
  */
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,9 +28,11 @@ class AppServiceProvider extends ServiceProvider
             /** @var AuthFactory $auth */
             $auth = $app->make(AuthFactory::class);
             $guardName = config('auth.defaults.guard', 'web');
+
             return $auth->guard($guardName);
         });
     }
+
     public function boot(): void
     {
         // Register component namespace so <x-app-layout> and <x-guest-layout> still resolve
@@ -88,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
                         }
                         usleep($sleepMs * 1000);
                         $sleepMs = min($sleepMs * 2, 2000); // cap backoff at 2s
+
                         continue;
                     }
                 }
@@ -100,5 +102,3 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 }
-
-

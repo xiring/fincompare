@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Leads\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -7,8 +8,6 @@ use Src\Leads\Infrastructure\Persistence\EloquentLeadRepository;
 
 /**
  * LeadsServiceProvider service provider.
- *
- * @package Src\Leads\Infrastructure\Providers
  */
 class LeadsServiceProvider extends ServiceProvider
 {
@@ -17,5 +16,3 @@ class LeadsServiceProvider extends ServiceProvider
         $this->app->bind(LeadRepositoryInterface::class, EloquentLeadRepository::class);
     }
 }
-
-

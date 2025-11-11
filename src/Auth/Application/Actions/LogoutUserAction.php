@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
 use Illuminate\Contracts\Auth\StatefulGuard;
 
 /**
  * LogoutUserAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class LogoutUserAction
 {
@@ -17,5 +16,3 @@ class LogoutUserAction
         $this->guard->logout();
     }
 }
-
-

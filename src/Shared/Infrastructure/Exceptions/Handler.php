@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -6,8 +7,6 @@ use Throwable;
 
 /**
  * Handler class.
- *
- * @package Src\Shared\Infrastructure\Exceptions
  */
 class Handler extends ExceptionHandler
 {
@@ -24,5 +23,3 @@ class Handler extends ExceptionHandler
         });
     }
 }
-
-

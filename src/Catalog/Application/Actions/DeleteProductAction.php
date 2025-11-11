@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Domain\Entities\Product;
@@ -7,8 +8,6 @@ use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 
 /**
  * DeleteProductAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class DeleteProductAction
 {
@@ -20,5 +19,3 @@ class DeleteProductAction
         $this->repo->delete($product);
     }
 }
-
-

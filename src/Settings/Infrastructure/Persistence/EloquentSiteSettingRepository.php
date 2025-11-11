@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Settings\Infrastructure\Persistence;
 
+use Illuminate\Support\Facades\Cache;
 use Src\Settings\Domain\Entities\SiteSetting;
 use Src\Settings\Domain\Repositories\SiteSettingRepositoryInterface;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * EloquentSiteSettingRepository repository.
- *
- * @package Src\Settings\Infrastructure\Persistence
  */
 class EloquentSiteSettingRepository implements SiteSettingRepositoryInterface
 {
@@ -32,8 +31,7 @@ class EloquentSiteSettingRepository implements SiteSettingRepositoryInterface
         Cache::forget(self::CACHE_KEY);
         // Optionally repopulate cache immediately
         Cache::forever(self::CACHE_KEY, $settings->fresh());
+
         return $settings;
     }
 }
-
-

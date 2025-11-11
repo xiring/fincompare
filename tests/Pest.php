@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Tests\TestCase;
-use Src\Auth\Domain\Entities\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
+use Src\Auth\Domain\Entities\User;
+use Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,11 +60,12 @@ function something()
  */
 function actingAsRole(string $roleName = 'admin'): User
 {
-	$user = User::factory()->create();
-	Role::firstOrCreate(['name' => $roleName]);
-	$user->assignRole($roleName);
-	test()->actingAs($user);
-	return $user;
+    $user = User::factory()->create();
+    Role::firstOrCreate(['name' => $roleName]);
+    $user->assignRole($roleName);
+    test()->actingAs($user);
+
+    return $user;
 }
 
 /**
@@ -72,7 +73,7 @@ function actingAsRole(string $roleName = 'admin'): User
  */
 function actingAsAdmin(): User
 {
-	return actingAsRole('admin');
+    return actingAsRole('admin');
 }
 
 /**
@@ -80,8 +81,9 @@ function actingAsAdmin(): User
  */
 function actAs(User $user, string $roleName = 'admin'): User
 {
-	Role::firstOrCreate(['name' => $roleName]);
-	$user->assignRole($roleName);
-	test()->actingAs($user);
-	return $user;
+    Role::firstOrCreate(['name' => $roleName]);
+    $user->assignRole($roleName);
+    test()->actingAs($user);
+
+    return $user;
 }

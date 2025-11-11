@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Shared\Application\Actions;
 
-use Src\Shared\Domain\Entities\ContactMessage;
 use Src\Shared\Application\DTOs\ContactMessageDTO;
+use Src\Shared\Domain\Entities\ContactMessage;
 
 /**
  * CreateContactMessageAction application action.
- *
- * @package Src\Shared\Application\Actions
  */
 class CreateContactMessageAction
 {
@@ -16,5 +15,3 @@ class CreateContactMessageAction
         return ContactMessage::create($dto->toArray());
     }
 }
-
-

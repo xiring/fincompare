@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
 /**
  * ContentServiceProvider service provider.
- *
- * @package Src\Content\Infrastructure\Providers
  */
 class ContentServiceProvider extends ServiceProvider
 {
@@ -17,5 +16,3 @@ class ContentServiceProvider extends ServiceProvider
         $this->app->bind(\Src\Content\Domain\Repositories\FaqRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentFaqRepository::class);
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Presentation\Requests;
 
 use Illuminate\Auth\Events\Lockout;
@@ -10,19 +11,20 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * LoginRequest form request.
- *
- * @package Src\Auth\Presentation\Requests
  */
 class LoginRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
     public function rules(): array
     {
         return [
-            'email' => ['required','email'],
-            'password' => ['required','string'],
-            'remember' => ['sometimes','boolean'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -64,5 +66,3 @@ class LoginRequest extends FormRequest
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }
-
-

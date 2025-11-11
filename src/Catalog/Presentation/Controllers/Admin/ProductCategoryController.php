@@ -1,22 +1,21 @@
 <?php
+
 namespace Src\Catalog\Presentation\Controllers\Admin;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Src\Catalog\Domain\Entities\ProductCategory;
-use Src\Catalog\Presentation\Requests\ProductCategoryRequest;
+use Src\Catalog\Application\Actions\CreateProductCategoryAction;
+use Src\Catalog\Application\Actions\DeleteProductCategoryAction;
 use Src\Catalog\Application\Actions\ListProductCategoriesAction;
 use Src\Catalog\Application\Actions\ShowProductCategoryAction;
-use Src\Catalog\Application\Actions\CreateProductCategoryAction;
 use Src\Catalog\Application\Actions\UpdateProductCategoryAction;
-use Src\Catalog\Application\Actions\DeleteProductCategoryAction;
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
+use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Presentation\Requests\ProductCategoryRequest;
 
 /**
  * ProductCategoryController controller.
- *
- * @package Src\Catalog\Presentation\Controllers\Admin
  */
 class ProductCategoryController extends Controller
 {
@@ -35,11 +34,14 @@ class ProductCategoryController extends Controller
     public function index(Request $request, ListProductCategoriesAction $list)
     {
         $items = $list->execute([
-            'q'=>$request->get('q'),
-            'sort'=>$request->get('sort'),
-            'dir'=>$request->get('dir')
-        ], (int)$request->get('per_page', 20));
-        if ($request->wantsJson()) return response()->json($items);
+            'q' => $request->get('q'),
+            'sort' => $request->get('sort'),
+            'dir' => $request->get('dir'),
+        ], (int) $request->get('per_page', 20));
+        if ($request->wantsJson()) {
+            return response()->json($items);
+        }
+
         return view('admin.product_categories.index', compact('items'));
     }
 
@@ -50,7 +52,10 @@ class ProductCategoryController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) return response()->json(['message' => 'Provide product category payload to store.']);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Provide product category payload to store.']);
+        }
+
         return view('admin.product_categories.create');
     }
 
@@ -62,7 +67,10 @@ class ProductCategoryController extends Controller
     public function store(ProductCategoryRequest $request, CreateProductCategoryAction $create)
     {
         $item = $create->execute(ProductCategoryDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) return response()->json($item, 201);
+        if ($request->wantsJson()) {
+            return response()->json($item, 201);
+        }
+
         return redirect()->route('admin.product-categories.index')->with('status', 'Category created');
     }
 
@@ -74,7 +82,10 @@ class ProductCategoryController extends Controller
     public function show(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
     {
         $product_category = $show->execute($product_category);
-        if ($request->wantsJson()) return response()->json($product_category);
+        if ($request->wantsJson()) {
+            return response()->json($product_category);
+        }
+
         return view('admin.product_categories.edit', compact('product_category'));
     }
 
@@ -86,7 +97,10 @@ class ProductCategoryController extends Controller
     public function edit(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
     {
         $product_category = $show->execute($product_category);
-        if ($request->wantsJson()) return response()->json($product_category);
+        if ($request->wantsJson()) {
+            return response()->json($product_category);
+        }
+
         return view('admin.product_categories.edit', compact('product_category'));
     }
 
@@ -98,7 +112,10 @@ class ProductCategoryController extends Controller
     public function update(ProductCategoryRequest $request, ProductCategory $product_category, UpdateProductCategoryAction $update)
     {
         $item = $update->execute($product_category, ProductCategoryDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) return response()->json($item);
+        if ($request->wantsJson()) {
+            return response()->json($item);
+        }
+
         return redirect()->route('admin.product-categories.index')->with('status', 'Category updated');
     }
 
@@ -110,9 +127,10 @@ class ProductCategoryController extends Controller
     public function destroy(Request $request, ProductCategory $product_category, DeleteProductCategoryAction $delete)
     {
         $delete->execute($product_category);
-        if ($request->wantsJson()) return response()->json(null, 204);
+        if ($request->wantsJson()) {
+            return response()->json(null, 204);
+        }
+
         return redirect()->route('admin.product-categories.index')->with('status', 'Category deleted');
     }
 }
-
-

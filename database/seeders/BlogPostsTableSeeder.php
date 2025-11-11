@@ -12,5 +12,3 @@ class BlogPostsTableSeeder extends Seeder
         BlogPost::factory()->count(10)->create();
     }
 }
-
-

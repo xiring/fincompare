@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Infrastructure\Persistence;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -9,17 +10,16 @@ use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
 
 /**
  * EloquentProductCategoryRepository repository.
- *
- * @package Src\Catalog\Infrastructure\Persistence
  */
 class EloquentProductCategoryRepository implements ProductCategoryRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id','name','is_active','created_at']) ? $filters['sort'] : 'name';
+        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'is_active', 'created_at']) ? $filters['sort'] : 'name';
         $dir = strtolower($filters['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+
         return ProductCategory::query()
-            ->when(($filters['q'] ?? null), fn($q,$qStr)=>$q->where('name','like','%'.$qStr.'%'))
+            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }
@@ -32,15 +32,21 @@ class EloquentProductCategoryRepository implements ProductCategoryRepositoryInte
     public function create(ProductCategoryDTO $dto): ProductCategory
     {
         $data = $dto->toArray();
-        if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+
         return ProductCategory::create($data);
     }
 
     public function update(ProductCategory $category, ProductCategoryDTO $dto): ProductCategory
     {
         $data = $dto->toArray();
-        if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
         $category->update($data);
+
         return $category;
     }
 
@@ -49,5 +55,3 @@ class EloquentProductCategoryRepository implements ProductCategoryRepositoryInte
         $category->delete();
     }
 }
-
-

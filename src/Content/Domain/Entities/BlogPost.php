@@ -1,30 +1,29 @@
 <?php
+
 namespace Src\Content\Domain\Entities;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 use Src\Shared\Infrastructure\Casts\TagsCast;
 
 /**
  * BlogPost class.
- *
- * @package Src\Content\Domain\Entities
  */
 class BlogPost extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $table = 'blog_posts';
 
     protected $fillable = [
-        'title','slug','category','content','featured_image','status',
-        'seo_title','seo_description','seo_keywords','tags'
+        'title', 'slug', 'category', 'content', 'featured_image', 'status',
+        'seo_title', 'seo_description', 'seo_keywords', 'tags',
     ];
 
     protected $casts = [
@@ -39,7 +38,7 @@ class BlogPost extends Model
     protected static function booted(): void
     {
         static::creating(function (self $model) {
-            if (empty($model->slug) && !empty($model->title)) {
+            if (empty($model->slug) && ! empty($model->title)) {
                 $model->slug = Str::slug($model->title);
             }
         });
@@ -60,9 +59,8 @@ class BlogPost extends Model
             if (is_array($value)) {
                 return SeoMeta::fromArray($value)->toArray();
             }
+
             return [];
         });
     }
 }
-
-

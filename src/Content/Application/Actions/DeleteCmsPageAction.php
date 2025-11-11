@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Application\Actions;
 
 use Src\Content\Domain\Entities\CmsPage;
 
 /**
  * DeleteCmsPageAction application action.
- *
- * @package Src\Content\Application\Actions
  */
 class DeleteCmsPageAction
 {
@@ -15,5 +14,3 @@ class DeleteCmsPageAction
         $page->delete();
     }
 }
-
-

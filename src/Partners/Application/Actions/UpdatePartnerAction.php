@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Partners\Application\Actions;
 
 use Src\Partners\Application\DTOs\PartnerDTO;
@@ -7,8 +8,6 @@ use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 
 /**
  * UpdatePartnerAction application action.
- *
- * @package Src\Partners\Application\Actions
  */
 class UpdatePartnerAction
 {
@@ -19,5 +18,3 @@ class UpdatePartnerAction
         return $this->repo->update($partner, $dto);
     }
 }
-
-

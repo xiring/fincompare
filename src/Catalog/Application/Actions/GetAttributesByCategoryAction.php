@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Illuminate\Support\Collection;
@@ -6,8 +7,6 @@ use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 
 /**
  * GetAttributesByCategoryAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class GetAttributesByCategoryAction
 {
@@ -18,5 +17,3 @@ class GetAttributesByCategoryAction
         return $this->repo->byCategory($productCategoryId);
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Http\Middleware;
 
 use Closure;
@@ -6,16 +7,12 @@ use Illuminate\Http\Request;
 
 /**
  * SecurityHeaders class.
- *
- * @package Src\Shared\Infrastructure\Http\Middleware
  */
 class SecurityHeaders
 {
     /**
      * Handle the job or request.
      *
-     * @param Request $request
-     * @param Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -31,7 +28,7 @@ class SecurityHeaders
         // Referrer policy
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         // Permissions Policy (formerly Feature-Policy)
-        $response->headers->set('Permissions-Policy', "geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()");
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()');
 
         // HSTS for HTTPS in production (only if request is secure)
         if (app()->isProduction() && $request->isSecure()) {
@@ -49,12 +46,10 @@ class SecurityHeaders
                    "frame-ancestors 'none'; ".
                    "base-uri 'self'; ".
                    "form-action 'self'; ".
-                   "upgrade-insecure-requests";
+                   'upgrade-insecure-requests';
             $response->headers->set('Content-Security-Policy', $csp);
         }
 
         return $response;
     }
 }
-
-

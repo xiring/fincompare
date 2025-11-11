@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -11,8 +12,6 @@ use Src\Catalog\Application\Actions\CreateProductAction;
 
 /**
  * ImportProductsJob job.
- *
- * @package Src\Catalog\Application\Jobs
  */
 class ImportProductsJob implements ShouldQueue
 {
@@ -30,14 +29,16 @@ class ImportProductsJob implements ShouldQueue
 
     public function handle(CreateProductAction $create): void
     {
-        if (!is_file($this->filePath)) {
+        if (! is_file($this->filePath)) {
             Log::warning('ImportProductsJob: file not found', ['path' => $this->filePath]);
+
             return;
         }
 
         $handle = fopen($this->filePath, 'r');
         if ($handle === false) {
             Log::warning('ImportProductsJob: unable to open file', ['path' => $this->filePath]);
+
             return;
         }
 
@@ -49,14 +50,18 @@ class ImportProductsJob implements ShouldQueue
         try {
             if ($this->hasHeader) {
                 $headers = fgetcsv($handle, 0, $this->delimiter);
-                $headers = is_array($headers) ? array_map(fn($h) => trim((string)$h), $headers) : [];
+                $headers = is_array($headers) ? array_map(fn ($h) => trim((string) $h), $headers) : [];
             }
 
             while (($row = fgetcsv($handle, 0, $this->delimiter)) !== false) {
                 $lineNumber++;
 
                 $data = $this->mapRowToData($row, $headers);
-                if ($data === null) { $failed++; continue; }
+                if ($data === null) {
+                    $failed++;
+
+                    continue;
+                }
 
                 try {
                     $attributesInput = $data['_attributes'] ?? [];
@@ -85,9 +90,9 @@ class ImportProductsJob implements ShouldQueue
     private function mapRowToData(array $row, array $headers): ?array
     {
         $indexed = [];
-        if (!empty($headers)) {
+        if (! empty($headers)) {
             foreach ($row as $i => $value) {
-                $key = isset($headers[$i]) ? strtolower($headers[$i]) : (string)$i;
+                $key = isset($headers[$i]) ? strtolower($headers[$i]) : (string) $i;
                 $indexed[$key] = $value;
             }
         } else {
@@ -104,9 +109,9 @@ class ImportProductsJob implements ShouldQueue
             ];
         }
 
-        $name = trim((string)($indexed['name'] ?? ''));
-        $partnerId = (int)($indexed['partner_id'] ?? 0);
-        $categoryId = (int)($indexed['product_category_id'] ?? 0);
+        $name = trim((string) ($indexed['name'] ?? ''));
+        $partnerId = (int) ($indexed['partner_id'] ?? 0);
+        $categoryId = (int) ($indexed['product_category_id'] ?? 0);
         if ($name === '' || $partnerId <= 0 || $categoryId <= 0) {
             return null;
         }
@@ -128,13 +133,11 @@ class ImportProductsJob implements ShouldQueue
             'partner_id' => $partnerId,
             'product_category_id' => $categoryId,
             'name' => $name,
-            'slug' => isset($indexed['slug']) ? (string)$indexed['slug'] : null,
-            'description' => isset($indexed['description']) ? (string)$indexed['description'] : null,
+            'slug' => isset($indexed['slug']) ? (string) $indexed['slug'] : null,
+            'description' => isset($indexed['description']) ? (string) $indexed['description'] : null,
             'is_featured' => filter_var($indexed['is_featured'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'status' => (string)($indexed['status'] ?? 'active'),
+            'status' => (string) ($indexed['status'] ?? 'active'),
             '_attributes' => $attributes,
         ];
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Presentation\Controllers;
 
 use Illuminate\Http\RedirectResponse;
@@ -11,8 +12,6 @@ use Src\Auth\Presentation\Requests\UpdateProfileRequest;
 
 /**
  * ProfileController controller.
- *
- * @package Src\Auth\Presentation\Controllers
  */
 class ProfileController extends Controller
 {
@@ -23,20 +22,20 @@ class ProfileController extends Controller
      */
     public function edit(Request $request)
     {
-        return view('profile.edit', [ 'user' => $request->user() ]);
+        return view('profile.edit', ['user' => $request->user()]);
     }
 
     public function update(UpdateProfileRequest $request, UpdateUserProfileAction $action): RedirectResponse
     {
         $action->execute($request->user(), $request->validated());
+
         return back()->with('status', 'profile-updated');
     }
 
     public function updatePassword(UpdatePasswordRequest $request, UpdateUserPasswordAction $action): RedirectResponse
     {
         $action->execute($request->user(), $request->validated()['current_password'], $request->validated()['password']);
+
         return back()->with('status', 'password-updated');
     }
 }
-
-

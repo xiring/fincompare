@@ -48,6 +48,8 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
+		"pint": "@php ./vendor/bin/pint --test",
+		"pint:fix": "@php ./vendor/bin/pint",
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],

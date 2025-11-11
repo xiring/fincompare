@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Auth\Application\DTOs;
 
 /**
  * PermissionDTO data transfer object.
- *
- * @package Src\Auth\Application\DTOs
  */
 class PermissionDTO
 {
@@ -17,5 +16,3 @@ class PermissionDTO
         return new self(name: $data['name']);
     }
 }
-
-

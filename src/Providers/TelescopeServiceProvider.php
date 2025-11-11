@@ -9,8 +9,6 @@ use Laravel\Telescope\TelescopeApplicationServiceProvider;
 
 /**
  * TelescopeServiceProvider service provider.
- *
- * @package App\Providers
  */
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {

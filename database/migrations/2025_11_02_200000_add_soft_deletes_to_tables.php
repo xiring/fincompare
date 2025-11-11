@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        foreach (['users','partners','product_categories','attributes','products','product_attribute_values','leads'] as $table) {
-            if (!Schema::hasColumn($table, 'deleted_at')) {
+        foreach (['users', 'partners', 'product_categories', 'attributes', 'products', 'product_attribute_values', 'leads'] as $table) {
+            if (! Schema::hasColumn($table, 'deleted_at')) {
                 Schema::table($table, function (Blueprint $table) {
                     $table->softDeletes();
                 });
@@ -19,7 +19,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        foreach (['users','partners','product_categories','attributes','products','product_attribute_values','leads'] as $table) {
+        foreach (['users', 'partners', 'product_categories', 'attributes', 'products', 'product_attribute_values', 'leads'] as $table) {
             if (Schema::hasColumn($table, 'deleted_at')) {
                 Schema::table($table, function (Blueprint $table) {
                     $table->dropSoftDeletes();
@@ -28,5 +28,3 @@ return new class extends Migration
         }
     }
 };
-
-

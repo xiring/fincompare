@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Domain\Repositories;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -7,16 +8,16 @@ use Src\Auth\Application\DTOs\PermissionDTO;
 
 /**
  * PermissionRepositoryInterface interface.
- *
- * @package Src\Auth\Domain\Repositories
  */
 interface PermissionRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+
     public function find(int $id): ?Permission;
+
     public function create(PermissionDTO $dto): Permission;
+
     public function update(Permission $permission, PermissionDTO $dto): Permission;
+
     public function delete(Permission $permission): void;
 }
-
-

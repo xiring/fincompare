@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Domain\Repositories\ProductFilters;
@@ -6,8 +7,6 @@ use Src\Catalog\Domain\Repositories\ProductRepositoryInterface;
 
 /**
  * FetchFilteredProductsAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class FetchFilteredProductsAction
 {
@@ -16,9 +15,6 @@ class FetchFilteredProductsAction
     /**
      * Handle Execute.
      *
-     * @param int $categoryId
-     * @param array $query
-     * @param int $perPage
      * @return mixed
      */
     public function execute(int $categoryId, array $query, int $perPage = 20)

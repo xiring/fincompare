@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Content\Application\DTOs;
 
 /**
  * FaqDTO data transfer object.
- *
- * @package Src\Content\Application\DTOs
  */
 class FaqDTO
 {
@@ -16,8 +15,8 @@ class FaqDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            question: (string)($data['question'] ?? ''),
-            answer: (string)($data['answer'] ?? ''),
+            question: (string) ($data['question'] ?? ''),
+            answer: (string) ($data['answer'] ?? ''),
         );
     }
 
@@ -29,5 +28,3 @@ class FaqDTO
         ];
     }
 }
-
-

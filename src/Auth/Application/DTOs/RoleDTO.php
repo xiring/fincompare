@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Auth\Application\DTOs;
 
 /**
  * RoleDTO data transfer object.
- *
- * @package Src\Auth\Application\DTOs
  */
 class RoleDTO
 {
@@ -21,5 +20,3 @@ class RoleDTO
         );
     }
 }
-
-

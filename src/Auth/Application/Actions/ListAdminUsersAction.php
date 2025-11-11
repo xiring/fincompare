@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -6,8 +7,6 @@ use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 
 /**
  * ListAdminUsersAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class ListAdminUsersAction
 {
@@ -18,5 +17,3 @@ class ListAdminUsersAction
         return $this->repo->paginate($filters, $perPage);
     }
 }
-
-

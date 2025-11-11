@@ -16,13 +16,14 @@ class BlogPostFactory extends Factory
     public function definition(): array
     {
         $title = ucfirst(fake()->unique()->sentence(4));
+
         return [
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100,999),
-            'category' => fake()->randomElement(['news','guides','updates','tips']),
+            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 999),
+            'category' => fake()->randomElement(['news', 'guides', 'updates', 'tips']),
             'content' => '<p>'.implode('</p><p>', fake()->paragraphs(3)).'</p>',
             'featured_image' => null,
-            'status' => fake()->randomElement(['draft','published']),
+            'status' => fake()->randomElement(['draft', 'published']),
             'seo_title' => $title,
             'seo_description' => fake()->sentence(12),
             'seo_keywords' => implode(', ', fake()->words(6)),
@@ -30,5 +31,3 @@ class BlogPostFactory extends Factory
         ];
     }
 }
-
-

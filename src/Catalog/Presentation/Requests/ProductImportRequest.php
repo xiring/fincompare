@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -6,8 +7,6 @@ use Illuminate\Validation\Rule;
 
 /**
  * ProductImportRequest form request.
- *
- * @package Src\Catalog\Presentation\Requests
  */
 class ProductImportRequest extends FormRequest
 {
@@ -19,11 +18,9 @@ class ProductImportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required','file','mimes:csv,txt','max:20480'],
-            'delimiter' => ['nullable','string', Rule::in([',',';','|',"\t","\\t"])],
-            'has_header' => ['nullable','boolean'],
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:20480'],
+            'delimiter' => ['nullable', 'string', Rule::in([',', ';', '|', "\t", '\\t'])],
+            'has_header' => ['nullable', 'boolean'],
         ];
     }
 }
-
-

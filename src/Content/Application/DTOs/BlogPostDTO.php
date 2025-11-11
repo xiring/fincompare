@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Application\DTOs;
 
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
 /**
  * BlogPostDTO data transfer object.
- *
- * @package Src\Content\Application\DTOs
  */
 class BlogPostDTO
 {
@@ -18,7 +17,7 @@ class BlogPostDTO
         public ?string $content = null,
         public ?string $featuredImage = null,
         public string $status = 'draft',
-        public SeoMeta $seo = new SeoMeta(),
+        public SeoMeta $seo = new SeoMeta,
         public array $tags = [],
     ) {}
 
@@ -38,13 +37,14 @@ class BlogPostDTO
                 $tags = $raw;
             }
         }
+
         return new self(
-            title: (string)($data['title'] ?? ''),
+            title: (string) ($data['title'] ?? ''),
             slug: $data['slug'] ?? null,
             category: $data['category'] ?? null,
             content: $data['content'] ?? null,
             featuredImage: $data['featured_image'] ?? null,
-            status: (string)($data['status'] ?? 'draft'),
+            status: (string) ($data['status'] ?? 'draft'),
             seo: SeoMeta::fromArray($data),
             tags: $tags,
         );
@@ -62,5 +62,3 @@ class BlogPostDTO
         ] + $this->seo->toArray();
     }
 }
-
-

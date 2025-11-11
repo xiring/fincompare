@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Partners\Application\Actions;
 
 use Src\Partners\Domain\Entities\Partner;
@@ -6,8 +7,6 @@ use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 
 /**
  * DeletePartnerAction application action.
- *
- * @package Src\Partners\Application\Actions
  */
 class DeletePartnerAction
 {
@@ -18,5 +17,3 @@ class DeletePartnerAction
         $this->repo->delete($partner);
     }
 }
-
-

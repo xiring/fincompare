@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Content\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -6,8 +7,6 @@ use Illuminate\Validation\Validator;
 
 /**
  * WysiwygImageUploadRequest form request.
- *
- * @package Src\Content\Presentation\Requests
  */
 class WysiwygImageUploadRequest extends FormRequest
 {
@@ -19,14 +18,16 @@ class WysiwygImageUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required','file','image','mimes:jpg,jpeg,png,gif,webp','max:5120'],
+            'image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
         ];
     }
 
     protected function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $v) {
-            if (! $this->hasFile('image')) return;
+            if (! $this->hasFile('image')) {
+                return;
+            }
             $file = $this->file('image');
             try {
                 $path = $file->getRealPath();
@@ -39,5 +40,3 @@ class WysiwygImageUploadRequest extends FormRequest
         });
     }
 }
-
-

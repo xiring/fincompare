@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
+use Spatie\Permission\Models\Permission;
 use Src\Auth\Application\DTOs\PermissionDTO;
 use Src\Auth\Domain\Repositories\PermissionRepositoryInterface;
-use Spatie\Permission\Models\Permission;
 
 /**
  * CreatePermissionAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class CreatePermissionAction
 {
@@ -19,5 +18,3 @@ class CreatePermissionAction
         return $this->repo->create($dto);
     }
 }
-
-

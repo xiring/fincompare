@@ -8,8 +8,6 @@ use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 /**
  * HorizonServiceProvider service provider.
- *
- * @package App\Providers
  */
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {

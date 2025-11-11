@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Content\Application\Actions;
 
-use Src\Content\Domain\Entities\Faq;
 use Src\Content\Application\DTOs\FaqDTO;
+use Src\Content\Domain\Entities\Faq;
 
 /**
  * UpdateFaqAction application action.
- *
- * @package Src\Content\Application\Actions
  */
 class UpdateFaqAction
 {
@@ -15,8 +14,7 @@ class UpdateFaqAction
     {
         $faq->fill($dto->toArray());
         $faq->save();
+
         return $faq;
     }
 }
-
-

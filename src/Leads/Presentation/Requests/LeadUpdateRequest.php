@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Leads\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * LeadUpdateRequest form request.
- *
- * @package Src\Leads\Presentation\Requests
  */
 class LeadUpdateRequest extends FormRequest
 {
@@ -18,11 +17,9 @@ class LeadUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['sometimes','string','max:50'],
-            'message' => ['sometimes','nullable','string'],
-            'product_id' => ['sometimes','nullable','integer','exists:products,id'],
+            'status' => ['sometimes', 'string', 'max:50'],
+            'message' => ['sometimes', 'nullable', 'string'],
+            'product_id' => ['sometimes', 'nullable', 'integer', 'exists:products,id'],
         ];
     }
 }
-
-

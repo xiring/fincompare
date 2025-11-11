@@ -1,15 +1,14 @@
 <?php
+
 namespace Src\Catalog\Presentation\Controllers\Admin;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
-use Src\Catalog\Presentation\Requests\ProductImportRequest;
 use Src\Catalog\Application\Jobs\ImportProductsJob;
+use Src\Catalog\Presentation\Requests\ProductImportRequest;
 
 /**
  * ProductImportController controller.
- *
- * @package Src\Catalog\Presentation\Controllers\Admin
  */
 class ProductImportController extends Controller
 {
@@ -31,21 +30,19 @@ class ProductImportController extends Controller
     public function store(ProductImportRequest $request)
     {
         $file = $request->file('file');
-        $path = $file->storeAs('imports/products', now()->format('Ymd_His') . '_' . $file->getClientOriginalName(), 'local');
+        $path = $file->storeAs('imports/products', now()->format('Ymd_His').'_'.$file->getClientOriginalName(), 'local');
 
-        $delimiter = (string)$request->input('delimiter', ',');
+        $delimiter = (string) $request->input('delimiter', ',');
         if ($delimiter === '\\t' || $delimiter === '\t') {
             $delimiter = "\t"; // normalize to actual tab character
         }
 
         ImportProductsJob::dispatch(
-            storage_path('app/' . $path),
+            storage_path('app/'.$path),
             $delimiter,
-            (bool)$request->boolean('has_header', true)
+            (bool) $request->boolean('has_header', true)
         )->onQueue('imports');
 
         return redirect()->route('admin.products.index')->with('status', 'Product import queued');
     }
 }
-
-

@@ -13,16 +13,14 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 it('queues product import with csv file', function () {
-	actingAsAdmin();
+    actingAsAdmin();
 
-	Storage::fake('local');
-	$file = UploadedFile::fake()->create('products.csv', 1, 'text/csv');
+    Storage::fake('local');
+    $file = UploadedFile::fake()->create('products.csv', 1, 'text/csv');
 
-	$this->post(route('admin.products.import.store'), [
-		'file' => $file,
-		'delimiter' => ',',
-		'has_header' => true,
-	])->assertRedirect(route('admin.products.index'));
+    $this->post(route('admin.products.import.store'), [
+        'file' => $file,
+        'delimiter' => ',',
+        'has_header' => true,
+    ])->assertRedirect(route('admin.products.index'));
 });
-
-

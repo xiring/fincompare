@@ -12,5 +12,3 @@ class CmsPagesTableSeeder extends Seeder
         CmsPage::factory()->count(5)->create();
     }
 }
-
-

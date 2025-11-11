@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Partners\Application\Actions;
 
 use Src\Partners\Application\DTOs\PartnerDTO;
@@ -7,8 +8,6 @@ use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 
 /**
  * CreatePartnerAction application action.
- *
- * @package Src\Partners\Application\Actions
  */
 class CreatePartnerAction
 {
@@ -19,5 +18,3 @@ class CreatePartnerAction
         return $this->repo->create($dto);
     }
 }
-
-

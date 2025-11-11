@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Domain\Entities\ProductCategory;
 
 /**
  * ShowProductCategoryAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class ShowProductCategoryAction
 {
@@ -15,5 +14,3 @@ class ShowProductCategoryAction
         return $category;
     }
 }
-
-

@@ -1,5 +1,7 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Http\Middleware;
+
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -7,8 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * RedirectIfAuthenticated class.
- *
- * @package Src\Shared\Infrastructure\Http\Middleware
  */
 class RedirectIfAuthenticated
 {

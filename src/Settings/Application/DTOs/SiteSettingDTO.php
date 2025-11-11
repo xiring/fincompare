@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Settings\Application\DTOs;
 
 /**
  * SiteSettingDTO data transfer object.
- *
- * @package Src\Settings\Application\DTOs
  */
 class SiteSettingDTO
 {
@@ -28,7 +27,7 @@ class SiteSettingDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            site_name: (string)($data['site_name'] ?? ''),
+            site_name: (string) ($data['site_name'] ?? ''),
             site_slogon: $data['site_slogon'] ?? null,
             favicon: $data['favicon'] ?? null,
             logo: $data['logo'] ?? null,
@@ -73,5 +72,3 @@ class SiteSettingDTO
         return $data;
     }
 }
-
-

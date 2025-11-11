@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('tags')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['status','category']);
+            $table->index(['status', 'category']);
         });
     }
 
@@ -30,5 +30,3 @@ return new class extends Migration
         Schema::dropIfExists('blog_posts');
     }
 };
-
-

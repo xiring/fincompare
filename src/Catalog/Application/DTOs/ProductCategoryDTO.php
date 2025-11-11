@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Catalog\Application\DTOs;
 
 /**
  * ProductCategoryDTO data transfer object.
- *
- * @package Src\Catalog\Application\DTOs
  */
 class ProductCategoryDTO
 {
@@ -21,7 +20,7 @@ class ProductCategoryDTO
             name: $data['name'],
             slug: $data['slug'] ?? null,
             description: $data['description'] ?? null,
-            is_active: (bool)($data['is_active'] ?? true),
+            is_active: (bool) ($data['is_active'] ?? true),
         );
     }
 
@@ -35,5 +34,3 @@ class ProductCategoryDTO
         ];
     }
 }
-
-

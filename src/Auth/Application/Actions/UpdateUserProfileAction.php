@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
 use Src\Auth\Domain\Entities\User;
 
 /**
  * UpdateUserProfileAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class UpdateUserProfileAction
 {
@@ -17,8 +16,7 @@ class UpdateUserProfileAction
             'email' => $data['email'],
         ]);
         $user->save();
+
         return $user;
     }
 }
-
-

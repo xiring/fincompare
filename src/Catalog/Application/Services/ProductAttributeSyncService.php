@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Services;
 
 use Src\Catalog\Domain\Entities\Attribute;
@@ -7,8 +8,6 @@ use Src\Catalog\Domain\Entities\ProductAttributeValue;
 
 /**
  * ProductAttributeSyncService class.
- *
- * @package Src\Catalog\Application\Services
  */
 class ProductAttributeSyncService
 {
@@ -29,6 +28,7 @@ class ProductAttributeSyncService
                 ProductAttributeValue::where('product_id', $product->id)
                     ->where('attribute_id', $attribute->id)
                     ->delete();
+
                 continue;
             }
 
@@ -43,10 +43,6 @@ class ProductAttributeSyncService
 
     /**
      * Handle Map value payload.
-     *
-     * @param string $dataType
-     * @param mixed $raw
-     * @return array
      */
     private function mapValuePayload(string $dataType, mixed $raw): array
     {
@@ -54,19 +50,18 @@ class ProductAttributeSyncService
         switch ($dataType) {
             case 'number':
             case 'percentage':
-                $payload['value_number'] = is_numeric($raw) ? (float)$raw : null;
+                $payload['value_number'] = is_numeric($raw) ? (float) $raw : null;
                 break;
             case 'boolean':
-                $payload['value_boolean'] = (bool)$raw;
+                $payload['value_boolean'] = (bool) $raw;
                 break;
             case 'json':
                 $payload['value_json'] = is_string($raw) ? json_decode($raw, true) : $raw;
                 break;
             default:
-                $payload['value_text'] = (string)$raw;
+                $payload['value_text'] = (string) $raw;
         }
+
         return $payload;
     }
 }
-
-

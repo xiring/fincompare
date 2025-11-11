@@ -1,27 +1,28 @@
 <?php
+
 namespace Src\Auth\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * AdminUserUpdateRequest form request.
- *
- * @package Src\Auth\Presentation\Requests
  */
 class AdminUserUpdateRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
     public function rules(): array
     {
         $id = $this->route('user')?->id;
+
         return [
-            'name' => ['required','string','max:255'],
-            'email' => ['required','email','max:255','unique:users,email'.($id?','.$id:'')],
-            'password' => ['nullable','min:8','confirmed'],
-            'roles' => ['sometimes','array'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'.($id ? ','.$id : '')],
+            'password' => ['nullable', 'min:8', 'confirmed'],
+            'roles' => ['sometimes', 'array'],
         ];
     }
 }
-
-

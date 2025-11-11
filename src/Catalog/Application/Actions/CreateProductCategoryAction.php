@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
@@ -7,8 +8,6 @@ use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
 
 /**
  * CreateProductCategoryAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class CreateProductCategoryAction
 {
@@ -19,5 +18,3 @@ class CreateProductCategoryAction
         return $this->repo->create($dto);
     }
 }
-
-

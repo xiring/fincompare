@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
@@ -9,12 +10,10 @@ use Illuminate\Support\Facades\Route;
 
 /**
  * RouteServiceProvider service provider.
- *
- * @package Src\Shared\Infrastructure\Providers
  */
 class RouteServiceProvider extends ServiceProvider
 {
-    //public const HOME = '/dashboard';
+    // public const HOME = '/dashboard';
 
     public function boot(): void
     {
@@ -32,5 +31,3 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 }
-
-

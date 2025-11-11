@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Application\Actions;
 
 use Src\Content\Domain\Entities\CmsPage;
 
 /**
  * ShowCmsPageAction application action.
- *
- * @package Src\Content\Application\Actions
  */
 class ShowCmsPageAction
 {
@@ -15,5 +14,3 @@ class ShowCmsPageAction
         return $page;
     }
 }
-
-

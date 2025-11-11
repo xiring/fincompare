@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Shared\Domain\Entities;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * ContactMessage class.
- *
- * @package Src\Shared\Domain\Entities
  */
 class ContactMessage extends Model
 {
@@ -21,5 +20,3 @@ class ContactMessage extends Model
         'message',
     ];
 }
-
-

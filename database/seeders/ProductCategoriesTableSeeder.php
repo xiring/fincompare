@@ -11,8 +11,8 @@ class ProductCategoriesTableSeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name'=>'Personal Loan','description'=>'Unsecured personal loans','is_active'=>true],
-            ['name'=>'Credit Card','description'=>'Credit cards with rewards','is_active'=>true],
+            ['name' => 'Personal Loan', 'description' => 'Unsecured personal loans', 'is_active' => true],
+            ['name' => 'Credit Card', 'description' => 'Credit cards with rewards', 'is_active' => true],
         ];
         foreach ($categories as $c) {
             ProductCategory::firstOrCreate(
@@ -22,5 +22,3 @@ class ProductCategoriesTableSeeder extends Seeder
         }
     }
 }
-
-

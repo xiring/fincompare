@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Leads\Application\Actions;
 
 use Illuminate\Support\Facades\DB;
-use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Application\DTOs\LeadDTO;
+use Src\Leads\Domain\Entities\Lead;
 
 /**
  * CaptureLeadAction application action.
- *
- * @package Src\Leads\Application\Actions
  */
 class CaptureLeadAction
 {
@@ -19,5 +18,3 @@ class CaptureLeadAction
         });
     }
 }
-
-

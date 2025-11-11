@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Leads\Infrastructure\Persistence;
 
 use Closure;
@@ -9,22 +10,21 @@ use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 
 /**
  * EloquentLeadRepository repository.
- *
- * @package Src\Leads\Infrastructure\Persistence
  */
 class EloquentLeadRepository implements LeadRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id','full_name','email','status','created_at']) ? $filters['sort'] : 'id';
+        $sort = in_array(($filters['sort'] ?? ''), ['id', 'full_name', 'email', 'status', 'created_at']) ? $filters['sort'] : 'id';
         $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
-        return Lead::with(['product','productCategory'])
-            ->when(($filters['status'] ?? null), fn($q,$status)=>$q->where('status',$status))
+
+        return Lead::with(['product', 'productCategory'])
+            ->when(($filters['status'] ?? null), fn ($q, $status) => $q->where('status', $status))
             ->when(($filters['q'] ?? null), function ($q, $qStr) {
-                $q->where(function($qq) use ($qStr) {
-                    $qq->where('full_name','like','%'.$qStr.'%')
-                       ->orWhere('email','like','%'.$qStr.'%')
-                       ->orWhere('mobile_number','like','%'.$qStr.'%');
+                $q->where(function ($qq) use ($qStr) {
+                    $qq->where('full_name', 'like', '%'.$qStr.'%')
+                        ->orWhere('email', 'like', '%'.$qStr.'%')
+                        ->orWhere('mobile_number', 'like', '%'.$qStr.'%');
                 });
             })
             ->orderBy($sort, $dir)
@@ -33,19 +33,20 @@ class EloquentLeadRepository implements LeadRepositoryInterface
 
     public function find(int $id): ?Lead
     {
-        return Lead::with(['product','productCategory'])->find($id);
+        return Lead::with(['product', 'productCategory'])->find($id);
     }
 
     public function update(Lead $lead, LeadDTO $dto): Lead
     {
-        $lead->update(array_filter($dto->toArray(), fn($v)=>$v !== null));
+        $lead->update(array_filter($dto->toArray(), fn ($v) => $v !== null));
+
         return $lead;
     }
 
     public function streamExport(array $filters = [], int $chunkSize = 500, ?Closure $onRow = null): void
     {
-        Lead::with(['product','productCategory'])
-            ->when(($filters['status'] ?? null), fn($q,$status)=>$q->where('status',$status))
+        Lead::with(['product', 'productCategory'])
+            ->when(($filters['status'] ?? null), fn ($q, $status) => $q->where('status', $status))
             ->orderByDesc('id')
             ->chunk($chunkSize, function ($chunk) use ($onRow) {
                 foreach ($chunk as $lead) {
@@ -56,5 +57,3 @@ class EloquentLeadRepository implements LeadRepositoryInterface
             });
     }
 }
-
-

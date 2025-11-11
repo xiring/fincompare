@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Application\Actions;
 
 use Src\Content\Domain\Entities\Faq;
 
 /**
  * DeleteFaqAction application action.
- *
- * @package Src\Content\Application\Actions
  */
 class DeleteFaqAction
 {
@@ -15,5 +14,3 @@ class DeleteFaqAction
         $faq->delete();
     }
 }
-
-

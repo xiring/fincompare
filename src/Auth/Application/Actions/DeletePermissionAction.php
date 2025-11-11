@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
-use Src\Auth\Domain\Repositories\PermissionRepositoryInterface;
 use Spatie\Permission\Models\Permission;
+use Src\Auth\Domain\Repositories\PermissionRepositoryInterface;
 
 /**
  * DeletePermissionAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class DeletePermissionAction
 {
@@ -18,5 +17,3 @@ class DeletePermissionAction
         $this->repo->delete($permission);
     }
 }
-
-

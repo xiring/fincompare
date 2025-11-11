@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Catalog\Application\DTOs;
 
 /**
  * ProductDTO data transfer object.
- *
- * @package Src\Catalog\Application\DTOs
  */
 class ProductDTO
 {
@@ -22,12 +21,12 @@ class ProductDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            partner_id: (int)$data['partner_id'],
-            product_category_id: (int)$data['product_category_id'],
+            partner_id: (int) $data['partner_id'],
+            product_category_id: (int) $data['product_category_id'],
             name: $data['name'],
             slug: $data['slug'] ?? null,
             description: $data['description'] ?? null,
-            is_featured: (bool)($data['is_featured'] ?? false),
+            is_featured: (bool) ($data['is_featured'] ?? false),
             status: $data['status'] ?? 'active',
             attributes: $data['attributes'] ?? [],
         );
@@ -47,5 +46,3 @@ class ProductDTO
         ];
     }
 }
-
-

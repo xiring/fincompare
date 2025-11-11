@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
-use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 use Src\Auth\Domain\Entities\User;
+use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
 
 /**
  * DeleteAdminUserAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class DeleteAdminUserAction
 {
@@ -18,5 +17,3 @@ class DeleteAdminUserAction
         $this->repo->delete($user);
     }
 }
-
-

@@ -16,7 +16,9 @@ class ProductsTableSeeder extends Seeder
     {
         $partners = Partner::all();
         $categories = ProductCategory::all();
-        if ($partners->isEmpty() || $categories->isEmpty()) return;
+        if ($partners->isEmpty() || $categories->isEmpty()) {
+            return;
+        }
 
         foreach ($categories as $category) {
             $attrs = Attribute::where('product_category_id', $category->id)->get();
@@ -30,13 +32,13 @@ class ProductsTableSeeder extends Seeder
                         'name' => $name,
                         'slug' => Str::slug($name),
                         'description' => 'Auto-generated product for seeding',
-                        'is_featured' => (bool)random_int(0,1),
+                        'is_featured' => (bool) random_int(0, 1),
                         'status' => 'active',
                     ]
                 );
 
                 foreach ($attrs as $attr) {
-                    $payload = ['value_text'=>null,'value_number'=>null,'value_boolean'=>null,'value_json'=>null];
+                    $payload = ['value_text' => null, 'value_number' => null, 'value_boolean' => null, 'value_json' => null];
                     switch ($attr->data_type) {
                         case 'number':
                             $payload['value_number'] = random_int(1, 100000);
@@ -45,7 +47,7 @@ class ProductsTableSeeder extends Seeder
                             $payload['value_number'] = random_int(1, 300) / 10.0; // e.g. 0.1% - 30%
                             break;
                         case 'boolean':
-                            $payload['value_boolean'] = (bool)random_int(0,1);
+                            $payload['value_boolean'] = (bool) random_int(0, 1);
                             break;
                         case 'json':
                             $payload['value_json'] = ['seeded' => true];
@@ -54,7 +56,7 @@ class ProductsTableSeeder extends Seeder
                             $payload['value_text'] = 'Sample '.$attr->name;
                     }
                     ProductAttributeValue::updateOrCreate(
-                        ['product_id'=>$product->id,'attribute_id'=>$attr->id],
+                        ['product_id' => $product->id, 'attribute_id' => $attr->id],
                         $payload
                     );
                 }
@@ -62,5 +64,3 @@ class ProductsTableSeeder extends Seeder
         }
     }
 }
-
-

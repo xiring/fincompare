@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Auth\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -11,8 +12,6 @@ use Src\Auth\Infrastructure\Persistence\SpatieRoleRepository;
 
 /**
  * AuthModuleServiceProvider service provider.
- *
- * @package Src\Auth\Infrastructure\Providers
  */
 class AuthModuleServiceProvider extends ServiceProvider
 {
@@ -23,5 +22,3 @@ class AuthModuleServiceProvider extends ServiceProvider
         $this->app->bind(RoleRepositoryInterface::class, SpatieRoleRepository::class);
     }
 }
-
-

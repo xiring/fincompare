@@ -1,24 +1,23 @@
 <?php
+
 namespace Src\Partners\Domain\Entities;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Src\Catalog\Domain\Entities\Product;
 
 /**
  * Partner class.
- *
- * @package Src\Partners\Domain\Entities
  */
 class Partner extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['name','slug','logo_path','website_url','contact_email','contact_phone','status'];
+    protected $fillable = ['name', 'slug', 'logo_path', 'website_url', 'contact_email', 'contact_phone', 'status'];
 
     public function getActivitylogOptions(): LogOptions
     {

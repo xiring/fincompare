@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -6,8 +7,6 @@ use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 
 /**
  * ListProductsAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class ListProductsAction
 {
@@ -18,5 +17,3 @@ class ListProductsAction
         return $this->repo->paginate($filters, $perPage);
     }
 }
-
-

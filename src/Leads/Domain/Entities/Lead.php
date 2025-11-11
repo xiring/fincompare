@@ -1,32 +1,39 @@
 <?php
+
 namespace Src\Leads\Domain\Entities;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Src\Catalog\Domain\Entities\ProductCategory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Src\Catalog\Domain\Entities\Product;
+use Src\Catalog\Domain\Entities\ProductCategory;
 
 /**
  * Lead class.
- *
- * @package Src\Leads\Domain\Entities
  */
 class Lead extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['product_category_id','product_id','full_name','email','mobile_number','message','status','source','meta'];
-    protected $casts = ['meta'=>'array'];
+    protected $fillable = ['product_category_id', 'product_id', 'full_name', 'email', 'mobile_number', 'message', 'status', 'source', 'meta'];
+
+    protected $casts = ['meta' => 'array'];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()->logFillable()->useLogName('leads');
     }
 
-    public function productCategory(): BelongsTo { return $this->belongsTo(ProductCategory::class); }
-    public function product(): BelongsTo { return $this->belongsTo(Product::class); }
+    public function productCategory(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

@@ -1,28 +1,27 @@
 <?php
+
 namespace Src\Content\Domain\Entities;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
 /**
  * CmsPage class.
- *
- * @package Src\Content\Domain\Entities
  */
 class CmsPage extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $table = 'cms_pages';
 
     protected $fillable = [
-        'title','slug','seo_title','seo_description','seo_keywords','content','status'
+        'title', 'slug', 'seo_title', 'seo_description', 'seo_keywords', 'content', 'status',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -33,7 +32,7 @@ class CmsPage extends Model
     protected static function booted(): void
     {
         static::creating(function (self $model) {
-            if (empty($model->slug) && !empty($model->title)) {
+            if (empty($model->slug) && ! empty($model->title)) {
                 $model->slug = Str::slug($model->title);
             }
         });
@@ -54,9 +53,8 @@ class CmsPage extends Model
             if (is_array($value)) {
                 return SeoMeta::fromArray($value)->toArray();
             }
+
             return [];
         });
     }
 }
-
-

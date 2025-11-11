@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Partners\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -7,8 +8,6 @@ use Src\Partners\Infrastructure\Persistence\EloquentPartnerRepository;
 
 /**
  * PartnersServiceProvider service provider.
- *
- * @package Src\Partners\Infrastructure\Providers
  */
 class PartnersServiceProvider extends ServiceProvider
 {
@@ -17,5 +16,3 @@ class PartnersServiceProvider extends ServiceProvider
         $this->app->bind(PartnerRepositoryInterface::class, EloquentPartnerRepository::class);
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Application\Actions;
 
 use Src\Catalog\Application\DTOs\AttributeDTO;
@@ -7,8 +8,6 @@ use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 
 /**
  * CreateAttributeAction application action.
- *
- * @package Src\Catalog\Application\Actions
  */
 class CreateAttributeAction
 {
@@ -19,5 +18,3 @@ class CreateAttributeAction
         return $this->repo->create($dto);
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Infrastructure\Persistence;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -10,16 +11,14 @@ use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 
 /**
  * EloquentAttributeRepository repository.
- *
- * @package Src\Catalog\Infrastructure\Persistence
  */
 class EloquentAttributeRepository implements AttributeRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
         return Attribute::query()
-            ->when(($filters['product_category_id'] ?? null), fn($q,$cid)=>$q->where('product_category_id',$cid))
-            ->when(($filters['q'] ?? null), fn($q,$qStr)=>$q->where('name','like','%'.$qStr.'%'))
+            ->when(($filters['product_category_id'] ?? null), fn ($q, $cid) => $q->where('product_category_id', $cid))
+            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->orderBy('sort_order')
             ->orderBy('name')
             ->paginate($perPage);
@@ -33,15 +32,21 @@ class EloquentAttributeRepository implements AttributeRepositoryInterface
     public function create(AttributeDTO $dto): Attribute
     {
         $data = $dto->toArray();
-        if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+
         return Attribute::create($data);
     }
 
     public function update(Attribute $attribute, AttributeDTO $dto): Attribute
     {
         $data = $dto->toArray();
-        if (empty($data['slug'])) $data['slug'] = Str::slug($data['name']);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
         $attribute->update($data);
+
         return $attribute;
     }
 
@@ -58,5 +63,3 @@ class EloquentAttributeRepository implements AttributeRepositoryInterface
             ->get();
     }
 }
-
-

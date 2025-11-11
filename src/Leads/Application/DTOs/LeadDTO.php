@@ -1,10 +1,9 @@
 <?php
+
 namespace Src\Leads\Application\DTOs;
 
 /**
  * LeadDTO data transfer object.
- *
- * @package Src\Leads\Application\DTOs
  */
 class LeadDTO
 {
@@ -23,8 +22,8 @@ class LeadDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            product_category_id: isset($data['product_category_id']) ? (int)$data['product_category_id'] : null,
-            product_id: isset($data['product_id']) ? (int)$data['product_id'] : null,
+            product_category_id: isset($data['product_category_id']) ? (int) $data['product_category_id'] : null,
+            product_id: isset($data['product_id']) ? (int) $data['product_id'] : null,
             full_name: $data['full_name'] ?? null,
             email: $data['email'] ?? null,
             mobile_number: $data['mobile_number'] ?? null,
@@ -50,5 +49,3 @@ class LeadDTO
         ];
     }
 }
-
-

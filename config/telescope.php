@@ -7,7 +7,7 @@ return [
 
     'path' => env('TELESCOPE_PATH', 'telescope'),
 
-    'middleware' => ['web','auth'],
+    'middleware' => ['web', 'auth'],
 
     'driver' => env('TELESCOPE_DRIVER', 'database'),
 
@@ -41,5 +41,3 @@ return [
         Laravel\Telescope\Watchers\ViewWatcher::class => env('TELESCOPE_VIEW_WATCHER', true),
     ],
 ];
-
-

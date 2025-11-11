@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
+use Spatie\Permission\Models\Role;
 use Src\Auth\Application\DTOs\RoleDTO;
 use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
-use Spatie\Permission\Models\Role;
 
 /**
  * UpdateRoleAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class UpdateRoleAction
 {
@@ -19,5 +18,3 @@ class UpdateRoleAction
         return $this->repo->update($role, $dto);
     }
 }
-
-

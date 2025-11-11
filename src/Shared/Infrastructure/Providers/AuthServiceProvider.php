@@ -1,37 +1,36 @@
 <?php
+
 namespace Src\Shared\Infrastructure\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Src\Auth\Domain\Entities\User as DomainUser;
-use Src\Auth\Domain\Policies\UserPolicy;
-use Spatie\Permission\Models\Role;
-use Src\Auth\Domain\Policies\RolePolicy;
 use Spatie\Permission\Models\Permission as SpatiePermission;
+use Spatie\Permission\Models\Role;
+use Src\Auth\Domain\Entities\User as DomainUser;
 use Src\Auth\Domain\Policies\PermissionPolicy;
-use Src\Partners\Domain\Entities\Partner;
-use Src\Partners\Domain\Policies\PartnerPolicy;
-use Src\Catalog\Domain\Entities\ProductCategory;
-use Src\Catalog\Domain\Policies\ProductCategoryPolicy;
-use Src\Catalog\Domain\Entities\Product;
-use Src\Catalog\Domain\Policies\ProductPolicy;
+use Src\Auth\Domain\Policies\RolePolicy;
+use Src\Auth\Domain\Policies\UserPolicy;
 use Src\Catalog\Domain\Entities\Attribute;
-use Src\Catalog\Domain\Policies\AttributePolicy;
+use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
+use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Domain\Policies\AttributePolicy;
 use Src\Catalog\Domain\Policies\ProductAttributeValuePolicy;
+use Src\Catalog\Domain\Policies\ProductCategoryPolicy;
+use Src\Catalog\Domain\Policies\ProductPolicy;
+use Src\Content\Domain\Entities\BlogPost;
+use Src\Content\Domain\Entities\CmsPage;
+use Src\Content\Domain\Entities\Faq;
+use Src\Content\Domain\Policies\BlogPostPolicy;
+use Src\Content\Domain\Policies\CmsPagePolicy;
+use Src\Content\Domain\Policies\FaqPolicy;
 use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Domain\Policies\LeadPolicy;
-use Src\Content\Domain\Entities\BlogPost;
-use Src\Content\Domain\Policies\BlogPostPolicy;
-use Src\Content\Domain\Entities\CmsPage;
-use Src\Content\Domain\Policies\CmsPagePolicy;
-use Src\Content\Domain\Entities\Faq;
-use Src\Content\Domain\Policies\FaqPolicy;
+use Src\Partners\Domain\Entities\Partner;
+use Src\Partners\Domain\Policies\PartnerPolicy;
 
 /**
  * AuthServiceProvider service provider.
- *
- * @package Src\Shared\Infrastructure\Providers
  */
 class AuthServiceProvider extends ServiceProvider
 {
@@ -58,5 +57,3 @@ class AuthServiceProvider extends ServiceProvider
         });
     }
 }
-
-

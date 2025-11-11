@@ -1,13 +1,12 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
-use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
 use Spatie\Permission\Models\Role;
+use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
 
 /**
  * DeleteRoleAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class DeleteRoleAction
 {
@@ -18,5 +17,3 @@ class DeleteRoleAction
         $this->repo->delete($role);
     }
 }
-
-

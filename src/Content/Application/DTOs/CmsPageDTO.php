@@ -1,12 +1,11 @@
 <?php
+
 namespace Src\Content\Application\DTOs;
 
 use Src\Shared\Domain\ValueObjects\SeoMeta;
 
 /**
  * CmsPageDTO data transfer object.
- *
- * @package Src\Content\Application\DTOs
  */
 class CmsPageDTO
 {
@@ -15,16 +14,16 @@ class CmsPageDTO
         public ?string $slug = null,
         public ?string $content = null,
         public string $status = 'draft',
-        public SeoMeta $seo = new SeoMeta(),
+        public SeoMeta $seo = new SeoMeta,
     ) {}
 
     public static function fromArray(array $data): self
     {
         return new self(
-            title: (string)($data['title'] ?? ''),
+            title: (string) ($data['title'] ?? ''),
             slug: $data['slug'] ?? null,
             content: $data['content'] ?? null,
-            status: (string)($data['status'] ?? 'draft'),
+            status: (string) ($data['status'] ?? 'draft'),
             seo: SeoMeta::fromArray($data),
         );
     }
@@ -39,5 +38,3 @@ class CmsPageDTO
         ] + $this->seo->toArray();
     }
 }
-
-

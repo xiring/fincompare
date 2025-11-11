@@ -1,15 +1,14 @@
 <?php
+
 namespace Src\Settings\Domain\Entities;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * SiteSetting class.
- *
- * @package Src\Settings\Domain\Entities
  */
 class SiteSetting extends Model
 {
@@ -39,5 +38,3 @@ class SiteSetting extends Model
         return LogOptions::defaults()->logFillable()->useLogName('site_settings');
     }
 }
-
-

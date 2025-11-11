@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Leads\Application\Actions;
 
 use Closure;
@@ -6,8 +7,6 @@ use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 
 /**
  * ExportLeadsCsvAction application action.
- *
- * @package Src\Leads\Application\Actions
  */
 class ExportLeadsCsvAction
 {
@@ -18,5 +17,3 @@ class ExportLeadsCsvAction
         $this->repo->streamExport($filters, $chunkSize, $onRow);
     }
 }
-
-

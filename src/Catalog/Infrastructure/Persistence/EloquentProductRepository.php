@@ -1,4 +1,5 @@
 <?php
+
 namespace Src\Catalog\Infrastructure\Persistence;
 
 use Src\Catalog\Domain\Entities\Attribute;
@@ -8,15 +9,12 @@ use Src\Catalog\Domain\Repositories\ProductRepositoryInterface;
 
 /**
  * EloquentProductRepository repository.
- *
- * @package Src\Catalog\Infrastructure\Persistence
  */
 class EloquentProductRepository implements ProductRepositoryInterface
 {
     /**
      * Handle Filtered.
      *
-     * @param ProductFilters $filters
      * @return mixed
      */
     public function filtered(ProductFilters $filters)
@@ -37,16 +35,16 @@ class EloquentProductRepository implements ProductRepositoryInterface
             if ($eq !== null && $eq !== '') {
                 $query->whereHas('attributeValues', function ($q) use ($attr, $eq) {
                     $q->where('attribute_id', $attr->id)
-                      ->when(in_array($attr->data_type, ['number','percentage']), fn($qq)=>$qq->where('value_number', (float)$eq))
-                      ->when($attr->data_type === 'boolean', fn($qq)=>$qq->where('value_boolean', (bool)$eq))
-                      ->when(!in_array($attr->data_type, ['number','percentage','boolean']), fn($qq)=>$qq->where('value_text', 'like', '%'.$eq.'%'));
+                        ->when(in_array($attr->data_type, ['number', 'percentage']), fn ($qq) => $qq->where('value_number', (float) $eq))
+                        ->when($attr->data_type === 'boolean', fn ($qq) => $qq->where('value_boolean', (bool) $eq))
+                        ->when(! in_array($attr->data_type, ['number', 'percentage', 'boolean']), fn ($qq) => $qq->where('value_text', 'like', '%'.$eq.'%'));
                 });
             }
-            if ($min !== null && $min !== '' && in_array($attr->data_type, ['number','percentage'])) {
-                $query->whereHas('attributeValues', fn($q)=>$q->where('attribute_id', $attr->id)->where('value_number', '>=', (float)$min));
+            if ($min !== null && $min !== '' && in_array($attr->data_type, ['number', 'percentage'])) {
+                $query->whereHas('attributeValues', fn ($q) => $q->where('attribute_id', $attr->id)->where('value_number', '>=', (float) $min));
             }
-            if ($max !== null && $max !== '' && in_array($attr->data_type, ['number','percentage'])) {
-                $query->whereHas('attributeValues', fn($q)=>$q->where('attribute_id', $attr->id)->where('value_number', '<=', (float)$max));
+            if ($max !== null && $max !== '' && in_array($attr->data_type, ['number', 'percentage'])) {
+                $query->whereHas('attributeValues', fn ($q) => $q->where('attribute_id', $attr->id)->where('value_number', '<=', (float) $max));
             }
         }
 

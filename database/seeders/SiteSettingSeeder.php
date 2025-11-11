@@ -27,5 +27,3 @@ class SiteSettingSeeder extends Seeder
         ]);
     }
 }
-
-

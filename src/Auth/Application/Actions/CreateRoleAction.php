@@ -1,14 +1,13 @@
 <?php
+
 namespace Src\Auth\Application\Actions;
 
+use Spatie\Permission\Models\Role;
 use Src\Auth\Application\DTOs\RoleDTO;
 use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
-use Spatie\Permission\Models\Role;
 
 /**
  * CreateRoleAction application action.
- *
- * @package Src\Auth\Application\Actions
  */
 class CreateRoleAction
 {
@@ -19,5 +18,3 @@ class CreateRoleAction
         return $this->repo->create($dto);
     }
 }
-
-
