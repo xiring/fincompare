@@ -36,7 +36,7 @@
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                                 <div class="flex items-center justify-between gap-2">
                                     <div class="flex items-center gap-2">
-                                        <img :src="p.logo || 'https://via.placeholder.com/28'" alt="" class="w-7 h-7 rounded bg-gray-100 object-contain">
+                                        <img :src="p.logo || 'https://placehold.co/28x28'" alt="" class="w-7 h-7 rounded bg-gray-100 object-contain">
                                         <span x-text="p.name"></span>
                                     </div>
                                     <button @click="removeProduct(p.id)" class="text-xs text-red-600 hover:underline">Remove</button>
@@ -64,7 +64,7 @@
                 <div class="bg-white border rounded-2xl p-4">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-2">
-                            <img :src="p.logo || 'https://via.placeholder.com/32'" class="w-8 h-8 rounded bg-gray-100 object-contain">
+                            <img :src="p.logo || 'https://placehold.co/32x32'" class="w-8 h-8 rounded bg-gray-100 object-contain">
                             <div class="font-semibold" x-text="p.name"></div>
                         </div>
                         <button @click="removeProduct(p.id)" class="text-xs text-red-600 hover:underline">Remove</button>

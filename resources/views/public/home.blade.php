@@ -34,7 +34,7 @@
                 <div class="lg:col-span-5">
                     <div class="relative mx-auto max-w-md">
                         <div class="aspect-[4/3] rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur flex items-center justify-center">
-                            <img src="https://via.placeholder.com/640x480?text=Comparison+Preview" alt="Preview" class="rounded-xl shadow-2xl" />
+                            <img src="https://placehold.co/640x480?text=Comparison+Preview" alt="Preview" class="rounded-xl shadow-2xl" />
                         </div>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
                 @foreach(($partners ?? []) as $partner)
                     <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 80 }}ms" class="h-12 flex items-center justify-center bg-white border rounded">
-                        <img src="{{ $partner->logo_url ?? 'https://via.placeholder.com/120x30?text=Logo' }}" alt="{{ $partner->name ?? 'Partner' }}" class="max-h-8">
+                        <img src="{{ $partner->logo_url ?? 'https://placehold.co/120x30?text=Logo' }}" alt="{{ $partner->name ?? 'Partner' }}" class="max-h-8">
                     </div>
                 @endforeach
                 @if(empty($partners))

@@ -14,7 +14,7 @@
                     <span class="text-white">{{ $product->name }}</span>
                 </nav>
                 <div class="flex items-start gap-4">
-                    <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                    <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
                     <div class="flex-1">
                         <h1 class="text-3xl font-extrabold tracking-tight">{{ $product->name }}</h1>
                         <div class="mt-1 flex items-center gap-3 text-sm text-white/90">
@@ -111,7 +111,7 @@
         <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/70 backdrop-blur border-t" x-cloak>
             <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
+                    <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
                     <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
                 </div>
                 <div class="flex items-center gap-2">
