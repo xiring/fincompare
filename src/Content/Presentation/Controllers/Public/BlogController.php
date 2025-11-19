@@ -46,17 +46,13 @@ class BlogController extends Controller
             ->unique()->sort()->values();
 
         if ($request->wantsJson()) {
-            $html = view()->file(base_path('src/Shared/Presentation/Views/Public/_blog_cards_chunk.blade.php'), [
-                'posts' => $posts,
-            ])->render();
-
+            $html = view('public._blog_cards_chunk', ['posts' => $posts])->render();
             return response()->json([
                 'html' => $html,
                 'next' => $posts->nextPageUrl(),
             ]);
         }
-
-        return view()->file(base_path('src/Shared/Presentation/Views/Public/blog_index.blade.php'), compact('posts', 'categories', 'tags', 'category', 'tag', 'sort', 'q'));
+        return view('public.blog_index', compact('posts', 'categories', 'tags', 'category', 'tag', 'sort', 'q'));
     }
 
     /**
@@ -68,6 +64,6 @@ class BlogController extends Controller
     {
         $post = BlogPost::query()->where('slug', $slug)->where('status', 'published')->firstOrFail();
 
-        return view()->file(base_path('src/Shared/Presentation/Views/Public/blog_show.blade.php'), compact('post'));
+        return view('public.blog_show', compact('post'));
     }
 }

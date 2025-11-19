@@ -1,9 +1,9 @@
 <x-guest-layout>
     <!-- Hero -->
-    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
         <div class="absolute inset-0 pointer-events-none">
             <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -19,8 +19,8 @@
                                 <input name="q" placeholder="Search for credit cards, personal loans, ..." class="w-full pl-10 pr-3 py-3 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none" />
                             </div>
                             <div class="flex gap-3">
-                                <a href="{{ url('/products') }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white text-indigo-700 font-semibold shadow hover:bg-gray-50">Browse All</a>
-                                <button class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-amber-400 text-slate-900 font-semibold shadow hover:bg-amber-300" type="submit">Search</button>
+                                <a href="{{ url('/products') }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow hover:bg-gray-50">Browse All</a>
+                                <button class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-[color:var(--brand-primary)] text-white font-semibold shadow hover:bg-[color:var(--brand-primary-2)]" type="submit">Search</button>
                             </div>
                         </form>
                         <div class="mt-3 flex flex-wrap gap-2 text-xs">
@@ -132,21 +132,21 @@
             <h2 class="text-2xl font-bold mb-8">Why choose FinCompare</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 0ms" class="p-6 bg-white border rounded-2xl">
-                    <div class="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                    <div class="h-10 w-10 rounded-lg flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
                     </div>
                     <h3 class="font-semibold">Transparent comparisons</h3>
                     <p class="text-sm text-gray-600 mt-1">Clear specs and side-by-side views so you always know what you get.</p>
                 </div>
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 120ms" class="p-6 bg-white border rounded-2xl">
-                    <div class="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                    <div class="h-10 w-10 rounded-lg flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01"/></svg>
                     </div>
                     <h3 class="font-semibold">Guidance, not noise</h3>
                     <p class="text-sm text-gray-600 mt-1">Smart defaults and highlights to help you decide faster.</p>
                 </div>
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 240ms" class="p-6 bg-white border rounded-2xl">
-                    <div class="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                    <div class="h-10 w-10 rounded-lg flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8z"/></svg>
                     </div>
                     <h3 class="font-semibold">No hidden costs</h3>
@@ -240,17 +240,17 @@
             <h2 class="text-2xl font-bold mb-6">How FinCompare Works</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 0ms" class="p-6 bg-white border rounded-lg text-center">
-                    <div class="mx-auto h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">1</div>
+                    <div class="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">1</div>
                     <h3 class="font-semibold">Browse & Filter</h3>
                     <p class="text-sm text-gray-600 mt-1">Explore categories and filter by what matters to you.</p>
                 </div>
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 120ms" class="p-6 bg-white border rounded-lg text-center">
-                    <div class="mx-auto h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">2</div>
+                    <div class="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">2</div>
                     <h3 class="font-semibold">Compare</h3>
                     <p class="text-sm text-gray-600 mt-1">Select products and compare them side-by-side.</p>
                 </div>
                 <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: 240ms" class="p-6 bg-white border rounded-lg text-center">
-                    <div class="mx-auto h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">3</div>
+                    <div class="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-3 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] ring-1 ring-[color:var(--brand-primary)]/20">3</div>
                     <h3 class="font-semibold">Apply & Track</h3>
                     <p class="text-sm text-gray-600 mt-1">Send an inquiry or apply — we route you to partners.</p>
                 </div>
@@ -291,12 +291,12 @@
     <!-- CTA Band -->
     <section x-data="reveal()" x-init="init()" :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-3'" class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="rounded-2xl bg-indigo-700 text-white px-6 py-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="rounded-2xl bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white px-6 py-8 flex flex-col md:flex-row items-center justify-between">
                 <div class="mb-4 md:mb-0">
                     <h3 class="text-xl font-bold">Not sure which product fits?</h3>
                     <p class="text-white/90 mt-1">Tell us your needs — we’ll help you choose.</p>
                 </div>
-                <a href="{{ url('/products') }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white text-indigo-700 font-semibold shadow hover:bg-gray-50">Get Started</a>
+                <a href="{{ url('/products') }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow hover:bg-white/90">Get Started</a>
             </div>
         </div>
     </section>

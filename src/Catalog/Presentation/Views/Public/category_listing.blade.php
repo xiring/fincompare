@@ -12,14 +12,14 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
                             </span>
-                            <input name="q" value="{{ request('q') }}" placeholder="Search products" class="w-full pl-10 pr-3 py-2.5 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
+                            <input name="q" value="{{ request('q') }}" placeholder="Search products" class="w-full pl-10 pr-3 py-2.5 rounded-xl border-gray-300 focus-brand" />
                             <button class="hidden" type="submit">Search</button>
                         </div>
                     </form>
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                     @foreach(($categories ?? collect())->take(8) as $c)
-                        <a href="{{ url('/products?category_id='.$c->id) }}" class="px-3 py-1.5 rounded-full text-xs border {{ (string)request('category_id')===(string)$c->id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-700' }}">{{ $c->name }}</a>
+                        <a href="{{ url('/products?category_id='.$c->id) }}" class="px-3 py-1.5 rounded-full text-xs border {{ (string)request('category_id')===(string)$c->id ? 'bg-[color:var(--brand-primary)] text-white border-[color:var(--brand-primary)]' : 'bg-gray-50 text-gray-700' }}">{{ $c->name }}</a>
                     @endforeach
                 </div>
             </div>
@@ -33,7 +33,7 @@
                     <form method="get" class="space-y-3">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Category</label>
-                            <select name="category_id" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
+                            <select name="category_id" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
                                 <option value="">All</option>
                                 @foreach(($categories ?? []) as $c)
                                     <option value="{{ $c->id }}" {{ (string)request('category_id')===(string)$c->id?'selected':'' }}>{{ $c->name }}</option>
@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Partner</label>
-                            <select name="partner_id" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
+                            <select name="partner_id" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
                                 <option value="">All</option>
                                 @foreach(($partners ?? []) as $p)
                                     <option value="{{ $p->id }}" {{ (string)request('partner_id')===(string)$p->id?'selected':'' }}>{{ $p->name }}</option>
@@ -60,13 +60,13 @@
                                 <div class="space-y-1">
                                     @foreach(($group['options'] ?? []) as $opt)
                                         <label class="inline-flex items-center gap-2 text-sm">
-                                            <input type="checkbox" :value="'{{ $opt['value'] ?? $opt }}'" x-model="filters['{{ $group['key'] }}']" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                            <input type="checkbox" :value="'{{ $opt['value'] ?? $opt }}'" x-model="filters['{{ $group['key'] }}']" class="rounded border-gray-300 accent-[color:var(--brand-primary)]">
                                             <span>{{ $opt['label'] ?? $opt }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                             @else
-                                <input type="text" x-model="filters['{{ $group['key'] }}']" class="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                <input type="text" x-model="filters['{{ $group['key'] }}']" class="w-full rounded-md border-gray-300 focus-brand">
                             @endif
                         </div>
                     @endforeach
@@ -79,7 +79,7 @@
             <!-- Products -->
             <main class="lg:w-3/4 w-full" x-data="infiniteProducts('{{ ($products ?? null)?->withQueryString()->nextPageUrl() }}')">
                 <div class="fixed top-0 left-0 right-0 z-30" x-show="showBar" x-cloak>
-                    <div class="h-0.5 bg-indigo-600 transition-all" :style="`width: ${progress}%`"></div>
+                    <div class="h-0.5 bg-[color:var(--brand-primary)] transition-all" :style="`width: ${progress}%`"></div>
                 </div>
                 <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @include('Catalog.Presentation.Views.Public._product_cards_chunk', ['products'=>$products])
@@ -109,7 +109,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-white border shadow-lg rounded-full px-4 py-3 flex items-center justify-between">
                     <div class="text-sm text-gray-700">Selected: <span class="font-semibold">@{{ selected.length }}</span></div>
-                    <a :href="compareUrl()" class="px-5 py-2 rounded-full bg-indigo-600 text-white">Compare (@{{ selected.length }})</a>
+                    <a :href="compareUrl()" class="px-5 py-2 rounded-full bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white">Compare (@{{ selected.length }})</a>
                 </div>
             </div>
         </div>

@@ -144,7 +144,7 @@
             </aside>
 
             <!-- Main -->
-            <div :class="sidebarCollapsed ? 'md:ms-20' : 'md:ms-64'" class="transition-[margin] duration-200">
+            <div :class="sidebarCollapsed ? 'md:ms-20' : 'md:ms-64'" class="transition-[margin] duration-200 admin-shell">
                 <!-- Topbar -->
                 <header class="sticky top-0 z-20 bg-white border-b">
                     <div class="h-10 flex items-center gap-3 px-4">

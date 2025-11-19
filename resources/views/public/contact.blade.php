@@ -1,11 +1,11 @@
 <x-guest-layout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white">
-        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <h1 class="text-3xl font-extrabold tracking-tight">Contact Us</h1>
             <p class="mt-2 text-white/90">We’d love to hear from you.</p>
         </div>
     </section>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white border rounded-2xl p-6">
             <h2 class="font-semibold mb-3">Send a message</h2>
             @if (session('status') === 'message-sent')
@@ -22,31 +22,31 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Name</label>
-                    <input required name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    <input required name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-md border-gray-300 focus-brand">
                     @error('name')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input required name="email" type="email" value="{{ old('email') }}" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                    <input required name="email" type="email" value="{{ old('email') }}" class="mt-1 w-full rounded-md border-gray-300 focus-brand">
                     @error('email')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Message</label>
-                    <textarea required name="message" rows="4" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('message') }}</textarea>
+                    <textarea required name="message" rows="4" class="mt-1 w-full rounded-md border-gray-300 focus-brand">{{ old('message') }}</textarea>
                     @error('message')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
-                <button type="submit" class="px-5 py-2 rounded-md bg-indigo-600 text-white">Submit</button>
+                <button type="submit" class="btn px-5 py-2 rounded-md bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white">Submit</button>
             </form>
         </div>
         <div class="space-y-4">
             <div class="p-6 bg-white border rounded-2xl">
                 <h3 class="font-semibold">Email</h3>
-                <p class="text-sm text-gray-700 mt-1"><a href="mailto:{{ $siteSettings->email_address }}" class="text-indigo-700 hover:underline">{{ $siteSettings->email_address }}</a></p>
+                <p class="text-sm text-gray-700 mt-1"><a href="mailto:{{ $siteSettings->email_address }}" class="text-[color:var(--brand-primary)] hover:underline">{{ $siteSettings->email_address }}</a></p>
             </div>
             <div class="p-6 bg-white border rounded-2xl">
                 <h3 class="font-semibold">Office</h3>
                 <p class="text-sm text-gray-700 mt-1">{{ $siteSettings->address }}</p>
-                <p class="text-sm text-gray-700 mt-1"><a href="tel:{{ $siteSettings->contact_number }}" class="text-indigo-700 hover:underline">{{ $siteSettings->contact_number }}</a></p>
+                <p class="text-sm text-gray-700 mt-1"><a href="tel:{{ $siteSettings->contact_number }}" class="text-[color:var(--brand-primary)] hover:underline">{{ $siteSettings->contact_number }}</a></p>
             </div>
             <div class="bg-white border rounded-2xl overflow-hidden">
                 <div class="aspect-video">

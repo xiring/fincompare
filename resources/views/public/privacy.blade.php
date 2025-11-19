@@ -1,11 +1,11 @@
 <x-guest-layout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white">
-        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <h1 class="text-3xl font-extrabold tracking-tight">Privacy Policy</h1>
             <p class="mt-2 text-white/90">How we collect, use, and protect your information.</p>
         </div>
     </section>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 prose">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 prose">
         <h2>Introduction</h2>
         <p>This Privacy Policy explains our practices regarding personal data. By using FinCompare, you agree to this policy.</p>
         <h2>Information we collect</h2>

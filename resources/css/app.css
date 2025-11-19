@@ -16,3 +16,61 @@
 
 /* Hide until Alpine initializes */
 [x-cloak] { display: none !important; }
+
+/* Public theme variables (Orange Finance) */
+:root {
+  --brand-primary: #FF6600;
+  --brand-primary-2: #FF8533;
+  --brand-bg: #F9F9F9;
+  --brand-text: #333333;
+}
+
+/* Public theme styles are scoped so admin remains neutral */
+.theme-public {
+  color: var(--brand-text);
+  background-color: var(--brand-bg);
+}
+/* Limit brand link color to typical content links only (exclude buttons) */
+.theme-public main a:not(.btn):not(.button):not(.no-brand-link) { color: var(--brand-primary); }
+.theme-public main a:not(.btn):not(.button):not(.no-brand-link):hover { color: var(--brand-primary-2); }
+
+/* Buttons */
+.btn-primary {
+  /* baseline handled by Tailwind classes; themed overrides below */
+}
+.theme-public .btn-primary {
+  background-image: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-2));
+  color: #fff;
+  border-color: transparent;
+}
+.theme-public .btn-primary:hover {
+  filter: brightness(0.95);
+}
+.btn-secondary {
+  /* baseline handled by Tailwind classes; themed overrides below */
+}
+.theme-public .btn-secondary {
+  background-color: #fff;
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+.theme-public .btn-secondary:hover {
+  background-color: #fff7f0;
+}
+
+/* Inputs */
+.focus-brand:focus {
+  outline: none;
+}
+.theme-public .focus-brand:focus {
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 3px rgb(255 102 0 / 0.25) !important;
+}
+
+/* Admin list consistency helpers (non-invasive) */
+@layer components {
+  .admin-shell table thead { @apply bg-gray-50 text-gray-600; }
+  .admin-shell table th, .admin-shell table td { @apply px-3 py-2; }
+  .admin-shell .filters { @apply p-4 sm:p-8 bg-white shadow sm:rounded-lg; }
+  .admin-shell .card { @apply p-4 sm:p-8 bg-white shadow sm:rounded-lg; }
+}

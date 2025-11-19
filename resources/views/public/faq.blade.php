@@ -1,11 +1,11 @@
 <x-guest-layout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
-        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <h1 class="text-3xl font-extrabold tracking-tight">Frequently Asked Questions</h1>
             <p class="mt-2 text-white/90">Answers to common questions about FinCompare.</p>
         </div>
     </section>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in-up">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in-up">
         <div class="bg-white border rounded-2xl divide-y">
             @if(isset($faqs) && $faqs->count())
                 @foreach($faqs as $faq)

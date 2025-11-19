@@ -1,9 +1,9 @@
 <x-guest-layout>
-    <div x-data="productDetails({ id: {{ $product->id }}, compareIds: @json(session('compare_ids', [])) })" class="max-w-5xl mx-auto">
-        <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
+    <div x-data="productDetails({ id: {{ $product->id }}, compareIds: @json(session('compare_ids', [])) })" class="w-full">
+        <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
             <div class="absolute inset-0 pointer-events-none">
                 <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-                <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl"></div>
+                <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
             </div>
             <div class="relative px-4 sm:px-6 lg:px-8 py-10">
                 <nav class="text-sm text-white/80 mb-4">
@@ -26,8 +26,8 @@
                         </div>
                     </div>
                     <div class="hidden sm:flex items-center gap-3">
-                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center px-5 py-3 rounded-xl bg-amber-400 text-slate-900 font-semibold shadow hover:bg-amber-300">Send Inquiry</a>
-                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white' : 'bg-white text-indigo-700'" class="inline-flex items-center px-4 py-3 rounded-xl font-semibold">
+                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn inline-flex items-center px-5 py-3 rounded-xl bg-[color:var(--brand-primary)] text-white font-semibold shadow hover:bg-[color:var(--brand-primary-2)]">Send Inquiry</a>
+                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white' : 'bg-white text-[color:var(--brand-primary)]'" class="inline-flex items-center px-4 py-3 rounded-xl font-semibold">
                             <span x-text="inCompare ? 'In Compare' : 'Add to Compare'"></span>
                         </button>
                     </div>
@@ -54,11 +54,11 @@
         <div class="mt-6 px-4 sm:px-6 lg:px-8 animate-fade-in-up">
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                    <button @click="tab='overview'" :class="tab==='overview' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Overview</button>
-                    <button @click="tab='features'" :class="tab==='features' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Features</button>
-                    <button @click="tab='eligibility'" :class="tab==='eligibility' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Eligibility</button>
-                    <button @click="tab='documents'" :class="tab==='documents' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Documents</button>
-                    <button @click="tab='faq'" :class="tab==='faq' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">FAQ</button>
+                    <button @click="tab='overview'" :class="tab==='overview' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Overview</button>
+                    <button @click="tab='features'" :class="tab==='features' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Features</button>
+                    <button @click="tab='eligibility'" :class="tab==='eligibility' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Eligibility</button>
+                    <button @click="tab='documents'" :class="tab==='documents' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Documents</button>
+                    <button @click="tab='faq'" :class="tab==='faq' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">FAQ</button>
                 </nav>
             </div>
 
@@ -71,7 +71,7 @@
             <div class="flex items-center justify-between mb-3">
                 <h2 class="text-lg font-semibold">Features & Attributes</h2>
                 <div class="relative">
-                    <input x-model="featureQuery" type="text" placeholder="Search attributes..." class="w-64 rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <input x-model="featureQuery" type="text" placeholder="Search attributes..." class="w-64 rounded-md border-gray-300 text-sm focus-brand">
                 </div>
             </div>
             <div class="overflow-x-auto bg-white border rounded-lg">
@@ -101,22 +101,24 @@
 
         <div class="mt-10 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
             <button @click="copyLink" type="button" class="inline-flex items-center px-4 py-2 rounded-md bg-gray-100 text-gray-700 font-medium">Copy Link</button>
-            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-amber-500 text-white' : 'bg-white text-gray-700 border'" class="inline-flex items-center px-4 py-2 rounded-md font-medium border">@{{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}</button>
-            <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center px-6 py-3 rounded-md bg-indigo-600 text-white font-semibold">Send Inquiry</a>
-            <a href="{{ route('compare') }}" class="inline-flex items-center px-4 py-2 rounded-md bg-slate-800 text-white font-medium" x-show="inCompare">Compare Now</a>
+            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="inline-flex items-center px-4 py-2 rounded-md font-medium border">
+                <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
+            </button>
+            <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn inline-flex items-center px-6 py-3 rounded-md bg-[color:var(--brand-primary)] text-white font-semibold hover:bg-[color:var(--brand-primary-2)]">Send Inquiry</a>
+            <a href="{{ route('compare') }}" class="btn inline-flex items-center px-4 py-2 rounded-md bg-[color:var(--brand-primary)] text-white font-medium" x-show="inCompare">Compare Now</a>
         </div>
 
         <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/70 backdrop-blur border-t" x-cloak>
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <img src="{{ $product->partner->logo_url ?? 'https://via.placeholder.com/40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
                     <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-amber-500 text-white' : 'bg-white text-gray-700 border'" class="px-3 py-2 rounded-lg text-sm font-medium border">
+                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="px-3 py-2 rounded-lg text-sm font-medium border">
                         <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
                     </button>
-                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold">Apply Now</a>
+                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn px-4 py-2 rounded-lg bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white text-sm font-semibold">Apply Now</a>
                 </div>
             </div>
         </div>

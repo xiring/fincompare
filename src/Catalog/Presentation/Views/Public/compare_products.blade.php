@@ -1,9 +1,9 @@
 <x-guest-layout>
     <!-- Gradient header to match design system -->
-    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-700 via-indigo-600 to-indigo-500 text-white animate-fade-in">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
         <div class="absolute inset-0 pointer-events-none">
             <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <h1 class="text-3xl font-extrabold tracking-tight">Compare Products</h1>
@@ -19,12 +19,12 @@
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                    <input type="checkbox" x-model="highlightDiff" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <input type="checkbox" x-model="highlightDiff" class="rounded border-gray-300 accent-[color:var(--brand-primary)]">
                     Highlight differences
                 </label>
                 <button @click="clearAll" type="button" class="px-3 py-2 rounded-md border text-sm bg-white">Clear all</button>
             </div>
-            <a href="{{ route('products.public.index') }}" class="text-sm text-white bg-indigo-600 hover:bg-indigo-500 rounded-md px-3 py-2">Add more products</a>
+            <a href="{{ route('products.public.index') }}" class="btn text-sm text-white bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] rounded-md px-3 py-2">Add more products</a>
         </div>
 
         <div class="overflow-x-auto bg-white border rounded-lg hidden md:block animate-fade-in-up">
@@ -82,7 +82,7 @@
         </div>
 
         <div class="mt-4 flex justify-end">
-            <a href="{{ route('products.public.index') }}" class="text-sm text-indigo-700 hover:underline">Add more products</a>
+            <a href="{{ route('products.public.index') }}" class="text-sm text-[color:var(--brand-primary)] hover:underline">Add more products</a>
         </div>
     </div>
 </x-guest-layout>

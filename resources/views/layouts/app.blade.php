@@ -15,8 +15,8 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-		<div class="min-h-screen bg-gray-100 flex flex-col">
+    <body class="font-sans antialiased theme-public text-[var(--brand-text)]">
+		<div class="min-h-screen bg-[var(--brand-bg)] flex flex-col">
             @include('layouts.navigation')
 			<x-toast />
             @stack('styles')

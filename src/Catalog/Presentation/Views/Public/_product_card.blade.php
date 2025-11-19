@@ -32,12 +32,12 @@
         </div>
     </div>
     <div class="mt-4 px-4 pb-4 flex items-center justify-between">
-        <a href="{{ route('products.public.show',$p) }}" class="inline-flex items-center gap-1 text-indigo-700 hover:underline text-sm">
+        <a href="{{ route('products.public.show',$p) }}" class="inline-flex items-center gap-1 text-[color:var(--brand-primary)] hover:underline text-sm">
             More Details
             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </a>
         <div class="flex gap-2">
-            <a href="{{ route('leads.create',['product'=>$p->id]) }}" class="px-3 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 text-sm">Apply</a>
+            <a href="{{ route('leads.create',['product'=>$p->id]) }}" class="px-3 py-2 rounded-lg border bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)] hover:text-white transition text-sm">Apply</a>
             <button type="button" @click="selected=!selected; $dispatch('compare-toggle',{id:{{ $p->id ?? 0 }}, selected})" :class="selected ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-700'" class="px-3 py-2 rounded-lg text-sm">
                 <span x-text="selected ? 'In Compare' : 'Compare'"></span>
             </button>
