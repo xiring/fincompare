@@ -70,9 +70,10 @@
                         @error('message') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <label class="inline-flex items-start gap-2 text-sm text-gray-700">
-                        <input type="checkbox" x-model="form.consent" class="mt-0.5 rounded border-gray-300 accent-[color:var(--brand-primary)]">
+                        <input type="checkbox" name="consent" value="1" required x-model="form.consent" class="mt-0.5 rounded border-gray-300 accent-[color:var(--brand-primary)]">
                         <span>I agree to be contacted by FinCompare and its partners. See our <a href="{{ route('privacy') }}" class="text-[color:var(--brand-primary)] underline">Privacy Policy</a>.</span>
                     </label>
+                    @error('consent') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
             </template>
 
