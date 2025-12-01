@@ -70,6 +70,23 @@
   box-shadow: 0 0 0 3px rgb(255 102 0 / 0.25) !important;
 }
 
+/* Brand primary button with CSS variable */
+.btn-brand-primary {
+  background-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+}
+.btn-brand-primary:hover {
+  background-color: var(--brand-primary-2) !important;
+  color: #ffffff !important;
+}
+
+/* Active category pill */
+.category-pill-active {
+  background-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--brand-primary) !important;
+}
+
 /* Admin list consistency helpers (non-invasive) */
 @layer components {
   .admin-shell table thead { @apply bg-gray-50 text-gray-600; }

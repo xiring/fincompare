@@ -28,4 +28,9 @@ class Partner extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        return $this->logo_path ? asset('storage/'.$this->logo_path) : null;
+    }
 }

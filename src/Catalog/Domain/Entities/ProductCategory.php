@@ -44,4 +44,9 @@ class ProductCategory extends Model
     {
         return $this->belongsTo(Form::class, 'post_form_id');
     }
+
+    public function getUrlAttribute(): string
+    {
+        return route('products.public.index', ['category_id' => $this->id]);
+    }
 }

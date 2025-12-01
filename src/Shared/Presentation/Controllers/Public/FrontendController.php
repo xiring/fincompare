@@ -6,7 +6,10 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Controller;
+use Src\Catalog\Domain\Entities\Product;
+use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
+use Src\Partners\Domain\Entities\Partner;
 
 /**
  * FrontendController controller.
@@ -20,7 +23,26 @@ class FrontendController extends Controller
      */
     public function home(): Factory|View|\Illuminate\View\View
     {
-        return view('public.home');
+        // Fetch featured products (is_featured = true and status = active) - limit to 3
+        $featuredProducts = Product::with(['partner', 'productCategory'])
+            ->where('is_featured', true)
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        // Fetch categories for the category section
+        $categories = ProductCategory::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        // Fetch partners for the partners section
+        $partners = Partner::where('status', 'active')
+            ->orderBy('name')
+            ->limit(10)
+            ->get();
+
+        return view('public.home', compact('featuredProducts', 'categories', 'partners'));
     }
 
     /**

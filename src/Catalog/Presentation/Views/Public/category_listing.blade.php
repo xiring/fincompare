@@ -19,7 +19,11 @@
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                     @foreach(($categories ?? collect())->take(8) as $c)
-                        <a href="{{ url('/products?category_id='.$c->id) }}" class="px-3 py-1.5 rounded-full text-xs border {{ (string)request('category_id')===(string)$c->id ? 'bg-[color:var(--brand-primary)] text-white border-[color:var(--brand-primary)]' : 'bg-gray-50 text-gray-700' }}">{{ $c->name }}</a>
+                        @php($isActive = (string)request('category_id')===(string)$c->id)
+                        <a href="{{ url('/products?category_id='.$c->id) }}"
+                           class="px-3 py-1.5 rounded-full text-xs border font-medium transition-colors {{ $isActive ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300' }}">
+                            {{ $c->name }}
+                        </a>
                     @endforeach
                 </div>
             </div>
@@ -31,9 +35,12 @@
                 <div class="p-4 bg-white border rounded-lg">
                     <h2 class="text-lg font-semibold mb-4">Filter by</h2>
                     <form method="get" class="space-y-3">
+                        @if(request('q'))
+                            <input type="hidden" name="q" value="{{ request('q') }}">
+                        @endif
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Category</label>
-                            <select name="category_id" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select name="category_id" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
                                 <option value="">All</option>
                                 @foreach(($categories ?? []) as $c)
                                     <option value="{{ $c->id }}" {{ (string)request('category_id')===(string)$c->id?'selected':'' }}>{{ $c->name }}</option>
@@ -41,37 +48,43 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Partner</label>
-                            <select name="partner_id" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+                            <select name="partner_id" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
                                 <option value="">All</option>
                                 @foreach(($partners ?? []) as $p)
                                     <option value="{{ $p->id }}" {{ (string)request('partner_id')===(string)$p->id?'selected':'' }}>{{ $p->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        <div>
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <input type="checkbox" name="featured" value="1" {{ request('featured') ? 'checked' : '' }} onchange="this.form.submit()" class="rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]">
+                                <span>Featured Products Only</span>
+                            </label>
+                        </div>
                     </form>
                     @foreach(($category_attributes ?? []) as $group)
                         <div class="mb-5">
                             <label class="block text-sm font-medium text-gray-700 mb-1">{{ $group['label'] }}</label>
                             @if(($group['type'] ?? 'text')==='range')
-                                <input type="range" min="{{ $group['min'] ?? 0 }}" max="{{ $group['max'] ?? 100 }}" x-model="filters['{{ $group['key'] }}']" class="w-full">
+                                <input type="range" min="{{ $group['min'] ?? 0 }}" max="{{ $group['max'] ?? 100 }}" x-model="filters['{{ $group['key'] }}']" class="w-full accent-[color:var(--brand-primary)]">
                                 <div class="text-xs text-gray-500 mt-1">@{{ filters['{{ $group['key'] }}'] }}</div>
                             @elseif(($group['type'] ?? 'text')==='checkbox')
                                 <div class="space-y-1">
                                     @foreach(($group['options'] ?? []) as $opt)
                                         <label class="inline-flex items-center gap-2 text-sm">
-                                            <input type="checkbox" :value="'{{ $opt['value'] ?? $opt }}'" x-model="filters['{{ $group['key'] }}']" class="rounded border-gray-300 accent-[color:var(--brand-primary)]">
+                                            <input type="checkbox" :value="'{{ $opt['value'] ?? $opt }}'" x-model="filters['{{ $group['key'] }}']" class="rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]">
                                             <span>{{ $opt['label'] ?? $opt }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                             @else
-                                <input type="text" x-model="filters['{{ $group['key'] }}']" class="w-full rounded-md border-gray-300 focus-brand">
+                                <input type="text" x-model="filters['{{ $group['key'] }}']" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]">
                             @endif
                         </div>
                     @endforeach
                     <div class="flex gap-2 mt-4">
-                        <a href="{{ url('/products') }}" class="px-3 py-2 rounded-md border">Reset</a>
+                        <a href="{{ url('/products') }}" class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors">Reset</a>
                     </div>
                 </div>
             </aside>
@@ -109,7 +122,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-white border shadow-lg rounded-full px-4 py-3 flex items-center justify-between">
                     <div class="text-sm text-gray-700">Selected: <span class="font-semibold" x-text="selected.length"></span></div>
-                    <a :href="compareUrl()" class="px-5 py-2 rounded-full bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white font-medium">
+                    <a :href="compareUrl()" class="btn-brand-primary inline-flex items-center justify-center px-5 py-2 rounded-full font-semibold transition-colors shadow-sm">
                         Compare (<span x-text="selected.length"></span>)
                     </a>
                 </div>

@@ -22,16 +22,19 @@ class ProductController extends Controller
     {
         $categoryId = $request->integer('category_id');
         $partnerId = $request->integer('partner_id');
+        $featured = $request->boolean('featured');
 
         $products = Product::query()->with(['partner'])
+            ->where('status', 'active')
             ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
             ->when($categoryId, fn ($q, $id) => $q->where('product_category_id', $id))
             ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
+            ->when($featured, fn ($q) => $q->where('is_featured', true))
             ->orderByDesc('created_at')
             ->paginate(12)
             ->withQueryString();
 
-        $category = $categoryId ? ProductCategory::find($categoryId) : (object) ['name' => 'All Products'];
+        $category = $categoryId ? ProductCategory::find($categoryId) : (object) ['name' => $featured ? 'Featured Products' : 'All Products'];
         $category_attributes = [];
         $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
         $partners = Partner::orderBy('name')->get(['id', 'name']);
@@ -47,7 +50,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners'));
+        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
     }
 
     /**

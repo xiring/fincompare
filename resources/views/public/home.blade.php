@@ -111,7 +111,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">Explore Financial Products</h2>
-                <a href="{{ url('/products') }}" class="text-sm text-indigo-700 hover:underline">Browse all</a>
+                <a href="{{ url('/products') }}" class="text-sm text-[color:var(--brand-primary)] hover:underline">Browse all</a>
             </div>
             <div class="flex flex-wrap gap-2">
                 @foreach(($categories ?? []) as $category)
@@ -161,7 +161,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between mb-6">
                 <h2 class="text-2xl font-bold">Editor's Picks</h2>
-                <a href="{{ url('/products') }}" class="text-sm text-indigo-700 hover:underline">See all</a>
+                <a href="{{ route('products.public.index', ['featured' => 1]) }}" class="text-sm text-[color:var(--brand-primary)] hover:underline">See all</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach(($featuredProducts ?? []) as $product)
@@ -184,7 +184,7 @@
                                 <li>Max Amount: $20,000</li>
                             </ul>
                             <div class="mt-4 flex gap-2">
-                                <a href="#" class="text-indigo-700 hover:underline">More Details</a>
+                                <a href="#" class="text-[color:var(--brand-primary)] hover:underline">More Details</a>
                                 <a href="#" class="px-3 py-1 rounded-md border bg-white text-gray-700 hover:bg-gray-50">Apply</a>
                             </div>
                         </div>

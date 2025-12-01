@@ -24,7 +24,7 @@
                 <h3 class="mt-4 text-lg font-medium text-gray-900">No products to compare</h3>
                 <p class="mt-2 text-sm text-gray-500">Add products to your compare list to see them side by side.</p>
                 <div class="mt-6">
-                    <a href="{{ route('products.public.index') }}" class="inline-flex items-center px-4 py-2 rounded-md bg-[color:var(--brand-primary)] text-white hover:bg-[color:var(--brand-primary-2)]">
+                    <a href="{{ route('products.public.index') }}" class="btn-brand-primary inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-semibold transition-colors shadow-sm">
                         Browse Products
                     </a>
                 </div>
@@ -36,9 +36,9 @@
                         <input type="checkbox" x-model="highlightDiff" class="rounded border-gray-300 accent-[color:var(--brand-primary)]">
                         Highlight differences
                     </label>
-                    <button @click="clearAll" type="button" class="px-3 py-2 rounded-md border text-sm bg-white">Clear all</button>
+                    <button @click="clearAll" type="button" class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors">Clear all</button>
                 </div>
-                <a href="{{ route('products.public.index') }}" class="btn text-sm text-white bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] rounded-md px-3 py-2">Add more products</a>
+                <a href="{{ route('products.public.index') }}" class="btn-brand-primary inline-flex items-center justify-center text-sm rounded-lg px-4 py-2.5 font-semibold transition-colors shadow-sm">Add more products</a>
             </div>
 
             <div class="overflow-x-auto bg-white border rounded-lg hidden md:block animate-fade-in-up">
@@ -98,7 +98,7 @@
         </div>
 
             <div class="mt-4 flex justify-end">
-                <a href="{{ route('products.public.index') }}" class="text-sm text-[color:var(--brand-primary)] hover:underline">Add more products</a>
+                <a href="{{ route('products.public.index') }}" class="inline-flex items-center text-sm text-[color:var(--brand-primary)] hover:underline font-medium">Add more products</a>
             </div>
         @endif
     </div>

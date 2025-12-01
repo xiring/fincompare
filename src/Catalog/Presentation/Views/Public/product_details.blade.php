@@ -30,8 +30,8 @@
                         </div>
                     </div>
                     <div class="hidden sm:flex items-center gap-3">
-                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn inline-flex items-center px-5 py-3 rounded-xl bg-[color:var(--brand-primary)] text-white font-semibold shadow hover:bg-[color:var(--brand-primary-2)]">Send Inquiry</a>
-                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white' : 'bg-white text-[color:var(--brand-primary)]'" class="inline-flex items-center px-4 py-3 rounded-xl font-semibold">
+                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-[color:var(--brand-primary)] text-white font-semibold shadow hover:bg-[color:var(--brand-primary-2)] transition-colors">Send Inquiry</a>
+                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-[color:var(--brand-primary)] hover:bg-gray-50'" class="inline-flex items-center justify-center px-4 py-3 rounded-xl font-semibold transition-colors">
                             <span x-text="inCompare ? 'In Compare' : 'Add to Compare'"></span>
                         </button>
                     </div>
@@ -39,7 +39,7 @@
             </div>
         </section>
 
-        <div class="px-4 sm:px-6 lg:px-8 py-8">
+        <div class="px-4 sm:px-6 lg:px-8 py-8 pb-24">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-in-up">
                 <div class="p-4 rounded-2xl bg-white border">
                     <div class="text-xs text-gray-500">Interest Rate</div>
@@ -104,25 +104,25 @@
         </div>
 
         <div class="mt-10 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
-            <button @click="copyLink" type="button" class="inline-flex items-center px-4 py-2 rounded-md bg-gray-100 text-gray-700 font-medium">Copy Link</button>
-            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="inline-flex items-center px-4 py-2 rounded-md font-medium border">
+            <button @click="copyLink" type="button" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors">Copy Link</button>
+            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium border hover:opacity-90 transition-opacity">
                 <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
             </button>
-            <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn inline-flex items-center px-6 py-3 rounded-md bg-[color:var(--brand-primary)] text-white font-semibold hover:bg-[color:var(--brand-primary-2)]">Send Inquiry</a>
-            <a href="{{ route('compare') }}" class="btn inline-flex items-center px-4 py-2 rounded-md bg-[color:var(--brand-primary)] text-white font-medium" x-show="inCompare">Compare Now</a>
+            <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-[color:var(--brand-primary)] text-white font-semibold hover:bg-[color:var(--brand-primary-2)] transition-colors">Send Inquiry</a>
+            <a href="{{ route('compare') }}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-[color:var(--brand-primary)] text-white font-medium hover:bg-[color:var(--brand-primary-2)] transition-colors" x-show="inCompare">Compare Now</a>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/70 backdrop-blur border-t" x-cloak>
+        <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t shadow-lg" x-cloak>
             <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
                     <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="px-3 py-2 rounded-lg text-sm font-medium border">
+                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)] hover:bg-gray-50'" class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors">
                         <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
                     </button>
-                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="btn px-4 py-2 rounded-lg bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white text-sm font-semibold">Apply Now</a>
+                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white text-sm font-semibold transition-colors">Apply Now</a>
                 </div>
             </div>
         </div>

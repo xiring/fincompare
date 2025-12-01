@@ -44,4 +44,23 @@ class Product extends Model
     {
         return $this->image ? asset('storage/'.$this->image) : null;
     }
+
+    public function getAttributeHighlightsAttribute(): array
+    {
+        $highlights = [];
+        $attributeValues = $this->attributeValues()->with('attribute')->get();
+
+        foreach ($attributeValues as $av) {
+            $slug = strtolower($av->attribute->slug ?? '');
+            $value = $av->getScalarValue();
+
+            if ($slug === 'interest_rate' || $slug === 'interest-rate') {
+                $highlights['interest_rate'] = is_numeric($value) ? number_format((float) $value, 2).'%' : ($value ?? '—');
+            } elseif ($slug === 'max_amount' || $slug === 'max-amount') {
+                $highlights['max_amount'] = is_numeric($value) ? '$'.number_format((float) $value) : ($value ?? '—');
+            }
+        }
+
+        return $highlights;
+    }
 }
