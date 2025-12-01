@@ -28,6 +28,7 @@ Route::middleware(['web', 'auth', 'throttle:120,1', 'role:admin|editor|viewer'])
     Route::get('products/import', [ProductImportController::class, 'create'])->name('products.import');
     Route::post('products/import', [ProductImportController::class, 'store'])->name('products.import.store');
     Route::resource('products', ProductController::class);
+    Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('uploads/wysiwyg', [UploadController::class, 'storeWysiwygImage'])->name('uploads.wysiwyg');
     Route::resource('blogs', BlogPostController::class);
     Route::resource('cms-pages', CmsPageController::class);

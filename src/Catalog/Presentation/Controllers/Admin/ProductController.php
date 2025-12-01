@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Src\Catalog\Application\Actions\CreateProductAction;
 use Src\Catalog\Application\Actions\DeleteProductAction;
+use Src\Catalog\Application\Actions\DuplicateProductAction;
 use Src\Catalog\Application\Actions\ListProductsAction;
 use Src\Catalog\Application\Actions\ShowProductAction;
 use Src\Catalog\Application\Actions\UpdateProductAction;
@@ -175,6 +176,22 @@ class ProductController extends Controller
         }
 
         return redirect()->route('admin.products.index')->with('status', 'Product updated');
+    }
+
+    /**
+     * Duplicate the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function duplicate(Product $product, DuplicateProductAction $duplicate)
+    {
+        $duplicatedProduct = $duplicate->execute($product);
+
+        if (request()->wantsJson()) {
+            return response()->json($duplicatedProduct, 201);
+        }
+
+        return redirect()->route('admin.products.index')->with('status', 'Product duplicated successfully');
     }
 
     /**
