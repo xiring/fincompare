@@ -18,7 +18,7 @@ class Product extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['partner_id', 'product_category_id', 'name', 'slug', 'description', 'is_featured', 'status'];
+    protected $fillable = ['partner_id', 'product_category_id', 'name', 'slug', 'description', 'image', 'is_featured', 'status'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -38,5 +38,10 @@ class Product extends Model
     public function attributeValues(): HasMany
     {
         return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/'.$this->image) : null;
     }
 }

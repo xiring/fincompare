@@ -10,7 +10,7 @@
 
     <div class="max-w-7xl">
         <div class="bg-white rounded-lg shadow-soft border border-gray-200 p-6">
-            <form action="{{ route('admin.products.store') }}" method="post" class="space-y-6">
+            <form action="{{ route('admin.products.store') }}" method="post" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -58,6 +58,16 @@
                         <div>
                             <x-input-label for="description" value="Description" />
                             <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">{{ old('description') }}</textarea>
+                        </div>
+
+                        <div>
+                            <x-input-label for="image" value="Product Image" />
+                            <input type="file" id="image" name="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+                            <p class="mt-1 text-xs text-gray-500">JPG, PNG, GIF or WebP. Max size: 5MB</p>
+                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                            <div id="image-preview" class="mt-2 hidden">
+                                <img id="image-preview-img" src="" alt="Preview" class="h-32 w-32 object-cover rounded-lg border border-gray-200" />
+                            </div>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -204,6 +214,25 @@
         @if(old('product_category_id'))
             categorySelect.dispatchEvent(new Event('change'));
         @endif
+
+        // Image preview
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewImg = document.getElementById('image-preview-img');
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreviewImg.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.classList.add('hidden');
+            }
+        });
     </script>
 </x-app-layout>
 

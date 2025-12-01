@@ -22,6 +22,7 @@ class ProductRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:products,slug'.($this->route('product') ? ','.$this->route('product')->id : '')],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'], // 5MB
             'is_featured' => ['sometimes', 'boolean'],
             'status' => ['required', 'in:active,inactive'],
             'attributes' => ['sometimes'],
