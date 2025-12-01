@@ -21,8 +21,11 @@
                     @foreach(($categories ?? collect())->take(8) as $c)
                         @php($isActive = (string)request('category_id')===(string)$c->id)
                         <a href="{{ url('/products?category_id='.$c->id) }}"
-                           class="px-3 py-1.5 rounded-full text-xs border font-medium transition-colors {{ $isActive ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300' }}">
-                            {{ $c->name }}
+                           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border font-medium transition-colors {{ $isActive ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300' }}">
+                            @if($c->image_url ?? null)
+                                <img src="{{ $c->image_url }}" alt="{{ $c->name }}" class="w-4 h-4 rounded-full object-cover">
+                            @endif
+                            <span>{{ $c->name }}</span>
                         </a>
                     @endforeach
                 </div>

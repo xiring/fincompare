@@ -109,19 +109,44 @@
     <!-- Categories -->
     <section x-data="reveal()" x-init="init()" :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-3'" class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold">Explore Financial Products</h2>
-                <a href="{{ url('/products') }}" class="text-sm text-[color:var(--brand-primary)] hover:underline">Browse all</a>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">Explore Financial Products</h2>
+                <a href="{{ url('/products') }}" class="text-sm text-[color:var(--brand-primary)] hover:underline font-medium">Browse all</a>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 @foreach(($categories ?? []) as $category)
-                    <a href="{{ $category->url ?? '#' }}" :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 50 }}ms" class="px-3 py-2 rounded-full border bg-white text-sm text-gray-700 hover:bg-gray-50">{{ $category->name ?? 'Category' }}</a>
+                    <a href="{{ $category->url ?? '#' }}" :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 50 }}ms" class="group relative bg-white border rounded-2xl p-5 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center">
+                        <!-- Offer Banner with triangular notch -->
+                        @if($loop->index < 3)
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                                <div class="relative bg-green-100 text-green-700 text-[10px] font-semibold px-3 py-1 rounded-t-lg">
+                                    @if($loop->index === 1)
+                                        5% Cashback
+                                    @else
+                                        Cashback Offer
+                                    @endif
+                                    <!-- Triangular notch -->
+                                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
+                                        <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-green-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        <!-- Category Icon/Image -->
+                        <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            @if($category->image_url ?? null)
+                                <img src="{{ $category->image_url }}" alt="{{ $category->name ?? 'Category' }}" class="w-20 h-20 object-cover rounded-lg">
+                            @else
+                                <!-- Default money bag icon -->
+                                <svg class="w-14 h-14 text-[color:var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
+                                </svg>
+                            @endif
+                        </div>
+                        <!-- Category Name -->
+                        <h3 class="text-sm font-semibold text-gray-900 group-hover:text-[color:var(--brand-primary)] transition-colors">{{ $category->name ?? 'Category' }}</h3>
+                    </a>
                 @endforeach
-                @if(empty($categories))
-                    @for($i=0;$i<8;$i++)
-                        <span :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $i * 50 }}ms" class="px-3 py-2 rounded-full border bg-white text-sm text-gray-700">Category</span>
-                    @endfor
-                @endif
             </div>
         </div>
     </section>

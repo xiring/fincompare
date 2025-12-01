@@ -18,7 +18,7 @@ class ProductCategory extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'description', 'is_active', 'pre_form_id', 'post_form_id'];
+    protected $fillable = ['name', 'slug', 'description', 'image', 'is_active', 'pre_form_id', 'post_form_id'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -48,5 +48,10 @@ class ProductCategory extends Model
     public function getUrlAttribute(): string
     {
         return route('products.public.index', ['category_id' => $this->id]);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/'.$this->image) : null;
     }
 }

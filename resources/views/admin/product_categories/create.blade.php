@@ -10,7 +10,7 @@
 
     <div class="max-w-3xl">
         <div class="bg-white rounded-lg shadow-soft border border-gray-200 p-6">
-            <form action="{{ route('admin.product-categories.store') }}" method="post" class="space-y-6">
+            <form action="{{ route('admin.product-categories.store') }}" method="post" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <div>
@@ -28,6 +28,13 @@
                 <div>
                     <x-input-label for="description" value="Description" />
                     <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">{{ old('description') }}</textarea>
+                </div>
+
+                <div>
+                    <x-input-label for="image" value="Category Image" />
+                    <input type="file" id="image" name="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+                    <p class="mt-1 text-xs text-gray-500">Upload an image for this category (max 2MB, jpeg, png, jpg, gif, webp)</p>
+                    <x-input-error :messages="$errors->get('image')" class="mt-2" />
                 </div>
 
                 <div class="flex items-center gap-3">

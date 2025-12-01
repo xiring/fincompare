@@ -5,6 +5,7 @@ namespace Src\Catalog\Presentation\Controllers\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 use Src\Catalog\Application\Actions\CreateProductCategoryAction;
 use Src\Catalog\Application\Actions\DeleteProductCategoryAction;
 use Src\Catalog\Application\Actions\ListProductCategoriesAction;
@@ -85,7 +86,14 @@ class ProductCategoryController extends Controller
      */
     public function store(ProductCategoryRequest $request, CreateProductCategoryAction $create)
     {
-        $item = $create->execute(ProductCategoryDTO::fromArray($request->validated()));
+        $data = $request->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('categories/'.now()->format('Y/m'), 'public');
+        }
+
+        $item = $create->execute(ProductCategoryDTO::fromArray($data));
         if ($request->wantsJson()) {
             return response()->json($item, 201);
         }
@@ -160,7 +168,21 @@ class ProductCategoryController extends Controller
      */
     public function update(ProductCategoryRequest $request, ProductCategory $product_category, UpdateProductCategoryAction $update)
     {
-        $item = $update->execute($product_category, ProductCategoryDTO::fromArray($request->validated()));
+        $data = $request->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product_category->image && Storage::disk('public')->exists($product_category->image)) {
+                Storage::disk('public')->delete($product_category->image);
+            }
+            $data['image'] = $request->file('image')->store('categories/'.now()->format('Y/m'), 'public');
+        } else {
+            // Keep existing image if not updated
+            $data['image'] = $product_category->image;
+        }
+
+        $item = $update->execute($product_category, ProductCategoryDTO::fromArray($data));
         if ($request->wantsJson()) {
             return response()->json($item);
         }
