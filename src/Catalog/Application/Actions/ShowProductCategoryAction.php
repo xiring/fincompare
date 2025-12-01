@@ -11,6 +11,6 @@ class ShowProductCategoryAction
 {
     public function execute(ProductCategory $category): ProductCategory
     {
-        return $category;
+        return $category->load(['preForm', 'postForm']);
     }
 }

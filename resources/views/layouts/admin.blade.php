@@ -68,7 +68,7 @@
                     </a>
 
                     <!-- Catalog -->
-                    <div x-data="{ open: {{ request()->routeIs('admin.product-categories.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.attributes.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <div x-data="{ open: {{ request()->routeIs('admin.product-categories.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.attributes.*') || request()->routeIs('admin.forms.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="open=!open" title="Catalog" class="w-full flex items-center text-sm font-medium transition-all duration-200"
                                 :class="sidebarCollapsed ? 'justify-center gap-0 p-0 w-10 h-10 rounded-lg mx-auto' : 'gap-3 px-3 py-2.5 rounded-lg'"
                                 :class="open ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'">
@@ -77,6 +77,7 @@
                             <svg x-show="!sidebarCollapsed" class="h-4 w-4 ms-auto flex-shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.127l3.71-3.896a.75.75 0 111.08 1.04l-4.24 4.46a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
                         </button>
                         <div x-show="open && !sidebarCollapsed" x-collapse x-cloak class="ms-8 space-y-1 border-l-2 border-gray-100 pl-4">
+                            <a href="{{ route('admin.forms.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.forms.*') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Forms</a>
                             <a href="{{ route('admin.product-categories.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.product-categories.*') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Categories</a>
                             <a href="{{ route('admin.products.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.products.*') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Products</a>
                             <a href="{{ route('admin.attributes.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-all duration-200 {{ request()->routeIs('admin.attributes.*') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">Attributes</a>

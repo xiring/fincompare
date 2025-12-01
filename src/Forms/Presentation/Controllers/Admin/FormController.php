@@ -5,9 +5,9 @@ namespace Src\Forms\Presentation\Controllers\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Forms\Application\Actions\CreateFormAction;
 use Src\Forms\Application\Actions\DeleteFormAction;
+use Src\Forms\Application\Actions\DuplicateFormAction;
 use Src\Forms\Application\Actions\ListFormsAction;
 use Src\Forms\Application\Actions\ShowFormAction;
 use Src\Forms\Application\Actions\UpdateFormAction;
@@ -38,7 +38,6 @@ class FormController extends Controller
             'q' => $request->get('q'),
             'status' => $request->get('status'),
             'type' => $request->get('type'),
-            'product_category_id' => $request->get('product_category_id'),
         ];
         $items = $list->execute($filters, (int) $request->get('per_page', 20));
 
@@ -46,9 +45,7 @@ class FormController extends Controller
             return response()->json($items);
         }
 
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.forms.index', compact('items', 'categories'));
+        return view('admin.forms.index', compact('items'));
     }
 
     /**
@@ -62,9 +59,7 @@ class FormController extends Controller
             return response()->json(['message' => 'Provide form payload to store.']);
         }
 
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.forms.create', compact('categories'));
+        return view('admin.forms.create');
     }
 
     /**
@@ -78,11 +73,15 @@ class FormController extends Controller
         $inputs = $validated['inputs'] ?? [];
         unset($validated['inputs']);
 
-        // Convert options_text to options array for dropdown inputs
+        // Convert options_text to options array for dropdown inputs (fallback if JavaScript didn't run)
         foreach ($inputs as &$input) {
             if (isset($input['options_text']) && ! empty($input['options_text'])) {
                 $input['options'] = array_filter(array_map('trim', explode("\n", $input['options_text'])));
                 unset($input['options_text']);
+            }
+            // Ensure options is null if empty array (for non-dropdown inputs)
+            if (isset($input['options']) && is_array($input['options']) && empty($input['options'])) {
+                $input['options'] = null;
             }
         }
 
@@ -138,11 +137,15 @@ class FormController extends Controller
         $inputs = $validated['inputs'] ?? [];
         unset($validated['inputs']);
 
-        // Convert options_text to options array for dropdown inputs
+        // Convert options_text to options array for dropdown inputs (fallback if JavaScript didn't run)
         foreach ($inputs as &$input) {
             if (isset($input['options_text']) && ! empty($input['options_text'])) {
                 $input['options'] = array_filter(array_map('trim', explode("\n", $input['options_text'])));
                 unset($input['options_text']);
+            }
+            // Ensure options is null if empty array (for non-dropdown inputs)
+            if (isset($input['options']) && is_array($input['options']) && empty($input['options'])) {
+                $input['options'] = null;
             }
         }
 
@@ -153,6 +156,22 @@ class FormController extends Controller
         }
 
         return redirect()->route('admin.forms.index')->with('status', 'Form updated successfully');
+    }
+
+    /**
+     * Duplicate the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function duplicate(Form $form, DuplicateFormAction $duplicate)
+    {
+        $duplicatedForm = $duplicate->execute($form);
+
+        if (request()->wantsJson()) {
+            return response()->json($duplicatedForm, 201);
+        }
+
+        return redirect()->route('admin.forms.index')->with('status', 'Form duplicated successfully');
     }
 
     /**

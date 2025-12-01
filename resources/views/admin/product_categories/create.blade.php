@@ -35,6 +35,34 @@
                     <x-input-label for="is_active" value="Active" class="!mb-0" />
                 </div>
 
+                <div class="pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Form Assignment</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <x-input-label for="pre_form_id" value="Pre Form" />
+                            <select id="pre_form_id" name="pre_form_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                <option value="">-- No Pre Form --</option>
+                                @foreach($preForms as $form)
+                                    <option value="{{ $form->id }}" {{ (string)old('pre_form_id')===(string)$form->id ? 'selected' : '' }}>{{ $form->name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select a pre-form for this category</p>
+                            <x-input-error :messages="$errors->get('pre_form_id')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="post_form_id" value="Post Form" />
+                            <select id="post_form_id" name="post_form_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                <option value="">-- No Post Form --</option>
+                                @foreach($postForms as $form)
+                                    <option value="{{ $form->id }}" {{ (string)old('post_form_id')===(string)$form->id ? 'selected' : '' }}>{{ $form->name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select a post-form for this category</p>
+                            <x-input-error :messages="$errors->get('post_form_id')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
                     <a href="{{ route('admin.product-categories.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-300 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                         Cancel

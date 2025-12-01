@@ -16,6 +16,7 @@ use Src\Leads\Presentation\Controllers\Admin\LeadController;
 use Src\Partners\Presentation\Controllers\Admin\PartnerController;
 use Src\Settings\Presentation\Controllers\Admin\SiteSettingController;
 use Src\Shared\Presentation\Controllers\ActivityLogController;
+use Src\Forms\Presentation\Controllers\Admin\FormController;
 
 Route::middleware(['web', 'auth', 'throttle:120,1', 'role:admin|editor|viewer'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('settings', [SiteSettingController::class, 'edit'])->name('settings.edit');
@@ -31,6 +32,8 @@ Route::middleware(['web', 'auth', 'throttle:120,1', 'role:admin|editor|viewer'])
     Route::resource('blogs', BlogPostController::class);
     Route::resource('cms-pages', CmsPageController::class);
     Route::resource('faqs', FaqController::class)->except(['show']);
+    Route::resource('forms', FormController::class);
+    Route::post('forms/{form}/duplicate', [FormController::class, 'duplicate'])->name('forms.duplicate');
     Route::resource('leads', LeadController::class)->only(['index', 'show', 'update']);
     Route::get('leads-export', [LeadController::class, 'exportCsv'])->name('leads.export');
 
