@@ -1,5 +1,8 @@
 @php($p = $product ?? null)
-<div x-data="{ selected: false }" class="group bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+@php($compareIds = array_map('intval', session('compare_ids', [])))
+<div x-data="{
+    selected: {{ in_array((int)($p->id ?? 0), $compareIds, true) ? 'true' : 'false' }}
+}" class="group bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
     @if($p->image ?? null)
         <div class="relative h-48 overflow-hidden bg-gray-100">
             <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->name ?? 'Product' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">

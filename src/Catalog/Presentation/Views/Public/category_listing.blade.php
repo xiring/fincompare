@@ -105,11 +105,13 @@
         </div>
 
         <!-- Compare bar -->
-        <div x-show="selected.length>1" x-cloak class="fixed bottom-4 left-0 right-0">
+        <div x-show="selected.length > 0" x-cloak class="fixed bottom-4 left-0 right-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-white border shadow-lg rounded-full px-4 py-3 flex items-center justify-between">
-                    <div class="text-sm text-gray-700">Selected: <span class="font-semibold">@{{ selected.length }}</span></div>
-                    <a :href="compareUrl()" class="px-5 py-2 rounded-full bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white">Compare (@{{ selected.length }})</a>
+                    <div class="text-sm text-gray-700">Selected: <span class="font-semibold" x-text="selected.length"></span></div>
+                    <a :href="compareUrl()" class="px-5 py-2 rounded-full bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white font-medium">
+                        Compare (<span x-text="selected.length"></span>)
+                    </a>
                 </div>
             </div>
         </div>
@@ -122,21 +124,26 @@
          */
         function compareStore(){
             return {
-                selected: [],
+                selected: @json(array_map('intval', session('compare_ids', []))),
                 filters: {},
                 toggle({id, selected}){
+                    id = Number(id);
                     const idx = this.selected.indexOf(id);
-                    if (selected && idx === -1) this.selected.push(id);
-                    if (!selected && idx !== -1) this.selected.splice(idx,1);
+                    if (selected && idx === -1) {
+                        this.selected.push(id);
+                    }
+                    if (!selected && idx !== -1) {
+                        this.selected.splice(idx, 1);
+                    }
                     // Persist selection to session
                     try {
                         fetch('{{ route('compare.toggle') }}', {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                             },
-                            body: new URLSearchParams({ id: String(id), selected: String(selected) })
+                            body: JSON.stringify({ id: id, selected: Boolean(selected) })
                         });
                     } catch (e) {}
                 },
@@ -179,6 +186,13 @@
                         document.getElementById('products-grid').insertAdjacentHTML('beforeend', json.html || '');
                         this.next = json.next || null;
                         this.progress = 100;
+                        // Update compare store with latest compare IDs from server
+                        if (json.compareIds && window.Alpine) {
+                            const compareStore = Alpine.$data(document.querySelector('[x-data*="compareStore"]'));
+                            if (compareStore) {
+                                compareStore.selected = json.compareIds;
+                            }
+                        }
                     } finally {
                         this.loading = false;
                         setTimeout(()=>{ this.showBar=false; this.progress=0; }, 300);
