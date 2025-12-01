@@ -1,5 +1,10 @@
 @php($p = $product ?? null)
 <div x-data="{ selected: false }" class="group bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+    @if($p->image ?? null)
+        <div class="relative h-48 overflow-hidden bg-gray-100">
+            <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->name ?? 'Product' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        </div>
+    @endif
     <div class="px-4 pt-4">
         <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3">

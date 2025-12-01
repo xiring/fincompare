@@ -14,7 +14,11 @@
                     <span class="text-white">{{ $product->name }}</span>
                 </nav>
                 <div class="flex items-start gap-4">
-                    <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                    @if($product->image)
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-24 h-24 rounded-lg bg-white/10 object-cover ring-2 ring-white/20 shadow-lg">
+                    @else
+                        <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                    @endif
                     <div class="flex-1">
                         <h1 class="text-3xl font-extrabold tracking-tight">{{ $product->name }}</h1>
                         <div class="mt-1 flex items-center gap-3 text-sm text-white/90">

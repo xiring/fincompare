@@ -15,7 +15,16 @@ class CreateProductAction
     public function execute(array $data, array $attributesInput): Product
     {
         if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
+            $baseSlug = Str::slug($data['name']);
+            $slug = $baseSlug;
+            $counter = 1;
+
+            // Ensure slug is unique
+            while (Product::where('slug', $slug)->exists()) {
+                $slug = $baseSlug.'-'.$counter;
+                $counter++;
+            }
+            $data['slug'] = $slug;
         }
         $data['is_featured'] = (bool) ($data['is_featured'] ?? false);
 
