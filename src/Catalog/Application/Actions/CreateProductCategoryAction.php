@@ -5,6 +5,7 @@ namespace Src\Catalog\Application\Actions;
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
+use Src\Forms\Domain\Entities\Form;
 
 /**
  * CreateProductCategoryAction application action.
@@ -15,6 +16,6 @@ class CreateProductCategoryAction
 
     public function execute(ProductCategoryDTO $dto): ProductCategory
     {
-        return $this->repo->create($dto);
+        return $this->repo->create($dto)->load(['preForm', 'postForm']);
     }
 }

@@ -1,5 +1,9 @@
 <x-guest-layout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white">
+    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
+        </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <h1 class="text-3xl font-extrabold tracking-tight">Blog</h1>
             <p class="mt-2 text-white/90">Insights and guides from FinCompare.</p>
@@ -14,11 +18,11 @@
                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
                 </span>
-                <input name="q" value="{{ request('q') }}" placeholder="Search posts" class="w-full pl-10 pr-3 py-2.5 rounded-xl border-gray-300 focus-brand" />
+                <input name="q" value="{{ request('q') }}" placeholder="Search posts" class="w-full pl-10 pr-3 py-2.5 rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" />
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Category</label>
-                <select name="category" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select name="category" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
                     <option value="">All</option>
                     @foreach(($categories ?? []) as $c)
                         <option value="{{ $c }}" {{ request('category')===$c ? 'selected' : '' }}>{{ $c }}</option>
@@ -26,8 +30,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Tag</label>
-                <select name="tag" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+                <select name="tag" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
                     <option value="">All</option>
                     @foreach(($tags ?? []) as $t)
                         <option value="{{ $t }}" {{ request('tag')===$t ? 'selected' : '' }}>{{ $t }}</option>
@@ -35,8 +39,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Sort</label>
-                <select name="sort" class="mt-1 w-full rounded-md border-gray-300 focus-brand" onchange="this.form.submit()">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Sort</label>
+                <select name="sort" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
                     <option value="desc" {{ request('sort','desc')==='desc' ? 'selected' : '' }}>Newest</option>
                     <option value="asc" {{ request('sort')==='asc' ? 'selected' : '' }}>Oldest</option>
                 </select>

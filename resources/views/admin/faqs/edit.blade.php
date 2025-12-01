@@ -1,30 +1,35 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Edit FAQ') }}</h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">{{ __('Edit FAQ') }}</h2>
+                <p class="mt-1 text-sm text-gray-600">Update frequently asked question</p>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <form action="{{ route('admin.faqs.update', $faq) }}" method="post" class="space-y-6">
-                    @csrf
-                    @method('PATCH')
-                    <div>
-                        <x-input-label for="question" value="Question" />
-                        <x-text-input id="question" name="question" value="{{ old('question', $faq->question) }}" class="mt-1 block w-full" required />
-                        <x-input-error :messages="$errors->get('question')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="answer" value="Answer" />
-                        <textarea id="answer" name="answer" class="mt-1 block w-full border-gray-300 rounded-md" rows="5" required>{{ old('answer', $faq->answer) }}</textarea>
-                        <x-input-error :messages="$errors->get('answere')" class="mt-2" />
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="{{ route('admin.faqs.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</a>
-                        <x-primary-button>Update</x-primary-button>
-                    </div>
-                </form>
-            </div>
+    <div class="max-w-3xl">
+        <div class="bg-white rounded-lg shadow-soft border border-gray-200 p-6">
+            <form action="{{ route('admin.faqs.update', $faq) }}" method="post" class="space-y-6">
+                @csrf
+                @method('PATCH')
+                <div>
+                    <x-input-label for="question" value="Question" />
+                    <x-text-input id="question" name="question" value="{{ old('question', $faq->question) }}" class="mt-1 block w-full" required />
+                    <x-input-error :messages="$errors->get('question')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="answer" value="Answer" />
+                    <textarea id="answer" name="answer" rows="6" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" required>{{ old('answer', $faq->answer) }}</textarea>
+                    <x-input-error :messages="$errors->get('answer')" class="mt-2" />
+                </div>
+                <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
+                    <a href="{{ route('admin.faqs.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-300 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <x-primary-button>Update FAQ</x-primary-button>
+                </div>
+            </form>
         </div>
     </div>
 </x-app-layout>

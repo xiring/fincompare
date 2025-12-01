@@ -18,7 +18,7 @@ class Product extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['partner_id', 'product_category_id', 'name', 'slug', 'description', 'is_featured', 'status'];
+    protected $fillable = ['partner_id', 'product_category_id', 'name', 'slug', 'description', 'image', 'is_featured', 'status'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -38,5 +38,34 @@ class Product extends Model
     public function attributeValues(): HasMany
     {
         return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/'.$this->image) : null;
+    }
+
+    public function getAttributeHighlightsAttribute(): array
+    {
+        $highlights = [];
+        $attributeValues = $this->attributeValues()->with('attribute')->get();
+
+        foreach ($attributeValues as $av) {
+            $slug = strtolower($av->attribute->slug ?? '');
+            $value = $av->getScalarValue();
+
+            if ($slug === 'interest_rate' || $slug === 'interest-rate') {
+                $highlights['interest_rate'] = is_numeric($value) ? number_format((float) $value, 2).'%' : ($value ?? '—');
+            } elseif ($slug === 'max_amount' || $slug === 'max-amount') {
+                $highlights['max_amount'] = is_numeric($value) ? '$'.number_format((float) $value) : ($value ?? '—');
+            }
+        }
+
+        return $highlights;
     }
 }

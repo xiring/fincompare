@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ProductCategoriesTableSeeder::class,
             AttributesTableSeeder::class,
             ProductsTableSeeder::class,
+            FormsTableSeeder::class,
             LeadsTableSeeder::class,
             BlogPostsTableSeeder::class,
             CmsPagesTableSeeder::class,

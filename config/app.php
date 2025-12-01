@@ -177,6 +177,7 @@ return [
         Src\Shared\Infrastructure\Providers\TelescopeServiceProvider::class,
         Src\Content\Infrastructure\Providers\ContentServiceProvider::class,
         Src\Settings\Infrastructure\Providers\SettingsServiceProvider::class,
+        Src\Forms\Infrastructure\Providers\FormsServiceProvider::class,
     ])->toArray(),
 
     /*

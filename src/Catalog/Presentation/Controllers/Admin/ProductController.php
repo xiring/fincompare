@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Src\Catalog\Application\Actions\CreateProductAction;
 use Src\Catalog\Application\Actions\DeleteProductAction;
+use Src\Catalog\Application\Actions\DuplicateProductAction;
 use Src\Catalog\Application\Actions\ListProductsAction;
 use Src\Catalog\Application\Actions\ShowProductAction;
 use Src\Catalog\Application\Actions\UpdateProductAction;
@@ -74,6 +75,12 @@ class ProductController extends Controller
             $decoded = json_decode($data['attributes'], true);
             $data['attributes'] = is_array($decoded) ? $decoded : [];
         }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products/'.now()->format('Y/m'), 'public');
+        }
+
         $product = $create->execute(
             data: [
                 'partner_id' => $data['partner_id'],
@@ -81,6 +88,7 @@ class ProductController extends Controller
                 'name' => $data['name'],
                 'slug' => $data['slug'] ?? null,
                 'description' => $data['description'] ?? null,
+                'image' => $data['image'] ?? null,
                 'is_featured' => (bool) ($data['is_featured'] ?? false),
                 'status' => $data['status'],
             ],
@@ -139,6 +147,16 @@ class ProductController extends Controller
             $decoded = json_decode($data['attributes'], true);
             $data['attributes'] = is_array($decoded) ? $decoded : [];
         }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image')->store('products/'.now()->format('Y/m'), 'public');
+        }
+
         $product = $update->execute(
             product: $product,
             data: [
@@ -147,6 +165,7 @@ class ProductController extends Controller
                 'name' => $data['name'],
                 'slug' => $data['slug'] ?? null,
                 'description' => $data['description'] ?? null,
+                'image' => $data['image'] ?? $product->image, // Keep existing image if not updated
                 'is_featured' => (bool) ($data['is_featured'] ?? false),
                 'status' => $data['status'],
             ],
@@ -157,6 +176,22 @@ class ProductController extends Controller
         }
 
         return redirect()->route('admin.products.index')->with('status', 'Product updated');
+    }
+
+    /**
+     * Duplicate the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function duplicate(Product $product, DuplicateProductAction $duplicate)
+    {
+        $duplicatedProduct = $duplicate->execute($product);
+
+        if (request()->wantsJson()) {
+            return response()->json($duplicatedProduct, 201);
+        }
+
+        return redirect()->route('admin.products.index')->with('status', 'Product duplicated successfully');
     }
 
     /**

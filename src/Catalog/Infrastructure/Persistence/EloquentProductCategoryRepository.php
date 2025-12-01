@@ -26,7 +26,7 @@ class EloquentProductCategoryRepository implements ProductCategoryRepositoryInte
 
     public function find(int $id): ?ProductCategory
     {
-        return ProductCategory::find($id);
+        return ProductCategory::with(['preForm', 'postForm'])->find($id);
     }
 
     public function create(ProductCategoryDTO $dto): ProductCategory

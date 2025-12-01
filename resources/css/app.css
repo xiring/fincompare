@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Inter font for admin */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Custom animations */
 @keyframes fade-in-up {
   0% { opacity: 0; transform: translateY(12px); }
@@ -67,10 +70,49 @@
   box-shadow: 0 0 0 3px rgb(255 102 0 / 0.25) !important;
 }
 
+/* Brand primary button with CSS variable */
+.btn-brand-primary {
+  background-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+}
+.btn-brand-primary:hover {
+  background-color: var(--brand-primary-2) !important;
+  color: #ffffff !important;
+}
+
+/* Active category pill */
+.category-pill-active {
+  background-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--brand-primary) !important;
+}
+
 /* Admin list consistency helpers (non-invasive) */
 @layer components {
   .admin-shell table thead { @apply bg-gray-50 text-gray-600; }
-  .admin-shell table th, .admin-shell table td { @apply px-3 py-2; }
-  .admin-shell .filters { @apply p-4 sm:p-8 bg-white shadow sm:rounded-lg; }
-  .admin-shell .card { @apply p-4 sm:p-8 bg-white shadow sm:rounded-lg; }
+  .admin-shell table th, .admin-shell table td { @apply px-6 py-4; }
+  .admin-shell .filters { @apply p-6 bg-white shadow-soft border border-gray-200 rounded-lg; }
+  .admin-shell .card { @apply p-6 bg-white shadow-soft border border-gray-200 rounded-lg; }
+
+  /* TailAdmin-style improvements */
+  .admin-shell select {
+    @apply border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm;
+  }
+
+  .admin-shell .pagination {
+    @apply flex items-center gap-2;
+  }
+
+  .admin-shell .pagination a,
+  .admin-shell .pagination span {
+    @apply px-3 py-2 text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .admin-shell .pagination a {
+    @apply text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-primary-600;
+  }
+
+  .admin-shell .pagination span {
+    @apply text-white bg-primary-600 border border-primary-600;
+  }
 }

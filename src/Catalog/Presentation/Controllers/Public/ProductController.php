@@ -20,21 +20,29 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $categoryId = $request->integer('category_id');
+        $categorySlug = $request->get('category');
         $partnerId = $request->integer('partner_id');
+        $featured = $request->boolean('featured');
+
+        $category = null;
+        if ($categorySlug) {
+            $category = ProductCategory::where('slug', $categorySlug)->where('is_active', true)->first();
+        }
 
         $products = Product::query()->with(['partner'])
+            ->where('status', 'active')
             ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
-            ->when($categoryId, fn ($q, $id) => $q->where('product_category_id', $id))
+            ->when($category, fn ($q) => $q->where('product_category_id', $category->id))
             ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
+            ->when($featured, fn ($q) => $q->where('is_featured', true))
             ->orderByDesc('created_at')
             ->paginate(12)
             ->withQueryString();
 
-        $category = $categoryId ? ProductCategory::find($categoryId) : (object) ['name' => 'All Products'];
+        $category = $category ?: (object) ['name' => $featured ? 'Featured Products' : 'All Products', 'slug' => null];
         $category_attributes = [];
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
+        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
+        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
 
         if ($request->wantsJson()) {
             $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [
@@ -47,7 +55,45 @@ class ProductController extends Controller
             ]);
         }
 
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners'));
+        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
+    }
+
+    /**
+     * Display products for a specific category.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
+    public function category(ProductCategory $category, Request $request)
+    {
+        $partnerId = $request->integer('partner_id');
+        $featured = $request->boolean('featured');
+
+        $products = Product::query()->with(['partner'])
+            ->where('status', 'active')
+            ->where('product_category_id', $category->id)
+            ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
+            ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
+            ->when($featured, fn ($q) => $q->where('is_featured', true))
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $category_attributes = [];
+        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
+        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
+
+        if ($request->wantsJson()) {
+            $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [
+                'products' => $products,
+            ])->render();
+
+            return response()->json([
+                'html' => $html,
+                'next' => $products->nextPageUrl(),
+            ]);
+        }
+
+        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
     }
 
     /**
@@ -85,21 +131,57 @@ class ProductController extends Controller
             $ids = (array) session('compare_ids', []);
         }
 
-        $products = Product::query()->with('partner')->whereIn('id', $ids)->get();
+        // Ensure we have valid IDs and filter out any invalid ones
+        $ids = array_filter(array_map('intval', $ids));
+
+                // If no valid IDs, return empty result
+        if (empty($ids)) {
+            $products = collect();
+        } else {
+            $products = Product::query()->with('partner')->whereIn('id', $ids)->get();
+        }
         $features = collect();
         $values = [];
+
+        // Prepare products data for frontend
+        $productsData         = $products->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'image' => $p->image_url ?? null,
+                'logo' => $p->partner->logo_url ?? null,
+            ];
+        })->values()->all();
+
         foreach ($products as $p) {
             $avs = $p->attributeValues()->with('attribute')->get();
             foreach ($avs as $av) {
                 $key = (string) $av->attribute->id;
                 $features[$key] = ['key' => $key, 'label' => $av->attribute->name];
-                $values[$p->id][$key] = $av->value_text ?? $av->value_number ?? ($av->value_boolean ? 'Yes' : 'No') ?? ($av->value_json ? json_encode($av->value_json) : null);
+
+                // Check if this is a "provider" attribute - show partner name instead of ID
+                $attributeName = strtolower($av->attribute->name ?? '');
+                $attributeSlug = strtolower($av->attribute->slug ?? '');
+                if ($attributeName === 'provider' || $attributeSlug === 'provider') {
+                    $values[$p->id][$key] =         $p->partner->name ?? '—';
+                } else {
+                    $values[$p->id][$key] = $av->value_text ?? $av->value_number ?? ($av->value_boolean ? 'Yes' : 'No') ?? ($av->value_json ? json_encode($av->value_json) : null);
+                }
             }
         }
 
+        $featuresData = array_values(array_map(function ($f) {
+            return [
+                'key' => $f['key'] ?? $f->key ?? null,
+                'label' => $f['label'] ?? $f->label ?? null,
+            ];
+        }, $features->values()->all()));
+
         return view()->file(base_path('src/Catalog/Presentation/Views/Public/compare_products.blade.php'), [
             'products' => $products,
+            'productsData' => $productsData,
             'features' => $features->values()->all(),
+            'featuresData' => $featuresData,
             'values' => $values,
         ]);
     }
