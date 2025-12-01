@@ -8,75 +8,83 @@
         </div>
     </x-slot>
 
-    <div class="max-w-3xl">
+    <div class="max-w-7xl">
         <div class="bg-white rounded-lg shadow-soft border border-gray-200 p-6">
             <form action="{{ route('admin.products.store') }}" method="post" class="space-y-6">
                 @csrf
 
-                <div>
-                    <x-input-label for="name" value="Name" />
-                    <x-text-input id="name" name="name" value="{{ old('name') }}" class="mt-1 block w-full" required />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
-
-                <div>
-                    <x-input-label for="slug" value="Slug (optional)" />
-                    <x-text-input id="slug" name="slug" value="{{ old('slug') }}" class="mt-1 block w-full" />
-                    <x-input-error :messages="$errors->get('slug')" class="mt-2" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <x-input-label for="partner_id" value="Partner" />
-                        <select id="partner_id" name="partner_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" required>
-                            <option value="">-- Select Partner --</option>
-                            @foreach($partners as $p)
-                                <option value="{{ $p->id }}" {{ (string)old('partner_id') === (string)$p->id ? 'selected' : '' }}>{{ $p->name }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('partner_id')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="product_category_id" value="Product Category" />
-                        <select id="product_category_id" name="product_category_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" required>
-                            <option value="">-- Select Category --</option>
-                            @foreach($categories as $c)
-                                <option value="{{ $c->id }}" {{ (string)old('product_category_id') === (string)$c->id ? 'selected' : '' }}>{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('product_category_id')" class="mt-2" />
-                    </div>
-                </div>
-
-                <div>
-                    <x-input-label for="description" value="Description" />
-                    <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">{{ old('description') }}</textarea>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
-                    <x-input-label for="is_featured" value="Featured" class="!mb-0" />
-                </div>
-
-                <div>
-                    <x-input-label for="status" value="Status" />
-                    <select id="status" name="status" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
-                        <option value="active" {{ old('status')==='active'?'selected':'' }}>Active</option>
-                        <option value="inactive" {{ old('status')==='inactive'?'selected':'' }}>Inactive</option>
-                    </select>
-                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
-                </div>
-
-                <div class="pt-6 border-t border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column: Basic Product Information -->
+                    <div class="space-y-6">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Product Attributes</h3>
-                            <p class="text-sm text-gray-600">Add attribute values for this product</p>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Information</h3>
+                        </div>
+
+                        <div>
+                            <x-input-label for="name" value="Name" />
+                            <x-text-input id="name" name="name" value="{{ old('name') }}" class="mt-1 block w-full" required />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="slug" value="Slug (optional)" />
+                            <x-text-input id="slug" name="slug" value="{{ old('slug') }}" class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('slug')" class="mt-2" />
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="partner_id" value="Partner" />
+                                <select id="partner_id" name="partner_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" required>
+                                    <option value="">-- Select Partner --</option>
+                                    @foreach($partners as $p)
+                                        <option value="{{ $p->id }}" {{ (string)old('partner_id') === (string)$p->id ? 'selected' : '' }}>{{ $p->name }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('partner_id')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="product_category_id" value="Product Category" />
+                                <select id="product_category_id" name="product_category_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" required>
+                                    <option value="">-- Select Category --</option>
+                                    @foreach($categories as $c)
+                                        <option value="{{ $c->id }}" {{ (string)old('product_category_id') === (string)$c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('product_category_id')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <x-input-label for="description" value="Description" />
+                            <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">{{ old('description') }}</textarea>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
+                            <x-input-label for="is_featured" value="Featured" class="!mb-0" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="status" value="Status" />
+                            <select id="status" name="status" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                <option value="active" {{ old('status')==='active'?'selected':'' }}>Active</option>
+                                <option value="inactive" {{ old('status')==='inactive'?'selected':'' }}>Inactive</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>
                     </div>
 
-                    <div id="attributes-container" class="space-y-4">
-                        <p class="text-sm text-gray-500">Select a category to see available attributes</p>
+                    <!-- Right Column: Product Attributes -->
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Attributes</h3>
+                            <p class="text-sm text-gray-600 mb-4">Add attribute values for this product</p>
+                        </div>
+
+                        <div id="attributes-container" class="space-y-4">
+                            <p class="text-sm text-gray-500">Select a category to see available attributes</p>
+                        </div>
                     </div>
                 </div>
 
@@ -94,6 +102,7 @@
         const categorySelect = document.getElementById('product_category_id');
         const attributesContainer = document.getElementById('attributes-container');
         let loadedAttributes = [];
+        const partners = @json($partners);
 
         categorySelect.addEventListener('change', function() {
             const categoryId = this.value;
@@ -153,6 +162,19 @@
 
         function getAttributeInput(attr, inputId, inputName, value) {
             const required = attr.is_required ? 'required' : '';
+
+            // Check if this is a provider attribute (by slug or name)
+            const isProvider = attr.slug?.toLowerCase() === 'provider' || attr.name?.toLowerCase() === 'provider';
+
+            if (isProvider) {
+                // Show Partner dropdown
+                let options = '<option value="">-- Select Partner --</option>';
+                partners.forEach(partner => {
+                    const selected = value == partner.id ? 'selected' : '';
+                    options += `<option value="${partner.id}" ${selected}>${partner.name}</option>`;
+                });
+                return `<select id="${inputId}" name="${inputName}" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" ${required}>${options}</select>`;
+            }
 
             switch(attr.data_type) {
                 case 'number':
