@@ -225,15 +225,16 @@
             <h2 class="text-xl font-semibold mb-6">Our Trusted Partners</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
                 @foreach(($partners ?? []) as $partner)
-                    <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 80 }}ms" class="h-12 flex items-center justify-center bg-white border rounded">
-                        <img src="{{ $partner->logo_url ?? 'https://placehold.co/120x30?text=Logo' }}" alt="{{ $partner->name ?? 'Partner' }}" class="max-h-8">
-                    </div>
+                    @if($partner->website_url ?? null)
+                        <a href="{{ $partner->website_url }}" target="_blank" rel="noopener noreferrer" :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 80 }}ms" class="h-12 flex items-center justify-center bg-white border rounded hover:shadow-md transition-shadow cursor-pointer">
+                            <img src="{{ $partner->logo_url ?? 'https://placehold.co/120x30?text=Logo' }}" alt="{{ $partner->name ?? 'Partner' }}" class="max-h-8">
+                        </a>
+                    @else
+                        <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $loop->index * 80 }}ms" class="h-12 flex items-center justify-center bg-white border rounded">
+                            <img src="{{ $partner->logo_url ?? 'https://placehold.co/120x30?text=Logo' }}" alt="{{ $partner->name ?? 'Partner' }}" class="max-h-8">
+                        </div>
+                    @endif
                 @endforeach
-                @if(empty($partners))
-                    @for($i=0;$i<5;$i++)
-                        <div :class="visible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'" style="animation-delay: {{ $i * 80 }}ms" class="h-12 flex items-center justify-center bg-white border rounded"></div>
-                    @endfor
-                @endif
             </div>
         </div>
     </section>

@@ -21,7 +21,7 @@ class PartnerRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:partners,slug'.($id ? ','.$id : '')],
-            'logo_path' => ['nullable', 'string', 'max:1024'],
+            'logo' => ['nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,gif,webp'],
             'website_url' => ['nullable', 'url', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],

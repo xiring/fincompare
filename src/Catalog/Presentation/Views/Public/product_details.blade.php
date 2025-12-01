@@ -5,19 +5,25 @@
                 <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
                 <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
             </div>
-            <div class="relative px-4 sm:px-6 lg:px-8 py-10">
-                <nav class="text-sm text-white/80 mb-4">
-                    <a href="/" class="hover:underline">Home</a>
-                    <span class="mx-1">/</span>
-                    <a href="{{ route('products.public.index') }}" class="hover:underline">Products</a>
-                    <span class="mx-1">/</span>
-                    <span class="text-white">{{ $product->name }}</span>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <nav class="text-sm mb-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+                    <a href="/" class="text-white hover:underline font-medium">Home</a>
+                    <span class="mx-2 text-white/80">/</span>
+                    <a href="{{ route('products.public.index') }}" class="text-white hover:underline font-medium">Products</a>
+                    <span class="mx-2 text-white/80">/</span>
+                    <span class="text-white font-semibold">{{ $product->name }}</span>
                 </nav>
-                <div class="flex items-start gap-4">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
                     @if($product->image)
                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-24 h-24 rounded-lg bg-white/10 object-cover ring-2 ring-white/20 shadow-lg">
                     @else
-                        <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                        @if($product->partner->website_url ?? null)
+                            <a href="{{ $product->partner->website_url }}" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
+                                <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                            </a>
+                        @else
+                            <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/64x64' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20">
+                        @endif
                     @endif
                     <div class="flex-1">
                         <h1 class="text-3xl font-extrabold tracking-tight">{{ $product->name }}</h1>
@@ -29,17 +35,17 @@
                             <span class="px-2 py-0.5 text-xs rounded-full bg-white/20">{{ ucfirst($product->status ?? 'active') }}</span>
                         </div>
                     </div>
-                    <div class="hidden sm:flex items-center gap-3">
-                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90'" class="inline-flex items-center justify-center px-4 py-3 rounded-xl font-semibold transition-colors" style="color: var(--brand-primary);">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-4 sm:mt-0">
+                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90'" class="inline-flex items-center justify-center px-4 py-2.5 sm:py-3 rounded-xl font-semibold transition-colors text-sm sm:text-base" style="color: var(--brand-primary);">
                             <span x-text="inCompare ? 'In Compare' : 'Add to Compare'"></span>
                         </button>
-                        <a href="{{ route('leads.create', ['product'=>$product->slug]) }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white font-semibold shadow hover:bg-white/90 transition-colors" style="color: var(--brand-primary);">Send Inquiry</a>
+                        <a href="{{ route('leads.create', ['product'=>$product->slug]) }}" class="inline-flex items-center justify-center px-5 py-2.5 sm:py-3 rounded-xl bg-white font-semibold shadow hover:bg-white/90 transition-colors text-sm sm:text-base" style="color: var(--brand-primary);">Send Inquiry</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="px-4 sm:px-6 lg:px-8 py-8 pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-in-up">
                 <div class="p-4 rounded-2xl bg-white border">
                     <div class="text-xs text-gray-500">Interest Rate</div>
@@ -55,55 +61,78 @@
                 </div>
             </div>
 
-        <div class="mt-6 px-4 sm:px-6 lg:px-8 animate-fade-in-up">
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                    <button @click="tab='overview'" :class="tab==='overview' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Overview</button>
-                    <button @click="tab='features'" :class="tab==='features' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Features</button>
-                    <button @click="tab='eligibility'" :class="tab==='eligibility' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Eligibility</button>
-                    <button @click="tab='documents'" :class="tab==='documents' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">Documents</button>
-                    <button @click="tab='faq'" :class="tab==='faq' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700'" class="whitespace-nowrap border-b-2 px-1 pb-2 text-sm font-medium">FAQ</button>
+        <div class="mt-6 animate-fade-in-up">
+            <div class="border-b border-gray-200 overflow-x-auto">
+                <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
+                    <button @click="tab='overview'" :class="tab==='overview' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors">Overview</button>
+                    <button @click="tab='features'" :class="tab==='features' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors">Features</button>
+                    <button @click="tab='eligibility'" :class="tab==='eligibility' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors">Eligibility</button>
+                    <button @click="tab='documents'" :class="tab==='documents' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors">Documents</button>
+                    <button @click="tab='faq'" :class="tab==='faq' ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors">FAQ</button>
                 </nav>
             </div>
 
-            <div class="mt-6 prose max-w-none" x-show="tab==='overview'" x-cloak>
-                {!! $product->description !!}
+            <div class="mt-6 prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)] prose-a:no-underline hover:prose-a:underline" x-show="tab==='overview'" x-cloak>
+                @if($product->description)
+                    {!! $product->description !!}
+                @else
+                    <p class="text-gray-600">No description available for this product.</p>
+                @endif
             </div>
         </div>
 
         <div class="mt-8" x-show="tab==='features'" x-cloak>
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <h2 class="text-lg font-semibold">Features & Attributes</h2>
                 <div class="relative">
-                    <input x-model="featureQuery" type="text" placeholder="Search attributes..." class="w-64 rounded-md border-gray-300 text-sm focus-brand">
+                    <input x-model="featureQuery" type="text" placeholder="Search attributes..." class="w-full sm:w-64 rounded-lg border-gray-300 text-sm focus-brand pl-9 pr-3 py-2">
+                    <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </div>
             </div>
-            <div class="overflow-x-auto bg-white border rounded-lg">
-                <table class="min-w-full divide-y">
-                    <tbody class="divide-y">
-                        @foreach(($attributes ?? []) as $attr)
-                            <tr x-show="matchesQuery('{{ Str::of($attr->name)->replace("'","\'") }}','{{ Str::of($attr->value)->replace("'","\'") }}')">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900 w-1/3">{{ $attr->name }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $attr->value ?? '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            @if(count($attributes ?? []) > 0)
+                <div class="overflow-x-auto bg-white border rounded-lg">
+                    <table class="min-w-full divide-y">
+                        <tbody class="divide-y">
+                            @foreach(($attributes ?? []) as $attr)
+                                <tr x-show="matchesQuery('{{ Str::of($attr->name)->replace("'","\'") }}','{{ Str::of($attr->value)->replace("'","\'") }}')" class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 w-1/3">{{ $attr->name }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ $attr->value ?? '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="bg-white border rounded-lg p-8 text-center">
+                    <p class="text-gray-600">No attributes available for this product.</p>
+                </div>
+            @endif
+        </div>
+
+        <div class="mt-8" x-show="tab==='eligibility'" x-cloak>
+            <div class="bg-white border rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Eligibility Criteria</h3>
+                <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">{!! $product->eligibility ?? '<p class="text-gray-600">Details provided by the partner.</p>' !!}</div>
             </div>
         </div>
 
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" x-show="tab==='eligibility' || tab==='documents'" x-cloak>
-            <div x-show="tab==='eligibility'">
-                <h3 class="font-semibold mb-2">Eligibility Criteria</h3>
-                <div class="prose max-w-none">{!! $product->eligibility ?? '<p>Details provided by the partner.</p>' !!}</div>
-            </div>
-            <div x-show="tab==='documents'">
-                <h3 class="font-semibold mb-2">Required Documents</h3>
-                <div class="prose max-w-none">{!! $product->documents ?? '<p>Details provided by the partner.</p>' !!}</div>
+        <div class="mt-8" x-show="tab==='documents'" x-cloak>
+            <div class="bg-white border rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Required Documents</h3>
+                <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">{!! $product->documents ?? '<p class="text-gray-600">Details provided by the partner.</p>' !!}</div>
             </div>
         </div>
 
-        <div class="mt-10 px-4 sm:px-6 lg:px-8 flex flex-wrap items-center gap-3">
+        <div class="mt-8" x-show="tab==='faq'" x-cloak>
+            <div class="bg-white border rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Frequently Asked Questions</h3>
+                <p class="text-gray-600">No FAQ available for this product.</p>
+            </div>
+        </div>
+
+        <div class="mt-10 flex flex-wrap items-center gap-3 pb-4">
             <button @click="copyLink($event)" type="button" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -118,12 +147,18 @@
         </div>
 
         <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t shadow-lg" x-show="true">
-            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
                     @if($product->image)
                         <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg bg-gray-100 object-cover">
                     @else
-                        <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" class="w-10 h-10 rounded-lg bg-gray-100 object-contain">
+                        @if($product->partner->website_url ?? null)
+                            <a href="{{ $product->partner->website_url }}" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
+                                <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-10 h-10 rounded-lg bg-gray-100 object-contain">
+                            </a>
+                        @else
+                            <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" alt="{{ $product->partner->name ?? 'Partner' }}" class="w-10 h-10 rounded-lg bg-gray-100 object-contain">
+                        @endif
                     @endif
                     <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
                 </div>

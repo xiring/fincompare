@@ -11,7 +11,13 @@
     <div class="px-4 pt-4">
         <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3">
-                <img src="{{ $p->partner->logo_url ?? 'https://placehold.co/48x48' }}" alt="{{ $p->partner->name ?? 'Partner' }}" class="w-12 h-12 rounded bg-gray-100 object-contain">
+                @if($p->partner->website_url ?? null)
+                    <a href="{{ $p->partner->website_url }}" target="_blank" rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
+                        <img src="{{ $p->partner->logo_url ?? 'https://placehold.co/48x48' }}" alt="{{ $p->partner->name ?? 'Partner' }}" class="w-12 h-12 rounded bg-gray-100 object-contain">
+                    </a>
+                @else
+                    <img src="{{ $p->partner->logo_url ?? 'https://placehold.co/48x48' }}" alt="{{ $p->partner->name ?? 'Partner' }}" class="w-12 h-12 rounded bg-gray-100 object-contain">
+                @endif
                 <div>
                     <a href="{{ route('products.public.show', $p) }}" class="block hover:underline">
                         <h3 class="font-semibold text-gray-900">{{ $p->name ?? 'Product' }}</h3>

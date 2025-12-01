@@ -5,6 +5,7 @@ namespace Src\Partners\Presentation\Controllers\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 use Src\Partners\Application\Actions\CreatePartnerAction;
 use Src\Partners\Application\Actions\DeletePartnerAction;
 use Src\Partners\Application\Actions\ListPartnersAction;
@@ -66,7 +67,13 @@ class PartnerController extends Controller
      */
     public function store(PartnerRequest $request, CreatePartnerAction $create)
     {
-        $partner = $create->execute(PartnerDTO::fromArray($request->validated()));
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            $data['logo_path'] = $request->file('logo')->store('partners/'.now()->format('Y/m'), 'public');
+        }
+
+        $partner = $create->execute(PartnerDTO::fromArray($data));
         if ($request->wantsJson()) {
             return response()->json($partner, 201);
         }
@@ -111,7 +118,18 @@ class PartnerController extends Controller
      */
     public function update(PartnerRequest $request, Partner $partner, UpdatePartnerAction $update)
     {
-        $partner = $update->execute($partner, PartnerDTO::fromArray($request->validated()));
+        $data = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            if ($partner->logo_path) {
+                Storage::disk('public')->delete($partner->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('partners/'.now()->format('Y/m'), 'public');
+        } else {
+            $data['logo_path'] = $partner->logo_path; // Keep existing logo if not updated
+        }
+
+        $partner = $update->execute($partner, PartnerDTO::fromArray($data));
         if ($request->wantsJson()) {
             return response()->json($partner);
         }

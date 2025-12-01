@@ -10,7 +10,7 @@
 
     <div class="max-w-3xl">
         <div class="bg-white rounded-lg shadow-soft border border-gray-200 p-6">
-            <form action="{{ route('admin.partners.update', $partner) }}" method="post" class="space-y-6">
+            <form action="{{ route('admin.partners.update', $partner) }}" method="post" class="space-y-6" enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
 
@@ -27,8 +27,16 @@
                 </div>
 
                 <div>
-                    <x-input-label for="logo_path" value="Logo Path" />
-                    <x-text-input id="logo_path" name="logo_path" value="{{ old('logo_path', $partner->logo_path) }}" class="mt-1 block w-full" />
+                    <x-input-label for="logo" value="Logo (optional)" />
+                    <input id="logo" name="logo" type="file" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" />
+                    <p class="mt-1 text-xs text-gray-500">PNG, JPG, GIF, WEBP up to 2MB</p>
+                    <x-input-error :messages="$errors->get('logo')" class="mt-2" />
+                    @if($partner->logo_path)
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-600 mb-2">Current Logo:</p>
+                            <img src="{{ asset('storage/' . $partner->logo_path) }}" alt="{{ $partner->name }}" class="w-24 h-24 object-contain rounded-lg border border-gray-200 bg-gray-50 p-2">
+                        </div>
+                    @endif
                 </div>
 
                 <div>
