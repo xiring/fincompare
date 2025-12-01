@@ -1,7 +1,7 @@
 <?php
 
-use App\Shared\Presentation\Controllers\Public\ContactController;
-use App\Shared\Presentation\Controllers\Public\FrontendController;
+use Src\Shared\Presentation\Controllers\Public\ContactController;
+use Src\Shared\Presentation\Controllers\Public\FrontendController;
 use Illuminate\Support\Facades\Route;
 use Src\Auth\Presentation\Controllers\ProfileController;
 use Src\Catalog\Presentation\Controllers\Public\ProductController;

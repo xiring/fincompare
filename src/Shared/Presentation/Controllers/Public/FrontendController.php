@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shared\Presentation\Controllers\Public;
+namespace Src\Shared\Presentation\Controllers\Public;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
