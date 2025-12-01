@@ -35,7 +35,8 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Public catalog
 Route::get('/products', [ProductController::class, 'index'])->name('products.public.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.public.show');
+Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.public.show');
+Route::get('/categories/{category:slug}', [ProductController::class, 'category'])->name('categories.public.show');
 Route::post('/compare/toggle', [ProductController::class, 'toggleCompare'])->name('compare.toggle');
 Route::get('/compare', [ProductController::class, 'compare'])->name('compare');
 

@@ -19,8 +19,8 @@
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                     @foreach(($categories ?? collect())->take(8) as $c)
-                        @php($isActive = (string)request('category_id')===(string)$c->id)
-                        <a href="{{ url('/products?category_id='.$c->id) }}"
+                        @php($isActive = (isset($category->slug) && $category->slug === $c->slug) || request('category') === $c->slug)
+                        <a href="{{ route('categories.public.show', $c->slug) }}"
                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border font-medium transition-colors {{ $isActive ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300' }}">
                             @if($c->image_url ?? null)
                                 <img src="{{ $c->image_url }}" alt="{{ $c->name }}" class="w-4 h-4 rounded-full object-cover">
@@ -37,16 +37,16 @@
             <aside class="lg:w-1/4 w-full">
                 <div class="p-4 bg-white border rounded-lg">
                     <h2 class="text-lg font-semibold mb-4">Filter by</h2>
-                    <form method="get" class="space-y-3">
+                    <form method="get" class="space-y-3" action="{{ isset($category->slug) ? route('categories.public.show', $category->slug) : route('products.public.index') }}">
                         @if(request('q'))
                             <input type="hidden" name="q" value="{{ request('q') }}">
                         @endif
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select name="category_id" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="this.form.submit()">
+                            <select name="category" class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]" onchange="if(this.value) { window.location.href = '{{ url('/categories') }}/' + this.value; } else { window.location.href = '{{ route('products.public.index') }}'; }">
                                 <option value="">All</option>
                                 @foreach(($categories ?? []) as $c)
-                                    <option value="{{ $c->id }}" {{ (string)request('category_id')===(string)$c->id?'selected':'' }}>{{ $c->name }}</option>
+                                    <option value="{{ $c->slug }}" {{ (isset($category->slug) && $category->slug === $c->slug) || request('category') === $c->slug ? 'selected' : '' }}>{{ $c->name }}</option>
                                 @endforeach
                             </select>
                         </div>

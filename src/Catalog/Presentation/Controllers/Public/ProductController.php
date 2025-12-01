@@ -20,24 +20,67 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $categoryId = $request->integer('category_id');
+        $categorySlug = $request->get('category');
         $partnerId = $request->integer('partner_id');
         $featured = $request->boolean('featured');
+
+        $category = null;
+        if ($categorySlug) {
+            $category = ProductCategory::where('slug', $categorySlug)->where('is_active', true)->first();
+        }
 
         $products = Product::query()->with(['partner'])
             ->where('status', 'active')
             ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
-            ->when($categoryId, fn ($q, $id) => $q->where('product_category_id', $id))
+            ->when($category, fn ($q) => $q->where('product_category_id', $category->id))
             ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
             ->when($featured, fn ($q) => $q->where('is_featured', true))
             ->orderByDesc('created_at')
             ->paginate(12)
             ->withQueryString();
 
-        $category = $categoryId ? ProductCategory::find($categoryId) : (object) ['name' => $featured ? 'Featured Products' : 'All Products'];
+        $category = $category ?: (object) ['name' => $featured ? 'Featured Products' : 'All Products', 'slug' => null];
         $category_attributes = [];
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
+        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
+        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
+
+        if ($request->wantsJson()) {
+            $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [
+                'products' => $products,
+            ])->render();
+
+            return response()->json([
+                'html' => $html,
+                'next' => $products->nextPageUrl(),
+            ]);
+        }
+
+        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
+    }
+
+    /**
+     * Display products for a specific category.
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     */
+    public function category(ProductCategory $category, Request $request)
+    {
+        $partnerId = $request->integer('partner_id');
+        $featured = $request->boolean('featured');
+
+        $products = Product::query()->with(['partner'])
+            ->where('status', 'active')
+            ->where('product_category_id', $category->id)
+            ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
+            ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
+            ->when($featured, fn ($q) => $q->where('is_featured', true))
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $category_attributes = [];
+        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
+        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
 
         if ($request->wantsJson()) {
             $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [

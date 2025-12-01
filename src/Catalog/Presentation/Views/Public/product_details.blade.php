@@ -30,10 +30,10 @@
                         </div>
                     </div>
                     <div class="hidden sm:flex items-center gap-3">
-                        <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-[color:var(--brand-primary)] text-white font-semibold shadow hover:bg-[color:var(--brand-primary-2)] transition-colors">Send Inquiry</a>
-                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-[color:var(--brand-primary)] hover:bg-gray-50'" class="inline-flex items-center justify-center px-4 py-3 rounded-xl font-semibold transition-colors">
+                        <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90'" class="inline-flex items-center justify-center px-4 py-3 rounded-xl font-semibold transition-colors" style="color: var(--brand-primary);">
                             <span x-text="inCompare ? 'In Compare' : 'Add to Compare'"></span>
                         </button>
+                        <a href="{{ route('leads.create', ['product'=>$product->slug]) }}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white font-semibold shadow hover:bg-white/90 transition-colors" style="color: var(--brand-primary);">Send Inquiry</a>
                     </div>
                 </div>
             </div>
@@ -103,26 +103,35 @@
             </div>
         </div>
 
-        <div class="mt-10 px-4 sm:px-6 lg:px-8 flex items-center gap-3">
-            <button @click="copyLink" type="button" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors">Copy Link</button>
-            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)]'" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium border hover:opacity-90 transition-opacity">
+        <div class="mt-10 px-4 sm:px-6 lg:px-8 flex flex-wrap items-center gap-3">
+            <button @click="copyLink($event)" type="button" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy Link
+            </button>
+            <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] hover:bg-gray-50'" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium border transition-colors" :style="inCompare ? '' : 'color: var(--brand-primary);'">
                 <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
             </button>
-            <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-[color:var(--brand-primary)] text-white font-semibold hover:bg-[color:var(--brand-primary-2)] transition-colors">Send Inquiry</a>
-            <a href="{{ route('compare') }}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-[color:var(--brand-primary)] text-white font-medium hover:bg-[color:var(--brand-primary-2)] transition-colors" x-show="inCompare">Compare Now</a>
+            <a href="{{ route('leads.create', ['product'=>$product->slug]) }}" class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm btn-brand-primary">Apply Now</a>
+            <a href="{{ route('compare') }}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm btn-brand-primary" x-show="inCompare">Compare Now</a>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t shadow-lg" x-cloak>
-            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" class="w-8 h-8 rounded bg-gray-100 object-contain">
+        <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t shadow-lg" x-show="true">
+            <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    @if($product->image)
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg bg-gray-100 object-cover">
+                    @else
+                        <img src="{{ $product->partner->logo_url ?? 'https://placehold.co/40x40' }}" class="w-10 h-10 rounded-lg bg-gray-100 object-contain">
+                    @endif
                     <div class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white text-[color:var(--brand-primary)] border border-[color:var(--brand-primary)] hover:bg-gray-50'" class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button @click="toggleCompare" type="button" :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] hover:bg-gray-50'" class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap" :style="inCompare ? '' : 'color: var(--brand-primary);'">
                         <span x-text="inCompare ? 'Remove from Compare' : 'Add to Compare'"></span>
                     </button>
-                    <a href="{{ route('leads.create', ['product'=>$product->id]) }}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white text-sm font-semibold transition-colors">Apply Now</a>
+                    <a href="{{ route('leads.create', ['product'=>$product->slug]) }}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm whitespace-nowrap btn-brand-primary">Apply Now</a>
                 </div>
             </div>
         </div>
@@ -158,8 +167,21 @@
                     if (data.ok) this.inCompare = !this.inCompare;
                 } catch (e) {}
             },
-            async copyLink() {
-                try { await navigator.clipboard.writeText(window.location.href); } catch(e) {}
+            async copyLink(e) {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    // Show feedback
+                    const btn = e.target.closest('button');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Copied!';
+                    btn.classList.add('bg-green-100', 'text-green-700');
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('bg-green-100', 'text-green-700');
+                    }, 2000);
+                } catch(err) {
+                    alert('Failed to copy link. Please copy manually: ' + window.location.href);
+                }
             }
         }
     }

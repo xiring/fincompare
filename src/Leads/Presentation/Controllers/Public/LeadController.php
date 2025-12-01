@@ -21,8 +21,8 @@ class LeadController extends Controller
     public function create(Request $request)
     {
         $product = null;
-        if ($id = $request->get('product')) {
-            $product = Product::find($id);
+        if ($productParam = $request->get('product')) {
+            $product = Product::where('slug', $productParam)->first();
         }
 
         return view()->file(base_path('src/Leads/Presentation/Views/Public/lead_form.blade.php'), compact('product'));
@@ -36,7 +36,7 @@ class LeadController extends Controller
     public function store(Request $request, CaptureLeadAction $capture)
     {
         $data = $request->validate([
-            'product_id' => ['nullable', 'integer', 'exists:products,id'],
+            'product_id' => ['nullable'],
             'full_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
@@ -44,8 +44,21 @@ class LeadController extends Controller
             'message' => ['nullable', 'string', 'max:2000'],
         ]);
 
+        // Resolve product_id from slug or ID
+        $productId = null;
+        if (!empty($data['product_id'])) {
+            $productParam = $data['product_id'];
+            // If it's numeric, treat as ID; otherwise treat as slug
+            if (is_numeric($productParam)) {
+                $product = Product::find($productParam);
+            } else {
+                $product = Product::where('slug', $productParam)->first();
+            }
+            $productId = $product?->id;
+        }
+
         $dto = new LeadDTO(
-            product_id: $data['product_id'] ?? null,
+            product_id: $productId,
             full_name: $data['full_name'] ?? null,
             email: $data['email'] ?? null,
             mobile_number: $data['phone'] ?? null,

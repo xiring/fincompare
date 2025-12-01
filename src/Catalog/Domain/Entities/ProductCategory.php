@@ -45,9 +45,14 @@ class ProductCategory extends Model
         return $this->belongsTo(Form::class, 'post_form_id');
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function getUrlAttribute(): string
     {
-        return route('products.public.index', ['category_id' => $this->id]);
+        return route('categories.public.show', $this->slug);
     }
 
     public function getImageUrlAttribute(): ?string
