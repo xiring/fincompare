@@ -69,7 +69,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $statusColors = [
-                                            'new' => 'bg-blue-100 text-blue-800',
+                                            'new' => 'bg-primary-100 text-primary-800',
                                             'in_progress' => 'bg-yellow-100 text-yellow-800',
                                             'closed' => 'bg-gray-100 text-gray-800',
                                             'rejected' => 'bg-red-100 text-red-800',

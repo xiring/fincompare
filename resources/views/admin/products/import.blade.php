@@ -37,12 +37,12 @@
                     </div>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm font-semibold text-blue-900 mb-2">Required headers:</p>
-                    <p class="text-sm text-blue-800 font-mono"><code>name, partner_id, product_category_id</code></p>
-                    <p class="text-sm font-semibold text-blue-900 mt-3 mb-2">Optional headers:</p>
-                    <p class="text-sm text-blue-800 font-mono"><code>slug, description, is_featured, status, attributes</code></p>
-                    <p class="text-xs text-blue-700 mt-2">Note: attributes should be a JSON mapping of attribute_id to value.</p>
+                <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                    <p class="text-sm font-semibold text-primary-900 mb-2">Required headers:</p>
+                    <p class="text-sm text-primary-800 font-mono"><code>name, partner_id, product_category_id</code></p>
+                    <p class="text-sm font-semibold text-primary-900 mt-3 mb-2">Optional headers:</p>
+                    <p class="text-sm text-primary-800 font-mono"><code>slug, description, is_featured, status, attributes</code></p>
+                    <p class="text-xs text-primary-700 mt-2">Note: attributes should be a JSON mapping of attribute_id to value.</p>
                 </div>
 
                 <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
