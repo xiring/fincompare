@@ -20,8 +20,6 @@ class StoreContactMessageRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'max:255', 'email:rfc,dns'],
             'message' => ['required', 'string', 'max:5000'],
-            // Honeypot must be present and empty
-            'hp' => ['present', 'string', 'size:0'],
             // Timestamp from form render, used to enforce a minimal submit time window
             'submitted_at' => ['required', 'integer'],
         ];

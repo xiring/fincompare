@@ -2,6 +2,7 @@
 
 namespace Src\Shared\Presentation\Controllers\Public;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -20,13 +21,20 @@ class ContactController extends Controller
         StoreContactMessageRequest $request,
         CreateContactMessageAction $action,
         SiteSettingRepositoryInterface $siteSettings
-    ): RedirectResponse {
+    ): RedirectResponse|JsonResponse {
         $dto = ContactMessageDTO::fromArray($request->validated());
         $action->execute($dto);
 
         $adminEmail = $siteSettings->get()->email_address ?: config('mail.from.address');
         if (! empty($adminEmail)) {
             Mail::to($adminEmail)->queue((new ContactMessageReceived($dto)));
+        }
+
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Thank you! Your message has been sent.',
+                'status' => 'success'
+            ]);
         }
 
         return back()->with('status', 'message-sent');

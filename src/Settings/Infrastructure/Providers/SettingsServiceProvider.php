@@ -16,6 +16,9 @@ class SettingsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(SiteSettingRepositoryInterface::class, EloquentSiteSettingRepository::class);
+
+        // Register site settings service
+        $this->app->singleton(\Src\Shared\Application\Services\SiteSettingsService::class);
     }
 
     public function boot(): void

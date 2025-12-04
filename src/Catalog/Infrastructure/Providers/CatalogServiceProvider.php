@@ -23,5 +23,8 @@ class CatalogServiceProvider extends ServiceProvider
         $this->app->bind(ProductCategoryRepositoryInterface::class, EloquentProductCategoryRepository::class);
         $this->app->bind(AttributeRepositoryInterface::class, EloquentAttributeRepository::class);
         $this->app->bind(AdminProductRepositoryInterface::class, EloquentAdminProductRepository::class);
+
+        // Register public product service
+        $this->app->singleton(\Src\Catalog\Application\Services\PublicProductService::class);
     }
 }

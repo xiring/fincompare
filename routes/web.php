@@ -1,11 +1,9 @@
 <?php
 
 use Src\Shared\Presentation\Controllers\Public\ContactController;
-use Src\Shared\Presentation\Controllers\Public\FrontendController;
 use Illuminate\Support\Facades\Route;
 use Src\Auth\Presentation\Controllers\ProfileController;
 use Src\Catalog\Presentation\Controllers\Public\ProductController;
-use Src\Content\Presentation\Controllers\Public\BlogController;
 use Src\Leads\Presentation\Controllers\Public\LeadController;
 
 /*
@@ -19,29 +17,68 @@ use Src\Leads\Presentation\Controllers\Public\LeadController;
 |
 */
 
-Route::get('/', [FrontendController::class, 'home'])->name('home');
+// Vue SPA Routes - serve the Vue app for all public pages
+Route::get('/', function () {
+    return view('public.app');
+})->name('home');
 
-// Static pages
-Route::get('/about', [FrontendController::class, 'about'])->name('about');
-Route::get('/privacy', [FrontendController::class, 'privacy'])->name('privacy');
-Route::get('/terms', [FrontendController::class, 'terms'])->name('terms');
-Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
+Route::get('/about', function () {
+    return view('public.app');
+})->name('about');
+
+Route::get('/privacy', function () {
+    return view('public.app');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return view('public.app');
+})->name('terms');
+
+Route::get('/contact', function () {
+    return view('public.app');
+})->name('contact');
+
+// Contact form submission (API endpoint)
 Route::post('/contact', [ContactController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('contact.store');
-Route::get('/faq', [FrontendController::class, 'faq'])->name('faq');
-Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+Route::get('/faq', function () {
+    return view('public.app');
+})->name('faq');
+
+Route::get('/blog', function () {
+    return view('public.app');
+})->name('blog.index');
+
+Route::get('/blog/{slug}', function () {
+    return view('public.app');
+})->name('blog.show');
 
 // Public catalog
-Route::get('/products', [ProductController::class, 'index'])->name('products.public.index');
-Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.public.show');
-Route::get('/categories/{category:slug}', [ProductController::class, 'category'])->name('categories.public.show');
+Route::get('/products', function () {
+    return view('public.app');
+})->name('products.public.index');
+
+Route::get('/products/{slug}', function () {
+    return view('public.app');
+})->name('products.public.show');
+
+Route::get('/categories/{slug}', function () {
+    return view('public.app');
+})->name('categories.public.show');
+
 Route::post('/compare/toggle', [ProductController::class, 'toggleCompare'])->name('compare.toggle');
-Route::get('/compare', [ProductController::class, 'compare'])->name('compare');
+
+Route::get('/compare', function () {
+    return view('public.app');
+})->name('compare');
 
 // Public lead capture
-Route::get('/lead', [LeadController::class, 'create'])->name('leads.create');
+Route::get('/lead', function () {
+    return view('public.app');
+})->name('leads.create');
+
 Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
 
 Route::get('/dashboard', static function () {
