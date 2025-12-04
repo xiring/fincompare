@@ -160,9 +160,9 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
 import { debounce } from '../../utils';
+import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';
 
@@ -187,8 +187,10 @@ const filters = ref({
   featured: route.query.featured === '1' || route.query.featured === 'true'
 });
 
-useHead({
-  title: 'Products'
+useSEO({
+  title: 'Products',
+  description: 'Browse and compare financial products including loans, credit cards, and more. Filter by category, partner, and features to find the best options.',
+  keywords: ['financial products', 'compare products', 'loans', 'credit cards', 'financial comparison']
 });
 
 const isActiveCategory = (slug) => {

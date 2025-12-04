@@ -13,5 +13,6 @@ export { usePagination } from './usePagination';
 export { useProduct } from './useProduct';
 export { useProducts } from './useProducts';
 export { useReveal } from './useReveal';
+export { useSEO } from './useSEO';
 export { useSiteSettings } from './useSiteSettings';
 

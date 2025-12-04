@@ -71,14 +71,18 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
+import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const faqs = ref([]);
 const openFaqs = ref({});
 
-useHead({ title: 'FAQ' });
+useSEO({
+  title: 'FAQ',
+  description: 'Frequently asked questions about FinCompare. Find answers about our financial product comparison platform, how it works, and how to get started.',
+  keywords: ['faq', 'frequently asked questions', 'fincompare help', 'financial comparison help']
+});
 
 const toggleFaq = (index) => {
   openFaqs.value[index] = !openFaqs.value[index];

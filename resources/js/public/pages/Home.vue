@@ -237,7 +237,10 @@
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-xl font-semibold mb-6">Our Trusted Partners</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
+        <div v-if="loading && validPartners.length === 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
+          <div v-for="i in 5" :key="i" class="h-12 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
           <template v-for="(partner, index) in validPartners" :key="partner?.id || index">
             <a
               v-if="partner && partner.website_url"
@@ -389,8 +392,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useHead } from '@vueuse/head';
-import { useReveal, useHomeData } from '../composables';
+import { useReveal, useHomeData, useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 import ProductCard from '../components/ProductCard.vue';
 
@@ -474,8 +476,11 @@ const { visible: howItWorksVisible, elementRef: howItWorksRef, init: initHowItWo
 const { visible: faqVisible, elementRef: faqRef, init: initFaq } = useReveal(0.18);
 const { visible: ctaVisible, elementRef: ctaRef, init: initCta } = useReveal(0.18);
 
-useHead({
-  title: 'Home'
+// SEO setup
+useSEO({
+  title: 'Home',
+  description: 'Find and compare the best financial products including loans, credit cards, and more. Compare side-by-side and apply with confidence.',
+  keywords: ['financial products', 'compare loans', 'credit cards', 'personal loans', 'financial comparison']
 });
 
 const handleSearch = () => {

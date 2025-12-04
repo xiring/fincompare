@@ -223,21 +223,43 @@
       </div>
     </div>
 
-    <div v-else-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="animate-pulse">
-        <div class="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+    <!-- Loading Skeleton -->
+    <div v-else-if="loading" class="w-full">
+      <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div class="animate-pulse">
+            <div class="h-4 bg-white/20 rounded w-48 mb-4"></div>
+            <div class="flex flex-col sm:flex-row items-start gap-4">
+              <div class="w-24 h-24 bg-white/20 rounded-lg"></div>
+              <div class="flex-1 space-y-3">
+                <div class="h-8 bg-white/20 rounded w-3/4"></div>
+                <div class="h-4 bg-white/20 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div v-for="i in 3" :key="i" class="p-4 rounded-2xl bg-white border animate-pulse">
+            <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+            <div class="h-6 bg-gray-200 rounded w-32"></div>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="h-10 bg-gray-200 rounded w-64 animate-pulse"></div>
+          <div class="h-64 bg-gray-100 rounded-lg animate-pulse"></div>
+        </div>
       </div>
     </div>
   </GuestLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
-import { useCompare } from '../../composables/useCompare';
+import { useCompare, useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -300,6 +322,43 @@ const copyLink = async () => {
   }
 };
 
+// SEO setup - will be updated when product loads
+const getProductDescription = () => {
+  if (!product.value) return '';
+  const desc = product.value.description || '';
+  // Strip HTML and get first 160 characters
+  const text = desc.replace(/<[^>]*>/g, '').trim();
+  return text.length > 160 ? text.substring(0, 160) + '...' : text;
+};
+
+const getProductKeywords = () => {
+  if (!product.value) return [];
+  const keywords = [product.value.name];
+  if (product.value.partner?.name) keywords.push(product.value.partner.name);
+  if (product.value.product_category?.name) keywords.push(product.value.product_category.name);
+  return keywords;
+};
+
+// Initialize SEO with default values
+useSEO({
+  title: 'Product Details',
+  description: 'View product details and compare financial products',
+  type: 'product'
+});
+
+// Update SEO when product loads
+watch(product, (newProduct) => {
+  if (newProduct) {
+    useSEO({
+      title: newProduct.name || 'Product Details',
+      description: getProductDescription() || `Learn more about ${newProduct.name} and compare with other financial products.`,
+      image: newProduct.image_url || newProduct.partner?.logo_url,
+      keywords: getProductKeywords(),
+      type: 'product'
+    });
+  }
+}, { immediate: true });
+
 onMounted(async () => {
   const slug = route.params.slug;
 
@@ -307,10 +366,6 @@ onMounted(async () => {
     const response = await axios.get(`/api/public/products/${slug}`);
     product.value = response.data.product;
     attributes.value = response.data.attributes || [];
-
-    useHead({
-      title: product.value.name || 'Product Details'
-    });
   } catch (err) {
     console.error('Failed to fetch product:', err);
   } finally {

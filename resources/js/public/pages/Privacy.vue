@@ -30,10 +30,14 @@
 </template>
 
 <script setup>
-import { useHead } from '@vueuse/head';
+import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
-useHead({ title: 'Privacy Policy' });
+useSEO({
+  title: 'Privacy Policy',
+  description: 'Learn how FinCompare collects, uses, and protects your personal information. Our commitment to your privacy and data security.',
+  keywords: ['privacy policy', 'data protection', 'privacy', 'data security']
+});
 </script>
 
 <style scoped>

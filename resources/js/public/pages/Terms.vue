@@ -22,10 +22,14 @@
 </template>
 
 <script setup>
-import { useHead } from '@vueuse/head';
+import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
-useHead({ title: 'Terms of Service' });
+useSEO({
+  title: 'Terms of Service',
+  description: 'Read FinCompare\'s terms and conditions. Understand the terms of use for our financial product comparison platform.',
+  keywords: ['terms of service', 'terms and conditions', 'user agreement', 'legal terms']
+});
 </script>
 
 <style scoped>

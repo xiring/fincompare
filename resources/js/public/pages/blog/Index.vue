@@ -139,9 +139,9 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
 import { debounce } from '../../utils';
+import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -164,8 +164,10 @@ const filters = ref({
   sort: route.query.sort || 'desc'
 });
 
-useHead({
-  title: 'Blog'
+useSEO({
+  title: 'Blog',
+  description: 'Read our latest articles about financial products, tips, and insights to help you make informed financial decisions.',
+  keywords: ['financial blog', 'financial tips', 'money advice', 'financial education']
 });
 
 const getExcerpt = (content) => {

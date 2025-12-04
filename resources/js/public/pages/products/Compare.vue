@@ -120,8 +120,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useHead } from '@vueuse/head';
-import { useCompare, useCompareData } from '../../composables';
+import { useCompare, useCompareData, useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -141,8 +140,10 @@ const getProductIds = () => {
 const initialProductIds = getProductIds();
 const { products, features, values, loading, fetchCompareData, updateProductIds, getProductImage, getValue, hasDifferentValues } = useCompareData(initialProductIds);
 
-useHead({
-  title: 'Compare Products'
+useSEO({
+  title: 'Compare Products',
+  description: 'Compare multiple financial products side-by-side. View features, rates, and eligibility criteria to make an informed decision.',
+  keywords: ['compare products', 'product comparison', 'financial comparison', 'compare loans', 'compare credit cards']
 });
 
 const getCellClass = (productId, key) => {

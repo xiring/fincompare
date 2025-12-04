@@ -92,9 +92,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useHead } from '@vueuse/head';
 import { webService } from '../services/api';
-import { useSiteSettings } from '../composables/useSiteSettings';
+import { useSiteSettings, useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const { siteSettings, fetchSiteSettings } = useSiteSettings();
@@ -108,7 +107,11 @@ const errors = ref({});
 const loading = ref(false);
 const success = ref(false);
 
-useHead({ title: 'Contact Us' });
+useSEO({
+  title: 'Contact Us',
+  description: 'Get in touch with FinCompare. We\'d love to hear from you and help with any questions about our financial product comparison platform.',
+  keywords: ['contact fincompare', 'customer support', 'financial advice']
+});
 
 const submitForm = async () => {
   loading.value = true;

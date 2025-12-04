@@ -110,9 +110,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
 import { webService } from '../services/api';
+import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -130,7 +130,11 @@ const errors = ref({});
 const loading = ref(false);
 const success = ref(false);
 
-useHead({ title: 'Get Started' });
+useSEO({
+  title: 'Get Started',
+  description: 'Get started with FinCompare. Submit an inquiry to learn more about financial products and connect with trusted partners.',
+  keywords: ['get started', 'apply now', 'financial product inquiry', 'loan application']
+});
 
 const productImageUrl = computed(() => {
   if (product.value?.image_url) {

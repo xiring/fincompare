@@ -34,8 +34,12 @@
 </template>
 
 <script setup>
-import { useHead } from '@vueuse/head';
+import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
-useHead({ title: 'About Us' });
+useSEO({
+  title: 'About Us',
+  description: 'Learn about FinCompare and our mission to make financial decisions clearer and faster through transparent product comparison.',
+  keywords: ['about fincompare', 'financial comparison', 'transparent finance']
+});
 </script>

@@ -20,26 +20,38 @@
       <div class="prose max-w-none" v-html="post.content"></div>
     </article>
 
-    <div v-else-if="loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="animate-pulse">
-        <div class="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-        <div class="h-64 bg-gray-200 rounded-xl mb-6"></div>
-        <div class="space-y-4">
-          <div class="h-4 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+    <!-- Loading Skeleton -->
+    <div v-else-if="loading" class="w-full">
+      <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div class="animate-pulse">
+            <div class="h-4 bg-white/20 rounded w-24 mb-4"></div>
+            <div class="h-8 bg-white/20 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-white/20 rounded w-1/2"></div>
+          </div>
         </div>
-      </div>
+      </section>
+      <article class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="animate-pulse">
+          <div class="h-64 bg-gray-200 rounded-xl mb-6"></div>
+          <div class="space-y-4">
+            <div class="h-4 bg-gray-200 rounded"></div>
+            <div class="h-4 bg-gray-200 rounded"></div>
+            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+            <div class="h-4 bg-gray-200 rounded w-4/5"></div>
+            <div class="h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </article>
     </div>
   </GuestLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useHead } from '@vueuse/head';
 import axios from 'axios';
+import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -53,16 +65,51 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
+// SEO setup - will be updated when post loads
+const getPostDescription = () => {
+  if (!post.value) return '';
+  const content = post.value.content || '';
+  // Strip HTML and get first 160 characters
+  const text = content.replace(/<[^>]*>/g, '').trim();
+  return text.length > 160 ? text.substring(0, 160) + '...' : text;
+};
+
+const getPostKeywords = () => {
+  if (!post.value) return [];
+  const keywords = [];
+  if (post.value.category) keywords.push(post.value.category);
+  if (post.value.tags && Array.isArray(post.value.tags)) {
+    keywords.push(...post.value.tags);
+  }
+  return keywords;
+};
+
+// Initialize SEO with default values
+useSEO({
+  title: 'Blog Post',
+  description: 'Read our latest blog post',
+  type: 'article'
+});
+
+// Update SEO when post loads
+watch(post, (newPost) => {
+  if (newPost) {
+    useSEO({
+      title: newPost.title || 'Blog Post',
+      description: getPostDescription() || `Read our blog post: ${newPost.title}`,
+      image: newPost.featured_image,
+      keywords: getPostKeywords(),
+      type: 'article'
+    });
+  }
+}, { immediate: true });
+
 onMounted(async () => {
   const slug = route.params.slug;
 
   try {
     const response = await axios.get(`/api/public/blog/${slug}`);
     post.value = response.data;
-
-    useHead({
-      title: post.value.title || 'Blog Post'
-    });
   } catch (err) {
     error.value = err.message;
     console.error('Failed to fetch blog post:', err);
