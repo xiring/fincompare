@@ -258,8 +258,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import axios from 'axios';
+import { apiService } from '../../services/api';
 import { useCompare, useSEO } from '../../composables';
+import { getImageUrl, getExcerpt, copyToClipboard } from '../../utils';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -281,21 +282,13 @@ const tabs = [
 ];
 
 const productImageUrl = computed(() => {
-  if (product.value?.image_url) {
-    return product.value.image_url.startsWith('http')
-      ? product.value.image_url
-      : `/storage/${product.value.image_url}`;
-  }
-  return null;
+  return product.value?.image_url ? getImageUrl(product.value.image_url) : null;
 });
 
 const partnerLogoUrl = computed(() => {
-  if (product.value?.partner?.logo_url) {
-    return product.value.partner.logo_url.startsWith('http')
-      ? product.value.partner.logo_url
-      : `/storage/${product.value.partner.logo_url}`;
-  }
-  return 'https://placehold.co/64x64';
+  return product.value?.partner?.logo_url
+    ? getImageUrl(product.value.partner.logo_url, 'https://placehold.co/64x64')
+    : 'https://placehold.co/64x64';
 });
 
 const filteredAttributes = computed(() => {
@@ -314,10 +307,11 @@ const toggleCompare = () => {
 };
 
 const copyLink = async () => {
-  try {
-    await navigator.clipboard.writeText(window.location.href);
+  const success = await copyToClipboard(window.location.href);
+  if (success) {
+    // You could use toast here instead of alert
     alert('Link copied to clipboard!');
-  } catch (err) {
+  } else {
     alert('Failed to copy link. Please copy manually: ' + window.location.href);
   }
 };
@@ -325,10 +319,7 @@ const copyLink = async () => {
 // SEO setup - will be updated when product loads
 const getProductDescription = () => {
   if (!product.value) return '';
-  const desc = product.value.description || '';
-  // Strip HTML and get first 160 characters
-  const text = desc.replace(/<[^>]*>/g, '').trim();
-  return text.length > 160 ? text.substring(0, 160) + '...' : text;
+  return getExcerpt(product.value.description || '', 160);
 };
 
 const getProductKeywords = () => {
@@ -363,11 +354,12 @@ onMounted(async () => {
   const slug = route.params.slug;
 
   try {
-    const response = await axios.get(`/api/public/products/${slug}`);
+    const response = await apiService.getProduct(slug);
     product.value = response.data.product;
     attributes.value = response.data.attributes || [];
   } catch (err) {
     console.error('Failed to fetch product:', err);
+    // Could set error state here for better UX
   } finally {
     loading.value = false;
   }

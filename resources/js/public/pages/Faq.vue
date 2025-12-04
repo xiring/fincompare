@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { apiService } from '../services/api';
 import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
@@ -90,10 +90,11 @@ const toggleFaq = (index) => {
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/public/faqs');
+    const response = await apiService.getFaqs();
     faqs.value = response.data || [];
   } catch (err) {
     console.error('Failed to fetch FAQs:', err);
+    // Could set error state here for better UX
   }
 });
 </script>

@@ -110,8 +110,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
-import { webService } from '../services/api';
+import { apiService, webService } from '../services/api';
 import { useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
@@ -182,11 +181,12 @@ onMounted(async () => {
   const productParam = route.query.product;
   if (productParam) {
     try {
-      const response = await axios.get(`/api/public/products/${productParam}`);
+      const response = await apiService.getProduct(productParam);
       product.value = response.data.product;
       form.value.product_id = product.value.id || productParam;
     } catch (err) {
       console.error('Failed to fetch product:', err);
+      // Could set error state here for better UX
     }
   }
 });

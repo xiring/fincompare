@@ -139,8 +139,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
-import { debounce } from '../../utils';
+import { apiService, default as apiClient } from '../../services/api';
+import { debounce, getExcerpt } from '../../utils';
 import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
@@ -170,19 +170,13 @@ useSEO({
   keywords: ['financial blog', 'financial tips', 'money advice', 'financial education']
 });
 
-const getExcerpt = (content) => {
-  if (!content) return '';
-  const text = content.replace(/<[^>]*>/g, '').trim();
-  return text.length > 160 ? text.substring(0, 160) + '...' : text;
-};
-
-const buildQueryString = () => {
-  const params = new URLSearchParams();
-  if (filters.value.q) params.append('q', filters.value.q);
-  if (filters.value.category) params.append('category', filters.value.category);
-  if (filters.value.tag) params.append('tag', filters.value.tag);
-  if (filters.value.sort) params.append('sort', filters.value.sort);
-  return params.toString();
+const getQueryParams = () => {
+  const params = {};
+  if (filters.value.q) params.q = filters.value.q;
+  if (filters.value.category) params.category = filters.value.category;
+  if (filters.value.tag) params.tag = filters.value.tag;
+  if (filters.value.sort) params.sort = filters.value.sort;
+  return params;
 };
 
 const fetchPosts = async (url = null) => {
@@ -193,8 +187,15 @@ const fetchPosts = async (url = null) => {
   progress.value = 10;
 
   try {
-    const apiUrl = url || `/api/public/blog?${buildQueryString()}`;
-    const response = await axios.get(apiUrl);
+    let response;
+    if (url) {
+      // For pagination, use the full URL (Laravel pagination URLs are absolute)
+      response = await apiClient.get(url);
+    } else {
+      // For initial load or filters, use query params
+      const params = getQueryParams();
+      response = await apiService.getBlogPosts(params);
+    }
 
     progress.value = 60;
 
@@ -213,6 +214,7 @@ const fetchPosts = async (url = null) => {
     progress.value = 100;
   } catch (err) {
     console.error('Failed to fetch blog posts:', err);
+    // Could set error state here for better UX
   } finally {
     loading.value = false;
     setTimeout(() => {

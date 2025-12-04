@@ -50,8 +50,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import axios from 'axios';
+import { apiService } from '../../services/api';
 import { useSEO } from '../../composables';
+import { formatDate, getExcerpt } from '../../utils';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -59,19 +60,10 @@ const post = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-};
-
 // SEO setup - will be updated when post loads
 const getPostDescription = () => {
   if (!post.value) return '';
-  const content = post.value.content || '';
-  // Strip HTML and get first 160 characters
-  const text = content.replace(/<[^>]*>/g, '').trim();
-  return text.length > 160 ? text.substring(0, 160) + '...' : text;
+  return getExcerpt(post.value.content || '', 160);
 };
 
 const getPostKeywords = () => {
@@ -108,10 +100,10 @@ onMounted(async () => {
   const slug = route.params.slug;
 
   try {
-    const response = await axios.get(`/api/public/blog/${slug}`);
+    const response = await apiService.getBlogPost(slug);
     post.value = response.data;
   } catch (err) {
-    error.value = err.message;
+    error.value = err.response?.data?.message || err.message || 'Failed to load blog post';
     console.error('Failed to fetch blog post:', err);
   } finally {
     loading.value = false;

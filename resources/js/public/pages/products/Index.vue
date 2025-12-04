@@ -160,7 +160,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
+import { apiService, default as apiClient } from '../../services/api';
 import { debounce } from '../../utils';
 import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
@@ -197,13 +197,13 @@ const isActiveCategory = (slug) => {
   return filters.value.category === slug;
 };
 
-const buildQueryString = () => {
-  const params = new URLSearchParams();
-  if (filters.value.q) params.append('q', filters.value.q);
-  if (filters.value.category) params.append('category', filters.value.category);
-  if (filters.value.partner_id) params.append('partner_id', filters.value.partner_id);
-  if (filters.value.featured) params.append('featured', '1');
-  return params.toString();
+const getQueryParams = () => {
+  const params = {};
+  if (filters.value.q) params.q = filters.value.q;
+  if (filters.value.category) params.category = filters.value.category;
+  if (filters.value.partner_id) params.partner_id = filters.value.partner_id;
+  if (filters.value.featured) params.featured = '1';
+  return params;
 };
 
 const fetchProducts = async (url = null) => {
@@ -214,8 +214,15 @@ const fetchProducts = async (url = null) => {
   progress.value = 10;
 
   try {
-    const apiUrl = url || `/api/public/products?${buildQueryString()}`;
-    const response = await axios.get(apiUrl);
+    let response;
+    if (url) {
+      // For pagination, use the full URL (Laravel pagination URLs are absolute)
+      response = await apiClient.get(url);
+    } else {
+      // For initial load or filters, use query params
+      const params = getQueryParams();
+      response = await apiService.getProducts(params);
+    }
 
     progress.value = 60;
 
@@ -235,6 +242,7 @@ const fetchProducts = async (url = null) => {
     progress.value = 100;
   } catch (err) {
     console.error('Failed to fetch products:', err);
+    // Could set error state here for better UX
   } finally {
     loading.value = false;
     setTimeout(() => {
