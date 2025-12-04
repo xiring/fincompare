@@ -2,6 +2,8 @@
 
 namespace Src\Leads\Presentation\Controllers\Public;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Src\Catalog\Domain\Entities\Product;
@@ -14,24 +16,9 @@ use Src\Leads\Application\DTOs\LeadDTO;
 class LeadController extends Controller
 {
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
-     */
-    public function create(Request $request)
-    {
-        $product = null;
-        if ($productParam = $request->get('product')) {
-            $product = Product::where('slug', $productParam)->first();
-        }
-
-        return view()->file(base_path('src/Leads/Presentation/Views/Public/lead_form.blade.php'), compact('product'));
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request, CaptureLeadAction $capture)
     {
@@ -69,6 +56,13 @@ class LeadController extends Controller
         );
 
         $lead = $capture->execute($dto);
+
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Thanks! Your inquiry has been received.',
+                'status' => 'success'
+            ]);
+        }
 
         return redirect('/')->with('status', 'Thanks! Your inquiry has been received.');
     }

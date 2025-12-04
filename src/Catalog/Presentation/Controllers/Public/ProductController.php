@@ -2,188 +2,168 @@
 
 namespace Src\Catalog\Presentation\Controllers\Public;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Src\Catalog\Application\DTOs\ProductListFiltersDTO;
+use Src\Catalog\Application\Services\PublicProductService;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductCategory;
-use Src\Partners\Domain\Entities\Partner;
+use Src\Shared\Presentation\Resources\PartnerResource;
+use Src\Shared\Presentation\Resources\ProductResource;
 
 /**
- * ProductController controller.
+ * ProductController - Handles public-facing product operations.
  */
 class ProductController extends Controller
 {
+    public function __construct(
+        private readonly PublicProductService $productService
+    ) {}
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Display a listing of products with optional filters.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $categorySlug = $request->get('category');
-        $partnerId = $request->integer('partner_id');
-        $featured = $request->boolean('featured');
+        $filters = ProductListFiltersDTO::fromRequest($request->all());
 
-        $category = null;
-        if ($categorySlug) {
-            $category = ProductCategory::where('slug', $categorySlug)->where('is_active', true)->first();
+        // Resolve category if slug provided
+        if ($filters->categorySlug) {
+            $category = ProductCategory::where('slug', $filters->categorySlug)
+                ->where('is_active', true)
+                ->first();
+
+            if ($category) {
+                $filters = new ProductListFiltersDTO(
+                    searchQuery: $filters->searchQuery,
+                    categorySlug: $filters->categorySlug,
+                    categoryId: $category->id,
+                    partnerId: $filters->partnerId,
+                    featured: $filters->featured,
+                    perPage: $filters->perPage
+                );
+            }
         }
 
-        $products = Product::query()->with(['partner'])
-            ->where('status', 'active')
-            ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
-            ->when($category, fn ($q) => $q->where('product_category_id', $category->id))
-            ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
-            ->when($featured, fn ($q) => $q->where('is_featured', true))
-            ->orderByDesc('created_at')
-            ->paginate(12)
-            ->withQueryString();
+        $products = $this->productService->getPaginatedProducts($filters);
+        $category = $this->productService->resolveCategory($filters->categorySlug, $filters->featured);
+        $categories = $this->productService->getActiveCategories();
+        $partners = $this->productService->getActivePartners();
 
-        $category = $category ?: (object) ['name' => $featured ? 'Featured Products' : 'All Products', 'slug' => null];
-        $category_attributes = [];
-        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
-        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
-
-        if ($request->wantsJson()) {
-            $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [
-                'products' => $products,
-            ])->render();
-
-            return response()->json([
-                'html' => $html,
-                'next' => $products->nextPageUrl(),
-            ]);
-        }
-
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
+        return response()->json([
+            'products' => [
+                'data' => ProductResource::collection($products),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+                'next_page_url' => $products->nextPageUrl(),
+                'prev_page_url' => $products->previousPageUrl(),
+            ],
+            'category' => $category,
+            'categories' => $categories,
+            'partners' => PartnerResource::collection($partners),
+            'next' => $products->nextPageUrl(),
+        ]);
     }
 
     /**
      * Display products for a specific category.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
      */
-    public function category(ProductCategory $category, Request $request)
+    public function category(ProductCategory $category, Request $request): JsonResponse
     {
-        $partnerId = $request->integer('partner_id');
-        $featured = $request->boolean('featured');
+        $filters = ProductListFiltersDTO::fromRequest($request->all());
 
-        $products = Product::query()->with(['partner'])
-            ->where('status', 'active')
-            ->where('product_category_id', $category->id)
-            ->when($request->get('q'), fn ($q, $s) => $q->where('name', 'like', '%'.$s.'%'))
-            ->when($partnerId, fn ($q, $id) => $q->where('partner_id', $id))
-            ->when($featured, fn ($q) => $q->where('is_featured', true))
-            ->orderByDesc('created_at')
-            ->paginate(12)
-            ->withQueryString();
+        // Override category ID with route model binding
+        $filters = new ProductListFiltersDTO(
+            searchQuery: $filters->searchQuery,
+            categorySlug: $category->slug,
+            categoryId: $category->id,
+            partnerId: $filters->partnerId,
+            featured: $filters->featured,
+            perPage: $filters->perPage
+        );
 
-        $category_attributes = [];
-        $categories = ProductCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
-        $partners = Partner::where('status', 'active')->orderBy('name')->get(['id', 'name']);
+        $products = $this->productService->getPaginatedProducts($filters);
+        $categories = $this->productService->getActiveCategories();
+        $partners = $this->productService->getActivePartners();
 
-        if ($request->wantsJson()) {
-            $html = view()->file(base_path('src/Catalog/Presentation/Views/Public/_product_cards_chunk.blade.php'), [
-                'products' => $products,
-            ])->render();
-
-            return response()->json([
-                'html' => $html,
-                'next' => $products->nextPageUrl(),
-            ]);
-        }
-
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/category_listing.blade.php'), compact('products', 'category', 'category_attributes', 'categories', 'partners', 'featured'));
+        return response()->json([
+            'products' => [
+                'data' => ProductResource::collection($products),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+                'next_page_url' => $products->nextPageUrl(),
+                'prev_page_url' => $products->previousPageUrl(),
+            ],
+            'category' => (object) [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ],
+            'categories' => $categories,
+            'partners' => PartnerResource::collection($partners),
+            'next' => $products->nextPageUrl(),
+        ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Product $product)
+    public function show(Product $product, Request $request)
     {
         $attributes = $product->attributeValues()->with('attribute')->get()->map(function ($av) {
-            return (object) [
+            return [
                 'name' => $av->attribute->name ?? 'Attribute',
                 'value' => $av->value_text ?? $av->value_number ?? ($av->value_boolean ? 'Yes' : 'No') ?? ($av->value_json ? json_encode($av->value_json) : null),
             ];
         });
 
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/product_details.blade.php'), [
-            'product' => $product->load('partner'),
+        return response()->json([
+            'product' => new ProductResource($product->load('partner')),
             'attributes' => $attributes,
         ]);
     }
 
     /**
-     * Handle Compare.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application
+     * Get products for comparison.
      */
-    public function compare(Request $request)
+    public function compare(Request $request): JsonResponse
+    {
+        $productIds = $this->extractProductIds($request);
+        $products = $this->productService->getProductsForComparison($productIds);
+        $comparisonData = $this->productService->buildComparisonData($products);
+
+        return response()->json([
+            'products' => ProductResource::collection($products),
+            'productsData' => $comparisonData['productsData'],
+            'features' => $comparisonData['features'],
+            'featuresData' => $comparisonData['featuresData'],
+            'values' => $comparisonData['values'],
+        ]);
+    }
+
+    /**
+     * Extract and validate product IDs from request.
+     */
+    private function extractProductIds(Request $request): array
     {
         $ids = $request->get('products');
+
         if (is_string($ids)) {
-            $ids = array_filter(array_map('intval', explode(',', $ids)));
+            $ids = explode(',', $ids);
         }
+
         if (empty($ids)) {
             $ids = (array) session('compare_ids', []);
         }
 
-        // Ensure we have valid IDs and filter out any invalid ones
-        $ids = array_filter(array_map('intval', $ids));
-
-                // If no valid IDs, return empty result
-        if (empty($ids)) {
-            $products = collect();
-        } else {
-            $products = Product::query()->with('partner')->whereIn('id', $ids)->get();
-        }
-        $features = collect();
-        $values = [];
-
-        // Prepare products data for frontend
-        $productsData         = $products->map(function ($p) {
-            return [
-                'id' => $p->id,
-                'name' => $p->name,
-                'image' => $p->image_url ?? null,
-                'logo' => $p->partner->logo_url ?? null,
-            ];
-        })->values()->all();
-
-        foreach ($products as $p) {
-            $avs = $p->attributeValues()->with('attribute')->get();
-            foreach ($avs as $av) {
-                $key = (string) $av->attribute->id;
-                $features[$key] = ['key' => $key, 'label' => $av->attribute->name];
-
-                // Check if this is a "provider" attribute - show partner name instead of ID
-                $attributeName = strtolower($av->attribute->name ?? '');
-                $attributeSlug = strtolower($av->attribute->slug ?? '');
-                if ($attributeName === 'provider' || $attributeSlug === 'provider') {
-                    $values[$p->id][$key] =         $p->partner->name ?? '—';
-                } else {
-                    $values[$p->id][$key] = $av->value_text ?? $av->value_number ?? ($av->value_boolean ? 'Yes' : 'No') ?? ($av->value_json ? json_encode($av->value_json) : null);
-                }
-            }
-        }
-
-        $featuresData = array_values(array_map(function ($f) {
-            return [
-                'key' => $f['key'] ?? $f->key ?? null,
-                'label' => $f['label'] ?? $f->label ?? null,
-            ];
-        }, $features->values()->all()));
-
-        return view()->file(base_path('src/Catalog/Presentation/Views/Public/compare_products.blade.php'), [
-            'products' => $products,
-            'productsData' => $productsData,
-            'features' => $features->values()->all(),
-            'featuresData' => $featuresData,
-            'values' => $values,
-        ]);
+        return array_filter(array_map('intval', (array) $ids));
     }
 
     /**

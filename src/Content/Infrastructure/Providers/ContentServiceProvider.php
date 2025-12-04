@@ -14,5 +14,8 @@ class ContentServiceProvider extends ServiceProvider
         $this->app->bind(\Src\Content\Domain\Repositories\BlogPostRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentBlogPostRepository::class);
         $this->app->bind(\Src\Content\Domain\Repositories\CmsPageRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentCmsPageRepository::class);
         $this->app->bind(\Src\Content\Domain\Repositories\FaqRepositoryInterface::class, \Src\Content\Infrastructure\Persistence\EloquentFaqRepository::class);
+
+        // Register public blog service
+        $this->app->singleton(\Src\Content\Application\Services\PublicBlogService::class);
     }
 }
