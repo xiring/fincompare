@@ -13,33 +13,25 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-fade-in-up">
       <!-- Loading State -->
       <div v-if="loading" class="bg-white border rounded-2xl divide-y">
-        <div v-for="i in 5" :key="i" class="p-5 animate-pulse">
-          <div class="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-          <div class="h-4 bg-gray-100 rounded w-full"></div>
-        </div>
+        <LoadingSkeleton
+          :count="5"
+          container-class="divide-y"
+          item-class="p-5"
+        >
+          <template #default="{ index }">
+            <div class="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+            <div class="h-4 bg-gray-100 rounded w-full"></div>
+          </template>
+        </LoadingSkeleton>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="bg-white border rounded-2xl p-12 text-center">
-        <div class="max-w-md mx-auto">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to load FAQs</h3>
-          <p class="text-sm text-gray-600 mb-6">{{ error }}</p>
-          <button
-            @click="loadFaqs"
-            type="button"
-            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
-            style="color: #ffffff !important;"
-          >
-            <RefreshIcon class="w-5 h-5 mr-2" />
-            Try Again
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        v-else-if="error"
+        title="Failed to load FAQs"
+        :message="error"
+        @retry="loadFaqs"
+      />
 
       <!-- FAQs List -->
       <div v-else class="bg-white border rounded-2xl divide-y">
@@ -101,14 +93,15 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { apiService } from '../services/api';
-import { useSEO } from '../composables';
-import { ChevronDownIcon, RefreshIcon } from '../components/icons';
+import { useSEO, useErrorHandling } from '../composables';
+import { ChevronDownIcon } from '../components/icons';
+import { ErrorState, LoadingSkeleton, HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const faqs = ref([]);
 const openFaqs = ref({});
 const loading = ref(true);
-const error = ref(null);
+const { error, handleError, clearError } = useErrorHandling();
 
 useSEO({
   title: 'FAQ',
@@ -122,14 +115,13 @@ const toggleFaq = (index) => {
 
 const loadFaqs = async () => {
   loading.value = true;
-  error.value = null;
+  clearError();
 
   try {
     const response = await apiService.getFaqs();
     faqs.value = response.data || [];
   } catch (err) {
-    console.error('Failed to fetch FAQs:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to load FAQs. Please try again.';
+    handleError(err, 'Failed to load FAQs. Please try again.');
   } finally {
     loading.value = false;
   }

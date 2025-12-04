@@ -105,34 +105,16 @@
           </div>
 
           <!-- Error State -->
-          <div v-if="error && products.length === 0 && !loading" class="bg-white border rounded-2xl p-12 text-center">
-            <div class="max-w-md mx-auto">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-              </div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to load products</h3>
-              <p class="text-sm text-gray-600 mb-6">{{ error }}</p>
-              <button
-                @click="fetchProducts"
-                type="button"
-                class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
-                style="color: #ffffff !important;"
-              >
-                <RefreshIcon class="w-5 h-5 mr-2" />
-                Try Again
-              </button>
-            </div>
-          </div>
+          <ErrorState
+            v-if="error && products.length === 0 && !loading"
+            title="Failed to load products"
+            :message="error"
+            @retry="fetchProducts"
+          />
 
           <!-- Loading skeleton when applying filters/search -->
           <div v-else-if="loading && products.length === 0" id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="i in 6" :key="i" class="bg-white border rounded-2xl p-4 shadow-sm animate-pulse">
-              <div class="h-48 bg-gray-200 rounded mb-4"></div>
-              <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
+            <ProductSkeleton v-for="i in 6" :key="i" />
           </div>
 
           <div v-else-if="products.length > 0" id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -142,17 +124,13 @@
               :product="product"
             />
           </div>
-          <div v-else-if="!loading" class="bg-white border rounded-2xl p-12 text-center">
-            <EmptyBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 class="mt-4 text-lg font-semibold text-gray-900">No products found</h3>
-            <p class="mt-2 text-sm text-gray-600">Try adjusting your filters or search terms.</p>
-            <router-link
-              to="/products"
-              class="mt-4 inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors shadow-sm btn-brand-primary"
-            >
-              Browse All Products
-            </router-link>
-          </div>
+          <EmptyState
+            v-else-if="!loading"
+            title="No products found"
+            message="Try adjusting your filters or search terms."
+            action-url="/products"
+            action-text="Browse All Products"
+          />
 
           <div
             id="infinite-sentinel"
@@ -179,8 +157,9 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
 import { debounce, getImageUrl } from '../../utils';
-import { useSEO } from '../../composables';
-import { SearchIcon, EmptyBoxIcon, RefreshIcon } from '../../components/icons';
+import { useSEO, useErrorHandling } from '../../composables';
+import { SearchIcon } from '../../components/icons';
+import { ErrorState, EmptyState, ProductSkeleton } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';
 
@@ -191,7 +170,7 @@ const products = ref([]);
 const categories = ref([]);
 const partners = ref([]);
 const loading = ref(false);
-const error = ref(null);
+const { error, handleError, clearError } = useErrorHandling();
 const hasNext = ref(false);
 const nextPageUrl = ref(null);
 const showProgressBar = ref(false);
@@ -259,10 +238,9 @@ const fetchProducts = async (url = null) => {
     nextPageUrl.value = response.data.products.next_page_url;
     hasNext.value = !!nextPageUrl.value;
     progress.value = 100;
-    error.value = null;
+    clearError();
   } catch (err) {
-    console.error('Failed to fetch products:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to load products. Please try again.';
+    handleError(err, 'Failed to load products. Please try again.');
     // Only set error if we don't have any products yet
     if (products.value.length === 0) {
       products.value = [];

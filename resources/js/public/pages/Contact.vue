@@ -1,15 +1,6 @@
 <template>
   <GuestLayout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-        <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
-      </div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">Contact Us</h1>
-        <p class="mt-2 text-white/90">We'd love to hear from you.</p>
-      </div>
-    </section>
+    <HeroSection title="Contact Us" subtitle="We'd love to hear from you." />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
       <div class="bg-white border rounded-2xl p-6">
         <h2 class="font-semibold mb-3">Send a message</h2>
@@ -19,7 +10,7 @@
             <span>Thank you! Your message has been sent.</span>
           </div>
         </div>
-        <form @submit.prevent="submitForm" class="space-y-4">
+        <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">Name</label>
             <input
@@ -94,10 +85,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted } from 'vue';
 import { webService } from '../services/api';
-import { useSiteSettings, useSEO } from '../composables';
+import { useSiteSettings, useSEO, useFormSubmission } from '../composables';
 import { CheckCircleSolidIcon } from '../components/icons';
+import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const { siteSettings, fetchSiteSettings } = useSiteSettings();
@@ -107,9 +99,28 @@ const form = ref({
   message: '',
   submitted_at: 0 // Timestamp when form was rendered (set on mount)
 });
-const errors = ref({});
-const loading = ref(false);
-const success = ref(false);
+
+const { loading, errors, success, submit: submitForm } = useFormSubmission(
+  async (data) => {
+    const payload = {
+      name: data.name || '',
+      email: data.email || '',
+      message: data.message || '',
+      submitted_at: parseInt(data.submitted_at || Math.floor(Date.now() / 1000), 10),
+    };
+    await webService.submitContact(payload);
+    // Reset form after successful submission
+    form.value = {
+      name: '',
+      email: '',
+      message: '',
+      submitted_at: Math.floor(Date.now() / 1000)
+    };
+  },
+  {
+    scrollToSuccess: true
+  }
+);
 
 useSEO({
   title: 'Contact Us',
@@ -117,42 +128,8 @@ useSEO({
   keywords: ['contact fincompare', 'customer support', 'financial advice']
 });
 
-const submitForm = async () => {
-  loading.value = true;
-  errors.value = {};
-  success.value = false;
-
-  try {
-    const payload = {
-      name: form.value.name || '',
-      email: form.value.email || '',
-      message: form.value.message || '',
-      submitted_at: parseInt(form.value.submitted_at || Math.floor(Date.now() / 1000), 10), // Unix timestamp in seconds
-    };
-
-    await webService.submitContact(payload);
-    success.value = true;
-    form.value = {
-      name: '',
-      email: '',
-      message: '',
-      submitted_at: Math.floor(Date.now() / 1000) // Reset timestamp for next submission
-    };
-    // Scroll to success message
-    await nextTick();
-    const successElement = document.querySelector('[data-success-message]');
-    if (successElement) {
-      successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  } catch (err) {
-    if (err.response?.data?.errors) {
-      errors.value = err.response.data.errors;
-    } else {
-      errors.value = { message: ['Failed to send message. Please try again.'] };
-    }
-  } finally {
-    loading.value = false;
-  }
+const handleSubmit = () => {
+  submitForm(form.value);
 };
 
 onMounted(() => {

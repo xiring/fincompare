@@ -1,15 +1,6 @@
 <template>
   <GuestLayout>
-    <section class="relative overflow-hidden bg-gradient-to-b from-[var(--brand-primary)] to-[var(--brand-primary-2)] text-white animate-fade-in">
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-        <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
-      </div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">Get Started</h1>
-        <p class="mt-2 text-white/90">Tell us about your needs and we'll help you find the right product.</p>
-      </div>
-    </section>
+    <HeroSection title="Get Started" subtitle="Tell us about your needs and we'll help you find the right product." />
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div v-if="product" class="mb-6 p-4 bg-white border rounded-2xl">
@@ -145,6 +136,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { apiService, webService } from '../services/api';
 import { useSEO } from '../composables';
 import { CheckCircleSolidIcon, RefreshIcon } from '../components/icons';
+import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const route = useRoute();
