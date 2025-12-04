@@ -45,10 +45,11 @@
           </span>
           <button
             type="button"
-            title="Add to compare"
+            :title="isInCompare ? 'Remove from compare' : 'Add to compare'"
+            :aria-label="isInCompare ? 'Remove from compare' : 'Add to compare'"
             @click="handleToggleCompare"
             :class="isInCompare ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'"
-            class="p-2 rounded-full bg-gray-50"
+            class="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
           >
             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M3 3h2v14H3V3zm12 0h2v14h-2V3zM8 7h2v10H8V7zm4 0h2v10h-2V7z"/>
@@ -77,9 +78,7 @@
         class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)] hover:text-white transition-all duration-200 group"
         title="View details"
       >
-        <svg class="h-5 w-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-        </svg>
+        <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
       </router-link>
       <div class="flex gap-2">
         <router-link
@@ -91,6 +90,7 @@
         <button
           type="button"
           @click="handleToggleCompare"
+          :aria-label="isInCompare ? 'Remove from compare' : 'Add to compare'"
           :class="isInCompare ? 'bg-amber-500 text-white hover:bg-amber-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
           class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
         >
@@ -105,6 +105,7 @@
 import { computed } from 'vue';
 import { useCompare } from '../composables';
 import { getImageUrl } from '../utils';
+import { ArrowRightIcon } from './icons';
 
 const props = defineProps({
   product: {

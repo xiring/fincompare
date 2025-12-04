@@ -13,12 +13,9 @@
 
     <!-- Loading Overlay -->
     <Transition name="fade">
-      <div v-if="loading" class="fixed inset-0 z-50 bg-white/90 backdrop-blur flex items-center justify-center">
+      <div v-if="loading" class="fixed inset-0 z-50 bg-white/90 backdrop-blur flex items-center justify-center" role="status" aria-live="polite">
         <div class="flex flex-col items-center">
-          <svg class="h-8 w-8 animate-spin text-[color:var(--brand-primary)]" viewBox="0 0 24 24" fill="none">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-          </svg>
+          <LoadingSpinnerIcon className="h-8 w-8 text-[color:var(--brand-primary)]" />
           <div class="mt-3 text-sm text-gray-700">Loading…</div>
         </div>
       </div>
@@ -30,7 +27,9 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@vueuse/head';
-import { useSiteSettings } from '../composables/useSiteSettings';
+import { useSiteSettingsStore } from '../stores/siteSettings';
+import { getLogoUrl } from '../utils/helpers';
+import { LoadingSpinnerIcon } from '../components/icons';
 import Navigation from '../components/Navigation.vue';
 import Footer from '../components/Footer.vue';
 import Toast from '../components/Toast.vue';
@@ -38,26 +37,15 @@ import PrivacyBanner from '../components/PrivacyBanner.vue';
 import GoToTop from '../components/GoToTop.vue';
 
 const route = useRoute();
-const { siteSettings, fetchSiteSettings } = useSiteSettings();
+const siteSettingsStore = useSiteSettingsStore();
 const loading = ref(true);
 
 // Computed values for SEO
-const siteName = computed(() => siteSettings.value?.site_name || 'FinCompare');
-const siteDescription = computed(() => siteSettings.value?.seo_description || 'Compare financial products and find the best deals');
-const siteKeywords = computed(() => siteSettings.value?.seo_keywords || 'financial comparison, loans, credit cards');
-const siteLogo = computed(() => {
-  if (siteSettings.value?.logo) {
-    const logo = siteSettings.value.logo;
-    if (logo.startsWith('http://') || logo.startsWith('https://')) {
-      return logo;
-    }
-    if (logo.startsWith('/storage')) {
-      return logo;
-    }
-    return `/storage/${logo}`;
-  }
-  return null;
-});
+const siteSettings = computed(() => siteSettingsStore.siteSettings);
+const siteName = computed(() => siteSettingsStore.siteName);
+const siteDescription = computed(() => siteSettingsStore.siteDescription);
+const siteKeywords = computed(() => siteSettingsStore.siteKeywords);
+const siteLogo = computed(() => getLogoUrl(siteSettings.value?.logo));
 const siteUrl = computed(() => window.location.origin);
 
 // Update head tags reactively
@@ -148,7 +136,7 @@ watch([siteSettings, route], () => {
 }, { immediate: true });
 
 onMounted(async () => {
-  await fetchSiteSettings();
+  await siteSettingsStore.fetchSettings();
 
   // Simulate page load completion
   setTimeout(() => {

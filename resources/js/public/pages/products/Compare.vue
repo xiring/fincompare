@@ -19,9 +19,7 @@
         </div>
       </div>
       <div v-else-if="products.length === 0" class="bg-white border rounded-2xl p-12 text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
-        </svg>
+        <EmptyBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
         <h3 class="mt-4 text-lg font-medium text-gray-900">No products to compare</h3>
         <p class="mt-2 text-sm text-gray-500">Add products to your compare list to see them side by side.</p>
         <router-link to="/products" class="mt-6 inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-colors shadow-sm btn-brand-primary">
@@ -36,14 +34,16 @@
               <input
                 type="checkbox"
                 v-model="highlightDiff"
-                class="rounded border-gray-300 accent-[color:var(--brand-primary)]"
+                aria-label="Highlight differences between products"
+                class="rounded border-gray-300 accent-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2"
               >
               Highlight differences
             </label>
             <button
               @click="clearAll"
               type="button"
-              class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              aria-label="Clear all products from compare"
+              class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2"
             >
               Clear all
             </button>
@@ -66,7 +66,14 @@
                         <img :src="getProductImage(p)" :alt="p.name || 'Product'" class="w-10 h-10 rounded bg-gray-100 object-cover">
                         <span>{{ p.name || 'Product' }}</span>
                       </div>
-                      <button @click="removeProduct(p.id)" class="text-xs text-red-600 hover:underline">Remove</button>
+                      <button
+                        @click="removeProduct(p.id)"
+                        type="button"
+                        :aria-label="`Remove ${p.name || 'product'} from compare`"
+                        class="text-xs text-red-600 hover:underline focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 rounded"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 </th>
@@ -121,6 +128,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
+import { EmptyBoxIcon } from '../../components/icons';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();

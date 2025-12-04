@@ -15,19 +15,7 @@
         aria-label="Scroll to top"
         style="position: fixed !important; bottom: 1.5rem !important; right: 1.5rem !important;"
       >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M5 10l7-7m0 0l7 7m-7-7v18"
-          />
-        </svg>
+        <ArrowUpIcon />
       </button>
     </Transition>
   </Teleport>
@@ -35,6 +23,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { ArrowUpIcon } from './icons';
 
 const isVisible = ref(false);
 const scrollThreshold = 300; // Show button after scrolling 300px

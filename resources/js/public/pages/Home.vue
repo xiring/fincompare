@@ -19,9 +19,7 @@
               <form @submit.prevent="handleSearch" class="flex flex-col sm:flex-row gap-3">
                 <div class="flex-1 relative">
                   <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
-                    </svg>
+                    <SearchIcon />
                   </span>
                   <input
                     v-model="searchQuery"
@@ -148,9 +146,7 @@
                 :alt="category.name || 'Category'"
                 class="w-full h-full object-cover"
               />
-              <svg v-else class="w-14 h-14 text-[color:var(--brand-primary)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+              <DollarIcon class="w-14 h-14 text-[color:var(--brand-primary)]" />
             </div>
             <!-- Category Name -->
             <h3 class="text-sm font-semibold text-gray-900 group-hover:text-[color:var(--brand-primary)] transition-colors mt-auto leading-tight">
@@ -390,12 +386,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, h } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
 import { getImageUrl } from '../utils';
 import GuestLayout from '../layouts/GuestLayout.vue';
 import ProductCard from '../components/ProductCard.vue';
+import { EyeIcon, LightbulbIcon, CheckCircleIcon, SearchIcon, DollarIcon } from '../components/icons';
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -415,70 +412,22 @@ const stats = ref([
   { target: 50, mode: 'plus', label: 'Trusted partners', display: '0' }
 ]);
 
-// Icon components using render functions
-const TransparentIcon = () => h('svg', {
-  fill: 'none',
-  stroke: 'currentColor',
-  'stroke-width': '2',
-  viewBox: '0 0 24 24',
-  class: 'h-5 w-5'
-}, [
-  h('path', {
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-    d: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'
-  }),
-  h('path', {
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-    d: 'M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
-  })
-]);
-
-const GuidanceIcon = () => h('svg', {
-  fill: 'none',
-  stroke: 'currentColor',
-  'stroke-width': '2',
-  viewBox: '0 0 24 24',
-  class: 'h-5 w-5'
-}, [
-  h('path', {
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-    d: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-  })
-]);
-
-const NoHiddenCostsIcon = () => h('svg', {
-  fill: 'none',
-  stroke: 'currentColor',
-  'stroke-width': '2',
-  viewBox: '0 0 24 24',
-  class: 'h-5 w-5'
-}, [
-  h('path', {
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-    d: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-  })
-]);
-
 // Benefits data
 const benefits = ref([
   {
     title: 'Transparent comparisons',
     description: 'Clear specs and side-by-side views so you always know what you get.',
-    icon: TransparentIcon
+    icon: EyeIcon
   },
   {
     title: 'Guidance, not noise',
     description: 'Smart defaults and highlights to help you decide faster.',
-    icon: GuidanceIcon
+    icon: LightbulbIcon
   },
   {
     title: 'No hidden costs',
     description: 'We surface fees and terms upfront — no surprises.',
-    icon: NoHiddenCostsIcon
+    icon: CheckCircleIcon
   }
 ]);
 

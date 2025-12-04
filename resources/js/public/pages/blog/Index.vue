@@ -20,11 +20,9 @@
       <!-- Filters -->
       <form @submit.prevent="applyFilters" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div class="relative md:col-span-2">
-          <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
-            </svg>
-          </span>
+              <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+                <SearchIcon />
+              </span>
           <input
             v-model="filters.q"
             @input="debouncedSearch"
@@ -108,9 +106,7 @@
       </div>
 
       <div v-else-if="!loading" class="bg-white border rounded-2xl p-12 text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+        <DocumentIcon className="mx-auto h-12 w-12 text-gray-400" />
         <h3 class="mt-4 text-lg font-semibold text-gray-900">No posts found</h3>
         <p class="mt-2 text-sm text-gray-600">Try adjusting your filters or search terms.</p>
       </div>
@@ -142,6 +138,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
 import { debounce, getExcerpt } from '../../utils';
 import { useSEO } from '../../composables';
+import { SearchIcon, DocumentIcon } from '../../components/icons';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();

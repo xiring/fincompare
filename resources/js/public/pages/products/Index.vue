@@ -18,9 +18,7 @@
           <form @submit.prevent="applyFilters" class="flex flex-col sm:flex-row gap-4">
             <div class="flex-1 relative">
               <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
-                </svg>
+                <SearchIcon />
               </span>
               <input
                 v-model="filters.q"
@@ -123,9 +121,7 @@
             />
           </div>
           <div v-else-if="!loading" class="bg-white border rounded-2xl p-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+            <EmptyBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 class="mt-4 text-lg font-semibold text-gray-900">No products found</h3>
             <p class="mt-2 text-sm text-gray-600">Try adjusting your filters or search terms.</p>
             <router-link
@@ -162,6 +158,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
 import { debounce, getImageUrl } from '../../utils';
 import { useSEO } from '../../composables';
+import { SearchIcon, EmptyBoxIcon } from '../../components/icons';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';
 

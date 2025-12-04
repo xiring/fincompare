@@ -142,3 +142,22 @@ export async function copyToClipboard(text) {
   }
 }
 
+/**
+ * Get logo URL with proper storage path handling
+ * @param {string|null|undefined} logoPath
+ * @returns {string|null}
+ */
+export function getLogoUrl(logoPath) {
+  if (!logoPath) return null;
+  // If logo is already a full URL, return as is
+  if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
+    return logoPath;
+  }
+  // If logo starts with /storage, return as is
+  if (logoPath.startsWith('/storage')) {
+    return logoPath;
+  }
+  // Otherwise, prepend /storage/
+  return `/storage/${logoPath}`;
+}
+

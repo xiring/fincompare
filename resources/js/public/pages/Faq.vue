@@ -22,16 +22,10 @@
             class="w-full flex items-center justify-between text-left"
           >
             <span class="font-medium text-gray-900">{{ faq.question }}</span>
-            <svg
+            <ChevronDownIcon
               :class="openFaqs[index] ? 'rotate-180' : ''"
-              class="h-5 w-5 text-gray-500 transition"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
+              className="h-5 w-5 text-gray-500 transition"
+            />
           </button>
           <div
             v-show="openFaqs[index]"
@@ -77,6 +71,7 @@
 import { ref, onMounted } from 'vue';
 import { apiService } from '../services/api';
 import { useSEO } from '../composables';
+import { ChevronDownIcon } from '../components/icons';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const faqs = ref([]);
