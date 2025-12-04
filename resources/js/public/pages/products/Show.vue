@@ -32,8 +32,8 @@
             <div class="flex-1">
               <h1 class="text-3xl font-extrabold tracking-tight">{{ product.name }}</h1>
               <div class="mt-1 flex items-center gap-3 text-sm text-white/90">
-                <span>{{ product.partner?.name || 'Partner' }}</span>
-                <span v-if="product.is_featured" class="px-2 py-0.5 text-xs rounded-full bg-amber-300 text-slate-900 font-semibold">Featured</span>
+                <span>{{ product.partner?.name || TEXT.PARTNER }}</span>
+                <span v-if="product.is_featured" class="px-2 py-0.5 text-xs rounded-full bg-amber-300 text-slate-900 font-semibold">{{ TEXT.FEATURED }}</span>
                 <span class="px-2 py-0.5 text-xs rounded-full bg-white/20">{{ product.status || 'active' }}</span>
               </div>
             </div>

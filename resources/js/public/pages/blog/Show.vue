@@ -1,6 +1,6 @@
 <template>
   <GuestLayout>
-    <HeroSection v-if="post" :title="post.title" :subtitle="`${post.category || 'General'} · ${formatDate(post.created_at)}`">
+    <HeroSection v-if="post" :title="post.title" :subtitle="`${post.category || TEXT.GENERAL} · ${formatDate(post.created_at)}`">
       <template #breadcrumb>
         <router-link to="/blog" class="text-white/90 hover:underline text-sm">{{ TEXT.BACK_TO_BLOG }}</router-link>
       </template>

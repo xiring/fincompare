@@ -107,7 +107,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.MESSAGE }} (Optional)</label>
+            <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.MESSAGE }} ({{ TEXT.OPTIONAL }})</label>
             <textarea
               v-model="form.message"
               name="message"
