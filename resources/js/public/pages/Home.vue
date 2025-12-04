@@ -390,7 +390,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
 import GuestLayout from '../layouts/GuestLayout.vue';
@@ -501,9 +501,26 @@ const toggleFaq = (index) => {
   openFaqs.value[index] = !openFaqs.value[index];
 };
 
+// Track if animation has been triggered to prevent multiple runs
+const statsAnimated = ref(false);
+
 // Animate stats counters
 const animateStats = () => {
-  if (!statsVisible.value) return;
+  // Prevent multiple animations
+  if (statsAnimated.value) return;
+
+  // Ensure stats are visible before animating
+  if (!statsVisible.value) {
+    // If not visible yet, wait a bit and try again
+    setTimeout(() => {
+      if (statsVisible.value && !statsAnimated.value) {
+        animateStats();
+      }
+    }, 100);
+    return;
+  }
+
+  statsAnimated.value = true;
 
   stats.value.forEach((stat, index) => {
     const duration = 1400;
@@ -531,12 +548,37 @@ const animateStats = () => {
 
       if (p < 1) {
         requestAnimationFrame(step);
+      } else {
+        // Ensure final value is set correctly
+        if (stat.mode === 'percent') {
+          stat.display = stat.target + '%';
+        } else if (stat.mode === 'kplus') {
+          if (stat.target >= 100000) {
+            stat.display = Math.round(stat.target / 1000) + 'k+';
+          } else {
+            stat.display = Math.round(stat.target).toLocaleString() + '+';
+          }
+        } else if (stat.mode === 'plus') {
+          stat.display = Math.round(stat.target).toLocaleString() + '+';
+        } else {
+          stat.display = Math.round(stat.target).toLocaleString();
+        }
       }
     };
 
     setTimeout(() => requestAnimationFrame(step), index * 100);
   });
 };
+
+// Watch for stats visibility changes
+watch(statsVisible, (isVisible) => {
+  if (isVisible && !statsAnimated.value) {
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      animateStats();
+    }, 50);
+  }
+});
 
 onMounted(async () => {
   await fetchHomeData();
@@ -552,18 +594,19 @@ onMounted(async () => {
   initFaq();
   initCta();
 
-  // Watch for stats visibility to trigger animation
-  const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateStats();
-        statsObserver.disconnect();
-      }
-    });
-  }, { threshold: 0.4 });
-
+  // Check if stats section is already visible (e.g., on initial load)
+  // This handles the case where the element is visible before the observer triggers
   if (statsRef.value) {
-    statsObserver.observe(statsRef.value);
+    const rect = statsRef.value.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (isVisible && !statsAnimated.value) {
+      // If already visible, trigger animation after a short delay
+      setTimeout(() => {
+        if (statsVisible.value && !statsAnimated.value) {
+          animateStats();
+        }
+      }, 200);
+    }
   }
 });
 </script>
