@@ -7,7 +7,7 @@ This Vue.js Single Page Application follows senior-level development practices w
 ## Directory Structure
 
 ```
-vue/
+public/
 ├── components/          # Reusable Vue components
 ├── composables/         # Vue composition API composables
 ├── layouts/            # Layout components

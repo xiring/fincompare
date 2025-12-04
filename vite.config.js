@@ -9,7 +9,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/vue/app.js',
+                'resources/js/public/app.js',
             ],
             refresh: true,
         }),
@@ -25,11 +25,11 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
-            '@components': path.resolve(__dirname, './resources/js/vue/components'),
-            '@pages': path.resolve(__dirname, './resources/js/vue/pages'),
-            '@layouts': path.resolve(__dirname, './resources/js/vue/layouts'),
-            '@composables': path.resolve(__dirname, './resources/js/vue/composables'),
-            '@stores': path.resolve(__dirname, './resources/js/vue/stores'),
+            '@components': path.resolve(__dirname, './resources/js/public/components'),
+            '@pages': path.resolve(__dirname, './resources/js/public/pages'),
+            '@layouts': path.resolve(__dirname, './resources/js/public/layouts'),
+            '@composables': path.resolve(__dirname, './resources/js/public/composables'),
+            '@stores': path.resolve(__dirname, './resources/js/public/stores'),
         },
     },
 });

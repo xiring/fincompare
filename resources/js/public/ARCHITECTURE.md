@@ -116,7 +116,7 @@ All components use `<script setup>` with Composition API for better:
 
 ### 2. File Organization
 ```
-vue/
+public/
 ├── components/     # Reusable components
 ├── composables/    # Business logic
 ├── layouts/        # Layout components
