@@ -9,6 +9,7 @@ use Src\Catalog\Application\DTOs\ProductListFiltersDTO;
 use Src\Catalog\Application\Services\PublicProductService;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Shared\Presentation\Resources\CategoryResource;
 use Src\Shared\Presentation\Resources\PartnerResource;
 use Src\Shared\Presentation\Resources\ProductResource;
 
@@ -62,7 +63,7 @@ class ProductController extends Controller
                 'prev_page_url' => $products->previousPageUrl(),
             ],
             'category' => $category,
-            'categories' => $categories,
+            'categories' => CategoryResource::collection($categories),
             'partners' => PartnerResource::collection($partners),
             'next' => $products->nextPageUrl(),
         ]);
@@ -103,8 +104,9 @@ class ProductController extends Controller
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
+                'image_url' => $category->image_url,
             ],
-            'categories' => $categories,
+            'categories' => CategoryResource::collection($categories),
             'partners' => PartnerResource::collection($partners),
             'next' => $products->nextPageUrl(),
         ]);

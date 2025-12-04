@@ -129,31 +129,31 @@
             :to="`/categories/${category.slug}`"
             :style="{ animationDelay: `${index * 50}ms` }"
             :class="categoriesVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-2'"
-            class="group relative bg-white border rounded-2xl p-5 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+            class="group relative bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center overflow-visible min-h-[180px]"
           >
-            <!-- Offer Banner -->
-            <div v-if="index < 3" class="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-              <div class="relative bg-green-100 text-green-700 text-[10px] font-semibold px-3 py-1 rounded-t-lg">
+            <!-- Offer Banner - Improved styling with better positioning -->
+            <div v-if="index < 2" class="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+              <div class="relative bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">
                 {{ index === 1 ? '5% Cashback' : 'Cashback Offer' }}
                 <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
                   <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-green-100"></div>
                 </div>
               </div>
             </div>
-            <!-- Category Icon/Image -->
-            <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+            <!-- Category Icon/Image - Improved design with better proportions -->
+            <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 border border-[color:var(--brand-primary)]/10 shadow-sm overflow-hidden flex-shrink-0">
               <img
                 v-if="category.image_url"
-                :src="category.image_url"
+                :src="getImageUrl(category.image_url)"
                 :alt="category.name || 'Category'"
-                class="w-20 h-20 object-cover rounded-lg"
+                class="w-full h-full object-cover"
               />
-              <svg v-else class="w-14 h-14 text-[color:var(--brand-primary)]" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
+              <svg v-else class="w-14 h-14 text-[color:var(--brand-primary)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <!-- Category Name -->
-            <h3 class="text-sm font-semibold text-gray-900 group-hover:text-[color:var(--brand-primary)] transition-colors">
+            <h3 class="text-sm font-semibold text-gray-900 group-hover:text-[color:var(--brand-primary)] transition-colors mt-auto leading-tight">
               {{ category.name || 'Category' }}
             </h3>
           </router-link>
@@ -390,9 +390,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
+import { getImageUrl } from '../utils';
 import GuestLayout from '../layouts/GuestLayout.vue';
 import ProductCard from '../components/ProductCard.vue';
 
@@ -414,22 +415,70 @@ const stats = ref([
   { target: 50, mode: 'plus', label: 'Trusted partners', display: '0' }
 ]);
 
+// Icon components using render functions
+const TransparentIcon = () => h('svg', {
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  viewBox: '0 0 24 24',
+  class: 'h-5 w-5'
+}, [
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    d: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+  }),
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    d: 'M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
+  })
+]);
+
+const GuidanceIcon = () => h('svg', {
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  viewBox: '0 0 24 24',
+  class: 'h-5 w-5'
+}, [
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    d: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+  })
+]);
+
+const NoHiddenCostsIcon = () => h('svg', {
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  viewBox: '0 0 24 24',
+  class: 'h-5 w-5'
+}, [
+  h('path', {
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+    d: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+  })
+]);
+
 // Benefits data
 const benefits = ref([
   {
     title: 'Transparent comparisons',
     description: 'Clear specs and side-by-side views so you always know what you get.',
-    icon: 'svg'
+    icon: TransparentIcon
   },
   {
     title: 'Guidance, not noise',
     description: 'Smart defaults and highlights to help you decide faster.',
-    icon: 'svg'
+    icon: GuidanceIcon
   },
   {
     title: 'No hidden costs',
     description: 'We surface fees and terms upfront — no surprises.',
-    icon: 'svg'
+    icon: NoHiddenCostsIcon
   }
 ]);
 

@@ -74,11 +74,11 @@
     <div class="mt-4 px-4 pb-4 flex items-center justify-between">
       <router-link
         :to="`/products/${product.slug || product.id}`"
-        class="inline-flex items-center gap-1 text-[color:var(--brand-primary)] hover:underline text-sm"
+        class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)] hover:text-white transition-all duration-200 group"
+        title="View details"
       >
-        More Details
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        <svg class="h-5 w-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
         </svg>
       </router-link>
       <div class="flex gap-2">

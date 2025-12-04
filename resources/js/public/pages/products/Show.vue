@@ -6,7 +6,7 @@
           <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
           <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
         </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav class="text-sm mb-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
             <router-link to="/" class="text-white hover:underline font-medium">Home</router-link>
             <span class="mx-2 text-white/80">/</span>
@@ -19,7 +19,7 @@
               v-if="product.image_url"
               :src="productImageUrl"
               :alt="product.name"
-              class="w-24 h-24 rounded-lg bg-white/10 object-cover ring-2 ring-white/20 shadow-lg"
+              class="w-24 h-24 rounded-xl bg-white/10 object-cover ring-2 ring-white/20 shadow-lg"
             />
             <img
               v-else-if="product.partner?.logo_url"
@@ -39,16 +39,14 @@
               <button
                 @click="toggleCompare"
                 type="button"
-                :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90'"
+                :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90 text-[color:var(--brand-primary)]'"
                 class="inline-flex items-center justify-center px-4 py-2.5 sm:py-3 rounded-xl font-semibold transition-colors text-sm sm:text-base"
-                :style="inCompare ? '' : 'color: var(--brand-primary);'"
               >
                 {{ inCompare ? 'In Compare' : 'Add to Compare' }}
               </button>
               <router-link
                 :to="`/lead?product=${product.slug || product.id}`"
-                class="inline-flex items-center justify-center px-5 py-2.5 sm:py-3 rounded-xl bg-white font-semibold shadow hover:bg-white/90 transition-colors text-sm sm:text-base"
-                style="color: var(--brand-primary);"
+                class="inline-flex items-center justify-center px-5 py-2.5 sm:py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow hover:bg-white/90 transition-colors text-sm sm:text-base"
               >
                 Send Inquiry
               </router-link>
@@ -108,7 +106,7 @@
                 </svg>
               </div>
             </div>
-            <div v-if="filteredAttributes.length > 0" class="overflow-x-auto bg-white border rounded-lg">
+            <div v-if="filteredAttributes.length > 0" class="overflow-x-auto bg-white border rounded-2xl">
               <table class="min-w-full divide-y">
                 <tbody class="divide-y">
                   <tr
@@ -122,13 +120,13 @@
                 </tbody>
               </table>
             </div>
-            <div v-else class="bg-white border rounded-lg p-8 text-center">
+            <div v-else class="bg-white border rounded-2xl p-8 text-center">
               <p class="text-gray-600">No attributes available for this product.</p>
             </div>
           </div>
 
           <div v-show="activeTab === 'eligibility'" class="mt-8">
-            <div class="bg-white border rounded-lg p-6">
+            <div class="bg-white border rounded-2xl p-6">
               <h3 class="text-lg font-semibold mb-4">Eligibility Criteria</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.eligibility" v-html="product.eligibility"></div>
@@ -138,7 +136,7 @@
           </div>
 
           <div v-show="activeTab === 'documents'" class="mt-8">
-            <div class="bg-white border rounded-lg p-6">
+            <div class="bg-white border rounded-2xl p-6">
               <h3 class="text-lg font-semibold mb-4">Required Documents</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.documents" v-html="product.documents"></div>
@@ -162,22 +160,21 @@
           <button
             @click="toggleCompare"
             type="button"
-            :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] hover:bg-gray-50'"
+            :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-gray-50'"
             class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium border transition-colors"
-            :style="inCompare ? '' : 'color: var(--brand-primary);'"
           >
             {{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}
           </button>
           <router-link
             :to="`/lead?product=${product.slug || product.id}`"
-            class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm btn-brand-primary"
+            class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-semibold text-white transition-colors shadow-sm btn-brand-primary"
           >
             Apply Now
           </router-link>
           <router-link
             v-if="inCompare"
             to="/compare"
-            class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium transition-colors shadow-sm btn-brand-primary"
+            class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-white transition-colors shadow-sm btn-brand-primary"
           >
             Compare Now
           </router-link>
@@ -206,15 +203,14 @@
             <button
               @click="toggleCompare"
               type="button"
-              :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] hover:bg-gray-50'"
+              :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-gray-50'"
               class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap"
-              :style="inCompare ? '' : 'color: var(--brand-primary);'"
             >
               {{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}
             </button>
             <router-link
               :to="`/lead?product=${product.slug || product.id}`"
-              class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm whitespace-nowrap btn-brand-primary"
+              class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors shadow-sm whitespace-nowrap btn-brand-primary"
             >
               Apply Now
             </router-link>

@@ -50,7 +50,14 @@ function getExcerpt(html, maxLength = 160) {
  * @returns {Object} SEO utilities
  */
 export function useSEO(options = {}) {
-  const route = useRoute();
+  let route;
+  try {
+    route = useRoute();
+  } catch (e) {
+    // Route might not be available in some contexts
+    console.warn('useRoute() not available in useSEO:', e);
+    route = null;
+  }
   const { siteSettings } = useSiteSettings();
 
   const siteName = computed(() => siteSettings.value?.site_name || 'FinCompare');
@@ -98,7 +105,18 @@ export function useSEO(options = {}) {
   });
 
   const pageUrl = computed(() => {
-    return siteUrl.value + route.fullPath;
+    // Safely access route.fullPath with proper null/undefined checks
+    try {
+      if (route && typeof route.fullPath !== 'undefined') {
+        return siteUrl.value + route.fullPath;
+      }
+    } catch (e) {
+      // Route might be undefined or not accessible
+      console.warn('Route not accessible in pageUrl computed:', e);
+    }
+    // Fallback to window.location if route is not available
+    const path = window.location.pathname + window.location.search;
+    return siteUrl.value + (path || '/');
   });
 
   const ogType = computed(() => options.type || 'website');

@@ -74,10 +74,17 @@
 .btn-brand-primary {
   background-color: var(--brand-primary) !important;
   color: #ffffff !important;
+  border-color: var(--brand-primary) !important;
 }
-.btn-brand-primary:hover {
+.btn-brand-primary:hover,
+.btn-brand-primary:focus {
   background-color: var(--brand-primary-2) !important;
   color: #ffffff !important;
+  border-color: var(--brand-primary-2) !important;
+}
+.btn-brand-primary:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
 }
 
 /* Active category pill */

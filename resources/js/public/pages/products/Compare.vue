@@ -5,26 +5,26 @@
         <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 class="text-3xl font-extrabold tracking-tight">Compare Products</h1>
-        <p class="mt-1 text-white/90">See specs side-by-side. Toggle highlights to spot differences quickly.</p>
+        <p class="mt-2 text-white/90">See specs side-by-side. Toggle highlights to spot differences quickly.</p>
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div v-if="loading" class="bg-white border rounded-lg p-12 text-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div v-if="loading" class="bg-white border rounded-2xl p-12 text-center">
         <div class="animate-pulse">
           <div class="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
           <div class="h-4 bg-gray-200 rounded w-1/3 mx-auto"></div>
         </div>
       </div>
-      <div v-else-if="products.length === 0" class="bg-white border rounded-lg p-12 text-center">
+      <div v-else-if="products.length === 0" class="bg-white border rounded-2xl p-12 text-center">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
         </svg>
         <h3 class="mt-4 text-lg font-medium text-gray-900">No products to compare</h3>
         <p class="mt-2 text-sm text-gray-500">Add products to your compare list to see them side by side.</p>
-        <router-link to="/products" class="mt-6 btn-brand-primary inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-semibold transition-colors shadow-sm">
+        <router-link to="/products" class="mt-6 inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-colors shadow-sm btn-brand-primary">
           Browse Products
         </router-link>
       </div>
@@ -48,13 +48,13 @@
               Clear all
             </button>
           </div>
-          <router-link to="/products" class="btn-brand-primary inline-flex items-center justify-center text-sm rounded-lg px-4 py-2.5 font-semibold transition-colors shadow-sm">
+          <router-link to="/products" class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-white font-semibold transition-colors shadow-sm btn-brand-primary">
             Add more products
           </router-link>
         </div>
 
         <!-- Desktop Table View -->
-        <div class="overflow-x-auto bg-white border rounded-lg hidden md:block animate-fade-in-up">
+        <div class="overflow-x-auto bg-white border rounded-2xl hidden md:block animate-fade-in-up">
           <table class="min-w-full divide-y">
             <thead class="bg-gray-50">
               <tr>

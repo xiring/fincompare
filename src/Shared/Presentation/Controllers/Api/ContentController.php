@@ -12,6 +12,7 @@ use Src\Content\Application\Services\PublicBlogService;
 use Src\Content\Domain\Entities\BlogPost;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 use Src\Partners\Domain\Entities\Partner;
+use Src\Shared\Presentation\Resources\CategoryResource;
 use Src\Shared\Presentation\Resources\PartnerResource;
 use Src\Shared\Presentation\Resources\ProductResource;
 
@@ -45,7 +46,7 @@ class ContentController extends Controller
 
         return response()->json([
             'featured_products' => ProductResource::collection($featuredProducts),
-            'categories' => $categories,
+            'categories' => CategoryResource::collection($categories),
             'partners' => PartnerResource::collection($partners),
             'hero_slides' => [
                 [

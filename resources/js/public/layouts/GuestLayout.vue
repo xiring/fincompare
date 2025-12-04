@@ -9,6 +9,7 @@
 
     <Footer />
     <PrivacyBanner />
+    <GoToTop />
 
     <!-- Loading Overlay -->
     <Transition name="fade">
@@ -34,6 +35,7 @@ import Navigation from '../components/Navigation.vue';
 import Footer from '../components/Footer.vue';
 import Toast from '../components/Toast.vue';
 import PrivacyBanner from '../components/PrivacyBanner.vue';
+import GoToTop from '../components/GoToTop.vue';
 
 const route = useRoute();
 const { siteSettings, fetchSiteSettings } = useSiteSettings();

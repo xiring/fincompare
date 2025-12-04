@@ -5,13 +5,13 @@
         <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 class="text-3xl font-extrabold tracking-tight">{{ categoryName }}</h1>
         <p class="mt-2 text-white/90">Browse, filter, and compare side-by-side.</p>
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Search and Category Pills -->
       <div class="mb-6">
         <div class="bg-white border rounded-2xl p-4 md:p-5">
@@ -39,7 +39,7 @@
               :class="isActiveCategory(cat.slug) ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'"
               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border font-medium transition-colors"
             >
-              <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-4 h-4 rounded-full object-cover">
+              <img v-if="cat.image_url" :src="getImageUrl(cat.image_url)" :alt="cat.name" class="w-4 h-4 rounded-full object-cover">
               <span>{{ cat.name }}</span>
             </router-link>
           </div>
@@ -49,7 +49,7 @@
       <div class="flex flex-col lg:flex-row gap-8">
         <!-- Sidebar Filters -->
         <aside class="lg:w-1/4 w-full">
-          <div class="lg:sticky lg:top-8 p-4 bg-white border rounded-lg">
+          <div class="lg:sticky lg:top-8 p-4 bg-white border rounded-2xl">
             <h2 class="text-lg font-semibold mb-4">Filter by</h2>
             <form @submit.prevent="applyFilters" class="space-y-3">
               <div>
@@ -130,8 +130,7 @@
             <p class="mt-2 text-sm text-gray-600">Try adjusting your filters or search terms.</p>
             <router-link
               to="/products"
-              class="mt-4 inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[color:var(--brand-primary)] text-white font-semibold hover:bg-[color:var(--brand-primary-2)] transition-colors shadow-sm"
-              style="color: white !important;"
+              class="mt-4 inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors shadow-sm btn-brand-primary"
             >
               Browse All Products
             </router-link>
@@ -161,7 +160,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
-import { debounce } from '../../utils';
+import { debounce, getImageUrl } from '../../utils';
 import { useSEO } from '../../composables';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';

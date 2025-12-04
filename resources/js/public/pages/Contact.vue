@@ -13,8 +13,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
       <div class="bg-white border rounded-2xl p-6">
         <h2 class="font-semibold mb-3">Send a message</h2>
-        <div v-if="success" class="mb-4 rounded-md bg-green-50 text-green-700 px-3 py-2 text-sm">
-          Thank you! Your message has been sent.
+        <div v-if="success" class="mb-4 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
+          <div class="flex items-center gap-2">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span>Thank you! Your message has been sent.</span>
+          </div>
         </div>
         <form @submit.prevent="submitForm" class="space-y-4">
           <div>
@@ -50,7 +55,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] text-white font-medium transition-colors disabled:opacity-50"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed btn-brand-primary"
           >
             {{ loading ? 'Sending...' : 'Submit' }}
           </button>
