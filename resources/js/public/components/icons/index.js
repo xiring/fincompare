@@ -26,4 +26,5 @@ export { default as ErrorIcon } from './ErrorIcon.vue';
 export { default as InfoIcon } from './InfoIcon.vue';
 export { default as CloseXIcon } from './CloseXIcon.vue';
 export { default as LoadingSpinnerIcon } from './LoadingSpinnerIcon.vue';
+export { default as RefreshIcon } from './RefreshIcon.vue';
 

@@ -12,30 +12,108 @@
     </section>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div v-if="loading" class="bg-white border rounded-2xl p-12 text-center">
-        <div class="animate-pulse">
-          <div class="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/3 mx-auto"></div>
+      <!-- Loading State with Skeleton -->
+      <div v-if="loading && products.length === 0" class="space-y-6">
+        <!-- Controls Skeleton -->
+        <div class="bg-white border rounded-2xl p-4 shadow-sm animate-pulse">
+          <div class="flex items-center justify-between">
+            <div class="h-6 bg-gray-200 rounded w-48"></div>
+            <div class="h-10 bg-gray-200 rounded w-40"></div>
+          </div>
+        </div>
+        <!-- Table Skeleton -->
+        <div class="bg-white border rounded-2xl shadow-sm hidden md:block">
+          <div class="p-6 border-b">
+            <div class="grid grid-cols-3 gap-4">
+              <div v-for="i in 3" :key="i" class="space-y-3">
+                <div class="h-20 bg-gray-200 rounded-lg"></div>
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-6 space-y-4">
+            <div v-for="i in 5" :key="i" class="grid grid-cols-4 gap-4">
+              <div class="h-4 bg-gray-200 rounded w-24"></div>
+              <div class="h-4 bg-gray-200 rounded"></div>
+              <div class="h-4 bg-gray-200 rounded"></div>
+              <div class="h-4 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Mobile Skeleton -->
+        <div class="md:hidden space-y-4">
+          <div v-for="i in 2" :key="i" class="bg-white border rounded-2xl p-4 animate-pulse">
+            <div class="h-16 bg-gray-200 rounded mb-4"></div>
+            <div class="space-y-3">
+              <div class="h-4 bg-gray-200 rounded"></div>
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div v-else-if="products.length === 0" class="bg-white border rounded-2xl p-12 text-center">
-        <EmptyBoxIcon className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 class="mt-4 text-lg font-medium text-gray-900">No products to compare</h3>
-        <p class="mt-2 text-sm text-gray-500">Add products to your compare list to see them side by side.</p>
-        <router-link
-          to="/products"
-          class="mt-6 inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-colors shadow-sm btn-brand-primary"
-          style="color: #ffffff !important;"
-        >
-          Browse Products
-        </router-link>
+      <!-- Error State -->
+      <div v-else-if="error && !loading" class="bg-white border rounded-2xl p-12 text-center">
+        <div class="max-w-md mx-auto">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to load comparison</h3>
+          <p class="text-sm text-gray-600 mb-6">We couldn't load your product comparison. Please try again.</p>
+          <button
+            @click="retryLoad"
+            type="button"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
+            style="color: #ffffff !important;"
+          >
+            <RefreshIcon className="w-5 h-5 mr-2" />
+            Retry
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="products.length === 0 && !loading" class="bg-white border rounded-2xl p-12 text-center">
+        <EmptyBoxIcon className="mx-auto h-16 w-16 text-gray-300" />
+        <h3 class="mt-6 text-xl font-semibold text-gray-900">No products to compare</h3>
+        <p class="mt-2 text-sm text-gray-600 max-w-md mx-auto">
+          Add products to your compare list to see them side by side and make informed decisions.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            @click="openAddProductModal"
+            type="button"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
+            style="color: #ffffff !important;"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Products
+          </button>
+          <router-link
+            to="/products"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+          >
+            Browse All Products
+          </router-link>
+        </div>
       </div>
 
       <div v-else>
         <!-- Controls Bar -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 p-4 bg-white border rounded-2xl shadow-sm">
           <div class="flex flex-wrap items-center gap-3">
-            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer group">
+            <!-- Product Count Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] text-sm font-medium">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <span>{{ products.length }} product{{ products.length !== 1 ? 's' : '' }}</span>
+            </div>
+            <div class="h-4 w-px bg-gray-300"></div>
+            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer group relative" title="Highlight features that differ between products">
               <input
                 type="checkbox"
                 v-model="highlightDiff"
@@ -45,7 +123,7 @@
               <span class="flex items-center gap-1.5">
                 <svg
                   v-if="highlightDiff"
-                  class="w-4 h-4 text-amber-500"
+                  class="w-4 h-4 text-[color:var(--brand-primary)] transition-colors"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
@@ -60,10 +138,14 @@
             <button
               @click="clearAll"
               type="button"
+              :disabled="clearingAll || loading"
               aria-label="Clear all products from compare"
-              class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2"
+              class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Clear all
+              <svg v-if="clearingAll" class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span>{{ clearingAll ? 'Clearing...' : 'Clear all' }}</span>
             </button>
           </div>
           <button
@@ -80,7 +162,7 @@
         </div>
 
         <!-- Desktop Table View -->
-        <div class="overflow-x-auto bg-white border rounded-2xl shadow-sm hidden md:block animate-fade-in-up">
+        <div class="overflow-x-auto bg-white border rounded-2xl shadow-sm hidden md:block animate-fade-in-up scroll-smooth" style="scrollbar-width: thin;">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
@@ -118,11 +200,15 @@
                         <button
                           @click="removeProduct(p.id)"
                           type="button"
+                          :disabled="removingProductId === p.id || clearingAll"
                           :aria-label="`Remove ${p.name || 'product'} from compare`"
-                          class="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+                          class="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Remove from compare"
                         >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <svg v-if="removingProductId === p.id" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                          </svg>
+                          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                           </svg>
                         </button>
@@ -148,7 +234,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="f in features" :key="f.key" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="f in features" :key="f.key" class="hover:bg-gray-50/50 transition-colors duration-150">
                 <td class="px-6 py-4 text-sm font-semibold text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200 whitespace-nowrap">
                   {{ f.label }}
                 </td>
@@ -202,10 +288,14 @@
                 <button
                   @click="removeProduct(p.id)"
                   type="button"
+                  :disabled="removingProductId === p.id || clearingAll"
                   :aria-label="`Remove ${p.name || 'product'} from compare`"
-                  class="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  class="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg v-if="removingProductId === p.id" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
@@ -254,6 +344,18 @@
       @close="closeAddProductModal"
       @added="handleProductsAdded"
     />
+
+    <!-- Confirm Clear All Modal -->
+    <ConfirmModal
+      :is-open="showClearConfirmModal"
+      title="Clear All Products"
+      message="Are you sure you want to clear all products from comparison?"
+      description="This action cannot be undone. All products will be removed from your comparison list."
+      confirm-text="Clear All"
+      cancel-text="Cancel"
+      @confirm="confirmClearAll"
+      @close="showClearConfirmModal = false"
+    />
   </GuestLayout>
 </template>
 
@@ -262,14 +364,18 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
 import { getImageUrl } from '../../utils/helpers';
-import { EmptyBoxIcon } from '../../components/icons';
+import { EmptyBoxIcon, RefreshIcon } from '../../components/icons';
 import AddProductModal from '../../components/AddProductModal.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
 const router = useRouter();
 const highlightDiff = ref(true);
 const showAddProductModal = ref(false);
+const showClearConfirmModal = ref(false);
+const removingProductId = ref(null);
+const clearingAll = ref(false);
 
 const { toggleCompare, clearAll: clearCompareList, compareIds } = useCompare();
 
@@ -282,7 +388,7 @@ const getProductIds = () => {
 };
 
 const initialProductIds = getProductIds();
-const { products, features, values, loading, fetchCompareData, updateProductIds, getProductImage, getValue, hasDifferentValues } = useCompareData(initialProductIds);
+const { products, features, values, loading, error, fetchCompareData, updateProductIds, getProductImage, getValue, hasDifferentValues } = useCompareData(initialProductIds);
 
 useSEO({
   title: 'Compare Products',
@@ -332,25 +438,37 @@ const formatValue = (value) => {
 };
 
 const removeProduct = async (id) => {
-  const success = await toggleCompare(id);
-  if (success) {
-    // compareIds is already updated by toggleCompare, use it directly
-    const currentIds = compareIds.value || [];
+  removingProductId.value = id;
 
-    // Update the data with new IDs
-    await updateProductIds(currentIds);
+  try {
+    const success = await toggleCompare(id);
+    if (success) {
+      // Optimistically update UI - remove product immediately
+      const currentIds = compareIds.value || [];
 
-    // Update URL to match
-    if (currentIds.length > 0) {
-      router.replace({ query: { products: currentIds.join(',') } });
-    } else {
-      router.replace({ query: {} });
+      // Update the data with new IDs
+      await updateProductIds(currentIds);
+
+      // Update URL to match
+      if (currentIds.length > 0) {
+        router.replace({ query: { products: currentIds.join(',') } });
+      } else {
+        router.replace({ query: {} });
+      }
     }
+  } catch (error) {
+    console.error('Failed to remove product:', error);
+  } finally {
+    removingProductId.value = null;
   }
 };
 
-const clearAll = async () => {
-  if (!confirm('Clear all products from comparison?')) return;
+const clearAll = () => {
+  showClearConfirmModal.value = true;
+};
+
+const confirmClearAll = async () => {
+  clearingAll.value = true;
 
   try {
     // Clear compare list (this updates compareIds.value)
@@ -363,6 +481,17 @@ const clearAll = async () => {
     router.replace({ query: {} });
   } catch (error) {
     console.error('Error clearing compare list:', error);
+  } finally {
+    clearingAll.value = false;
+  }
+};
+
+const retryLoad = async () => {
+  const ids = getProductIds();
+  if (ids.length > 0) {
+    await updateProductIds(ids);
+  } else {
+    await fetchCompareData();
   }
 };
 
@@ -386,12 +515,17 @@ const handleProductsAdded = async (productIds) => {
   // Refresh compare data with new products
   const currentIds = compareIds.value || [];
   const allIds = [...new Set([...currentIds, ...productIds])];
-  await updateProductIds(allIds);
 
-  // Update URL
+  // Optimistically update URL first for instant feedback
   if (allIds.length > 0) {
     router.replace({ query: { products: allIds.join(',') } });
   }
+
+  // Then update the data
+  await updateProductIds(allIds);
+
+  // Scroll to top to show new products
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 onMounted(async () => {
