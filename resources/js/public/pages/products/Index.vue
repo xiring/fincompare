@@ -5,19 +5,21 @@
         <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">{{ categoryName }}</h1>
-        <p class="mt-2 text-white/90">Browse, filter, and compare side-by-side.</p>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">{{ categoryName }}</h1>
+          <p class="mt-4 text-lg text-white/90 leading-relaxed">Browse, filter, and compare financial products side-by-side to find the best options for your needs.</p>
+        </div>
       </div>
     </section>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Search and Category Pills -->
-      <div class="mb-6">
-        <div class="bg-white border rounded-2xl p-4 md:p-5">
-          <form @submit.prevent="applyFilters" class="flex flex-col sm:flex-row gap-4">
+      <div class="mb-8">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+          <form @submit.prevent="applyFilters" class="mb-4">
             <div class="flex-1 relative">
-              <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 pointer-events-none">
                 <SearchIcon />
               </span>
               <input
@@ -25,74 +27,77 @@
                 @input="debouncedSearch"
                 :placeholder="TEXT.LABEL_SEARCH_PRODUCTS"
                 :disabled="loading"
-                class="w-full pl-10 pr-3 py-2.5 rounded-xl border-gray-300 focus-brand disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full pl-10 pr-4 py-3 rounded-xl border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               />
             </div>
           </form>
-          <div class="mt-4 flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-2">
             <router-link
               v-for="cat in categories.slice(0, 8)"
               :key="cat.id"
               :to="{ path: '/products', query: { category: cat.slug } }"
-              :class="isActiveCategory(cat.slug) ? 'category-pill-active' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'"
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs border font-medium transition-colors"
+              :class="isActiveCategory(cat.slug)
+                ? 'bg-[color:var(--brand-primary)] text-white border-[color:var(--brand-primary)] shadow-sm'
+                : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'"
+              class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full text-xs border font-medium transition-all duration-200"
             >
-              <img v-if="cat.image_url" :src="getImageUrl(cat.image_url)" :alt="cat.name" class="w-4 h-4 rounded-full object-cover">
+              <img v-if="cat.image_url" :src="getImageUrl(cat.image_url)" :alt="cat.name" class="w-4 h-4 rounded-full object-cover flex-shrink-0">
               <span>{{ cat.name }}</span>
             </router-link>
           </div>
         </div>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-8">
+      <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
         <!-- Sidebar Filters -->
         <aside class="lg:w-1/4 w-full">
-          <div class="lg:sticky lg:top-8 p-4 bg-white border rounded-2xl">
-            <h2 class="text-lg font-semibold mb-4">{{ TEXT.LABEL_FILTER_BY }}</h2>
-            <form @submit.prevent="applyFilters" class="space-y-3">
+          <div class="lg:sticky lg:top-8 p-5 bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <div class="flex items-center justify-between mb-5">
+              <h2 class="text-lg font-semibold text-gray-900">{{ TEXT.LABEL_FILTER_BY }}</h2>
+              <button
+                v-if="filters.q || filters.category || filters.partner_id || filters.featured"
+                @click="resetFilters"
+                type="button"
+                class="text-xs text-[color:var(--brand-primary)] hover:underline font-medium"
+              >
+                {{ TEXT.LABEL_RESET }}
+              </button>
+            </div>
+            <form @submit.prevent="applyFilters" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.LABEL_CATEGORY }}</label>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">{{ TEXT.LABEL_CATEGORY }}</label>
                 <select
                   v-model="filters.category"
                   @change="applyFilters"
-                  class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]"
+                  class="w-full px-3 py-2.5 rounded-lg border-gray-300 text-sm focus:border-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 transition-colors bg-white"
                 >
                   <option value="">{{ TEXT.LABEL_ALL }}</option>
                   <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.LABEL_PARTNER }}</label>
-            <select
-              v-model="filters.partner_id"
-              @change="applyFilters"
-              :disabled="loading"
-              class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+                <label class="block text-sm font-semibold text-gray-900 mb-2">{{ TEXT.LABEL_PARTNER }}</label>
+                <select
+                  v-model="filters.partner_id"
+                  @change="applyFilters"
+                  :disabled="loading"
+                  class="w-full px-3 py-2.5 rounded-lg border-gray-300 text-sm focus:border-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                >
                   <option value="">{{ TEXT.LABEL_ALL }}</option>
                   <option v-for="partner in partners" :key="partner.id" :value="partner.id">{{ partner.name }}</option>
                 </select>
               </div>
-              <div>
-                <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+              <div class="pt-4 mt-4 border-t border-gray-200">
+                <label class="inline-flex items-center gap-3 text-sm font-semibold text-gray-900 cursor-pointer group">
                   <input
                     type="checkbox"
                     v-model="filters.featured"
                     @change="applyFilters"
                     :disabled="loading"
-                    class="rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-4 h-4 rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                  <span>{{ TEXT.LABEL_FEATURED_ONLY }}</span>
+                  <span class="group-hover:text-[color:var(--brand-primary)] transition-colors">{{ TEXT.LABEL_FEATURED_ONLY }}</span>
                 </label>
-              </div>
-              <div class="flex gap-2 mt-4">
-                <button
-                  type="button"
-                  @click="resetFilters"
-                  class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-                >
-                  {{ TEXT.LABEL_RESET }}
-                </button>
               </div>
             </form>
           </div>
@@ -102,6 +107,31 @@
         <main class="lg:w-3/4 w-full">
           <div v-show="showProgressBar" class="fixed top-0 left-0 right-0 z-30">
             <div class="h-0.5 bg-[color:var(--brand-primary)] transition-all" :style="`width: ${progress}%`"></div>
+          </div>
+
+          <!-- Results Header -->
+          <div v-if="!loading && products.length > 0" class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold text-gray-700">
+                {{ TEXT.SHOWING_RESULTS }}
+                <span class="text-[color:var(--brand-primary)] font-bold">{{ products.length }}</span>
+                <span v-if="totalProducts > products.length" class="text-gray-600">of {{ totalProducts }}</span>
+                <span class="text-gray-600">{{ products.length === 1 ? TEXT.RESULT_FOUND : TEXT.RESULTS_FOUND }}</span>
+              </h2>
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">{{ TEXT.SORT_BY }}:</label>
+              <select
+                v-model="sortBy"
+                @change="applySorting"
+                class="px-4 py-2 pr-10 rounded-lg border-gray-300 text-sm font-medium focus:border-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 bg-white shadow-sm transition-all appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right-2 bg-[length:1.25rem]"
+              >
+                <option value="newest">{{ TEXT.SORT_NEWEST }}</option>
+                <option value="oldest">{{ TEXT.SORT_OLDEST }}</option>
+                <option value="name_asc">{{ TEXT.SORT_NAME_ASC }}</option>
+                <option value="name_desc">{{ TEXT.SORT_NAME_DESC }}</option>
+              </select>
+            </div>
           </div>
 
           <!-- Error State -->
@@ -117,7 +147,7 @@
             <ProductSkeleton v-for="i in 6" :key="i" />
           </div>
 
-          <div v-else-if="products.length > 0" id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-else-if="products.length > 0" id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             <ProductCard
               v-for="product in products"
               :key="product.id"
@@ -177,6 +207,8 @@ const showProgressBar = ref(false);
 const progress = ref(0);
 const sentinelRef = ref(null);
 const categoryName = ref(TEXT.LABEL_ALL_PRODUCTS);
+const totalProducts = ref(0);
+const sortBy = ref('newest');
 
 const filters = ref({
   q: route.query.q || '',
@@ -230,6 +262,7 @@ const fetchProducts = async (url = null) => {
       products.value = response.data.products.data || [];
       categories.value = response.data.categories || [];
       partners.value = response.data.partners || [];
+      totalProducts.value = response.data.products.total || products.value.length;
       if (response.data.category) {
         categoryName.value = response.data.category.name || TEXT.LABEL_ALL_PRODUCTS;
       }
@@ -278,8 +311,32 @@ const resetFilters = () => {
     partner_id: '',
     featured: false
   };
+  sortBy.value = 'newest';
   router.replace({ query: {} });
   fetchProducts();
+};
+
+const applySorting = () => {
+  // Sort products client-side for now
+  const sorted = [...products.value];
+
+  switch (sortBy.value) {
+    case 'name_asc':
+      sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      break;
+    case 'name_desc':
+      sorted.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+      break;
+    case 'oldest':
+      sorted.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+      break;
+    case 'newest':
+    default:
+      sorted.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      break;
+  }
+
+  products.value = sorted;
 };
 
 // Debounced search to avoid too many API calls while typing
@@ -328,3 +385,9 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.category-pill-active {
+  @apply bg-[color:var(--brand-primary)] text-white border-[color:var(--brand-primary)] shadow-sm;
+}
+</style>

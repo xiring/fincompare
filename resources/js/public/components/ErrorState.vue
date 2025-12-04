@@ -14,7 +14,7 @@
           class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
           style="color: #ffffff !important;"
         >
-          <RefreshIcon class="w-5 h-5 mr-2" />
+          <RefreshIcon class="w-5 h-5 mr-2.5" />
           {{ retryText }}
         </button>
         <slot name="actions">

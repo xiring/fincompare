@@ -51,7 +51,7 @@
               <button
                 @click="loadProduct"
                 type="button"
-                class="inline-flex items-center gap-1 text-xs text-red-700 hover:text-red-800 font-medium"
+                class="inline-flex items-center gap-1.5 text-xs text-red-700 hover:text-red-800 font-medium"
               >
                 <RefreshIcon class="w-3 h-3" />
                 {{ TEXT.RETRY }}

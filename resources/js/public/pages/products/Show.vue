@@ -6,49 +6,58 @@
           <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
           <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
         </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <nav class="text-sm mb-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-            <router-link to="/" class="text-white hover:underline font-medium">{{ TEXT.HOME }}</router-link>
-            <span class="mx-2 text-white/80">/</span>
-            <router-link to="/products" class="text-white hover:underline font-medium">{{ TEXT.PRODUCTS }}</router-link>
-            <span class="mx-2 text-white/80">/</span>
-            <span class="text-white font-semibold">{{ product.name }}</span>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <nav class="text-sm mb-6 inline-flex items-center px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-sm">
+            <router-link to="/" class="text-white/90 hover:text-white hover:underline font-medium transition-colors">{{ TEXT.HOME }}</router-link>
+            <span class="mx-2 text-white/60">/</span>
+            <router-link to="/products" class="text-white/90 hover:text-white hover:underline font-medium transition-colors">{{ TEXT.PRODUCTS }}</router-link>
+            <span class="mx-2 text-white/60">/</span>
+            <span class="text-white font-semibold break-words">{{ product.name }}</span>
           </nav>
-          <div class="flex flex-col sm:flex-row items-start gap-4">
-            <img
-              v-if="product.image_url"
-              :src="productImageUrl"
-              :alt="product.name"
-              loading="lazy"
-              class="w-24 h-24 rounded-xl bg-white/10 object-cover ring-2 ring-white/20 shadow-lg"
-            />
-            <img
-              v-else-if="product.partner?.logo_url"
-              :src="partnerLogoUrl"
-              :alt="product.partner?.name"
-              loading="lazy"
-              class="w-16 h-16 rounded bg-white/10 object-contain ring-1 ring-white/20"
-            />
-            <div class="flex-1">
-              <h1 class="text-3xl font-extrabold tracking-tight">{{ product.name }}</h1>
-              <div class="mt-1 flex items-center gap-3 text-sm text-white/90">
-                <span>{{ product.partner?.name || TEXT.PARTNER }}</span>
-                <span v-if="product.is_featured" class="px-2 py-0.5 text-xs rounded-full bg-amber-300 text-slate-900 font-semibold">{{ TEXT.FEATURED }}</span>
-                <span class="px-2 py-0.5 text-xs rounded-full bg-white/20">{{ product.status || 'active' }}</span>
+          <div class="flex flex-col lg:grid lg:grid-cols-12 items-start gap-6 lg:gap-8">
+            <div class="flex-shrink-0 lg:col-span-2">
+              <img
+                v-if="product.image_url"
+                :src="productImageUrl"
+                :alt="product.name"
+                loading="lazy"
+                class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white/10 object-cover ring-4 ring-white/30 shadow-2xl"
+              />
+              <img
+                v-else-if="product.partner?.logo_url"
+                :src="partnerLogoUrl"
+                :alt="product.partner?.name"
+                loading="lazy"
+                class="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-white/10 object-contain ring-2 ring-white/30 shadow-xl p-2"
+              />
+            </div>
+            <div class="flex-1 min-w-0 w-full lg:col-span-7">
+              <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight break-words">{{ product.name }}</h1>
+              <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-white/80 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <span class="text-white/90 font-medium">{{ product.partner?.name || TEXT.PARTNER }}</span>
+                </div>
+                <span v-if="product.is_featured" class="px-3 py-1 text-xs rounded-full bg-amber-300 text-slate-900 font-bold shadow-sm whitespace-nowrap">{{ TEXT.FEATURED }}</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-white/20 backdrop-blur-sm text-white font-medium whitespace-nowrap">{{ product.status || 'active' }}</span>
               </div>
             </div>
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-4 sm:mt-0">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto lg:col-span-3 lg:justify-end">
               <button
                 @click="toggleCompare"
                 type="button"
-                :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90 text-[color:var(--brand-primary)]'"
-                class="inline-flex items-center justify-center px-4 py-2.5 sm:py-3 rounded-xl font-semibold transition-colors text-sm sm:text-base"
+                :class="inCompare
+                  ? 'bg-white/20 text-white border-2 border-white/40 hover:bg-white/30 backdrop-blur-sm'
+                  : 'bg-white border-2 border-white/30 hover:bg-white/95 text-[color:var(--brand-primary)] shadow-lg hover:shadow-xl'"
+                class="inline-flex items-center justify-center px-5 py-3 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
               >
                 {{ inCompare ? TEXT.IN_COMPARE : TEXT.ADD_TO_COMPARE }}
               </button>
               <router-link
                 :to="`/lead?product=${product.slug || product.id}`"
-                class="inline-flex items-center justify-center px-5 py-2.5 sm:py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow hover:bg-white/90 transition-colors text-sm sm:text-base"
+                class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
               >
                 {{ TEXT.SEND_INQUIRY }}
               </router-link>
@@ -57,87 +66,110 @@
         </div>
       </section>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-in-up">
-          <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">{{ TEXT.INTEREST_RATE }}</div>
-            <div class="text-lg font-semibold text-gray-900">{{ product.attribute_highlights?.interest_rate || '—' }}</div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-32">
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 animate-fade-in-up">
+          <div class="group p-5 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[color:var(--brand-primary)]/30">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-[color:var(--brand-primary)]/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-[color:var(--brand-primary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+              </div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ TEXT.INTEREST_RATE }}</div>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">{{ product.attribute_highlights?.interest_rate || '—' }}</div>
           </div>
-          <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">{{ TEXT.MAX_AMOUNT }}</div>
-            <div class="text-lg font-semibold text-gray-900">{{ product.attribute_highlights?.max_amount || '—' }}</div>
+          <div class="group p-5 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[color:var(--brand-primary)]/30">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-[color:var(--brand-primary)]/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-[color:var(--brand-primary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ TEXT.MAX_AMOUNT }}</div>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">{{ product.attribute_highlights?.max_amount || '—' }}</div>
           </div>
-          <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">{{ TEXT.LABEL_PARTNER }}</div>
-            <div class="text-lg font-semibold text-gray-900">{{ product.partner?.name || '—' }}</div>
+          <div class="group p-5 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[color:var(--brand-primary)]/30">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-[color:var(--brand-primary)]/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-[color:var(--brand-primary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+              </div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ TEXT.LABEL_PARTNER }}</div>
+            </div>
+            <div class="text-xl font-bold text-gray-900 truncate">{{ product.partner?.name || '—' }}</div>
           </div>
         </div>
 
-        <div class="mt-6 animate-fade-in-up">
-          <div class="border-b border-gray-200 overflow-x-auto">
-            <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
-              <button
-                v-for="tab in tabs"
-                :key="tab.key"
-                @click="activeTab = tab.key"
-                :class="activeTab === tab.key ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors"
-              >
-                {{ tab.label }}
-              </button>
-            </nav>
-          </div>
-
-          <div v-show="activeTab === 'overview'" class="mt-6 prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)] prose-a:no-underline hover:prose-a:underline">
-            <div v-if="product.description" v-html="product.description"></div>
-            <p v-else class="text-gray-600">{{ TEXT.NO_DESCRIPTION }}</p>
-          </div>
-
-          <div v-show="activeTab === 'features'" class="mt-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h2 class="text-lg font-semibold">{{ TEXT.TAB_FEATURES_ATTRIBUTES }}</h2>
-              <div class="relative">
-                <input
-                  v-model="featureQuery"
-                  type="text"
-                  :placeholder="TEXT.LABEL_SEARCH_ATTRIBUTES"
-                  class="w-full sm:w-64 rounded-lg border-gray-300 text-sm focus-brand pl-9 pr-3 py-2"
+        <div class="mt-8 animate-fade-in-up">
+          <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="border-b border-gray-200 bg-gray-50/50">
+              <nav class="flex space-x-1 px-4" aria-label="Tabs">
+                <button
+                  v-for="tab in tabs"
+                  :key="tab.key"
+                  @click="activeTab = tab.key"
+                  :class="activeTab === tab.key
+                    ? 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] bg-white'
+                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'"
+                  class="whitespace-nowrap border-b-2 px-5 py-4 text-sm font-semibold transition-all duration-200"
                 >
-                <SearchIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  {{ tab.label }}
+                </button>
+              </nav>
+            </div>
+
+            <div v-show="activeTab === 'overview'" class="p-6 prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)] prose-a:no-underline hover:prose-a:underline">
+              <div v-if="product.description" v-html="product.description"></div>
+              <p v-else class="text-gray-600">{{ TEXT.NO_DESCRIPTION }}</p>
+            </div>
+
+            <div v-show="activeTab === 'features'" class="p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">{{ TEXT.TAB_FEATURES_ATTRIBUTES }}</h2>
+                <div class="relative">
+                  <input
+                    v-model="featureQuery"
+                    type="text"
+                    :placeholder="TEXT.LABEL_SEARCH_ATTRIBUTES"
+                  class="w-full sm:w-64 rounded-lg border-gray-300 text-sm focus:border-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)]/20 pl-10 pr-3 py-2.5 transition-all"
+                >
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+              <div v-if="filteredAttributes.length > 0" class="overflow-x-auto border border-gray-200 rounded-xl">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr
+                      v-for="(attr, index) in filteredAttributes"
+                      :key="attr.name"
+                      :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'"
+                      class="hover:bg-[color:var(--brand-primary)]/5 transition-colors"
+                    >
+                      <td class="px-5 py-4 text-sm font-semibold text-gray-900 w-1/3">{{ attr.name }}</td>
+                      <td class="px-5 py-4 text-sm text-gray-700">{{ attr.value || '—' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="border border-gray-200 rounded-xl p-12 text-center bg-gray-50/50">
+                <p class="text-gray-600">{{ TEXT.NO_ATTRIBUTES }}</p>
               </div>
             </div>
-            <div v-if="filteredAttributes.length > 0" class="overflow-x-auto bg-white border rounded-2xl">
-              <table class="min-w-full divide-y">
-                <tbody class="divide-y">
-                  <tr
-                    v-for="attr in filteredAttributes"
-                    :key="attr.name"
-                    class="hover:bg-gray-50 transition-colors"
-                  >
-                    <td class="px-4 py-3 text-sm font-medium text-gray-900 w-1/3">{{ attr.name }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-700">{{ attr.value || '—' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div v-else class="bg-white border rounded-2xl p-8 text-center">
-              <p class="text-gray-600">No attributes available for this product.</p>
-            </div>
-          </div>
 
-          <div v-show="activeTab === 'eligibility'" class="mt-8">
-            <div class="bg-white border rounded-2xl p-6">
-              <h3 class="text-lg font-semibold mb-4">Eligibility Criteria</h3>
+            <div v-show="activeTab === 'eligibility'" class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-5">{{ TEXT.ELIGIBILITY_CRITERIA }}</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.eligibility" v-html="product.eligibility"></div>
                 <p v-else class="text-gray-600">{{ TEXT.DETAILS_BY_PARTNER }}</p>
               </div>
             </div>
-          </div>
 
-          <div v-show="activeTab === 'documents'" class="mt-8">
-            <div class="bg-white border rounded-2xl p-6">
-              <h3 class="text-lg font-semibold mb-4">Required Documents</h3>
+            <div v-show="activeTab === 'documents'" class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-5">{{ TEXT.REQUIRED_DOCUMENTS }}</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.documents" v-html="product.documents"></div>
                 <p v-else class="text-gray-600">{{ TEXT.DETAILS_BY_PARTNER }}</p>
@@ -146,71 +178,79 @@
           </div>
         </div>
 
+        <!-- Action Buttons -->
         <div class="mt-10 flex flex-wrap items-center gap-3 pb-4">
           <button
             @click="copyLink"
             type="button"
-            class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+            class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md"
           >
-            <CopyIcon className="w-4 h-4 mr-2" />
-            Copy Link
+            <CopyIcon className="w-4 h-4 mr-2.5" />
+            {{ TEXT.COPY_LINK }}
           </button>
           <button
             @click="toggleCompare"
             type="button"
-            :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-gray-50'"
-            class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium border transition-colors"
+            :class="inCompare
+              ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] shadow-sm hover:shadow-md'
+              : 'bg-white border-2 border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)]/5'"
+            class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200"
           >
-            {{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}
+            {{ inCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE }}
           </button>
           <router-link
             :to="`/lead?product=${product.slug || product.id}`"
-            class="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-semibold text-white transition-colors shadow-sm btn-brand-primary"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg btn-brand-primary"
           >
-            Apply Now
+            {{ TEXT.APPLY_NOW }}
           </router-link>
           <router-link
             v-if="inCompare"
             to="/compare"
-            class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium text-white transition-colors shadow-sm btn-brand-primary"
+            class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg btn-brand-primary"
           >
-            Compare Now
+            {{ TEXT.COMPARE_NOW }}
           </router-link>
         </div>
       </div>
 
       <!-- Fixed bottom bar -->
-      <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+      <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/98 backdrop-blur-md border-t border-gray-200 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0 flex-1">
             <img
               v-if="product.image_url"
               :src="productImageUrl"
               :alt="product.name"
               loading="lazy"
-              class="w-10 h-10 rounded-lg bg-gray-100 object-cover"
+              class="w-12 h-12 rounded-xl bg-gray-100 object-cover border border-gray-200 shadow-sm"
             />
             <img
               v-else-if="product.partner?.logo_url"
               :src="partnerLogoUrl"
               loading="lazy"
               :alt="product.partner?.name"
-              class="w-10 h-10 rounded-lg bg-gray-100 object-contain"
+              class="w-12 h-12 rounded-xl bg-gray-100 object-contain border border-gray-200 shadow-sm"
             />
-            <div class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-semibold text-gray-900 truncate">{{ product.name }}</div>
+              <div class="text-xs text-gray-500 truncate">{{ product.partner?.name }}</div>
+            </div>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex items-center gap-3 flex-shrink-0">
             <button
               @click="toggleCompare"
               type="button"
-              :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-gray-50'"
-              class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap"
+              :class="inCompare
+                ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] shadow-sm hover:shadow-md'
+                : 'bg-white border-2 border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)]/5'"
+              class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap"
             >
               {{ inCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE }}
             </button>
             <router-link
               :to="`/lead?product=${product.slug || product.id}`"
-              class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors shadow-sm whitespace-nowrap btn-brand-primary"
+              class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap btn-brand-primary"
             >
               {{ TEXT.APPLY_NOW }}
             </router-link>
@@ -316,7 +356,7 @@ const toggleCompare = () => {
 const copyLink = async () => {
   const success = await copyToClipboard(window.location.href);
   if (success) {
-    toastStore.success('Link copied to clipboard!');
+    toastStore.success(SUCCESS_MESSAGES.COPY_LINK);
   } else {
     toastStore.error(ERROR_MESSAGES.COPY_LINK);
   }

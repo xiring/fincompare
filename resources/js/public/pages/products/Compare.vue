@@ -67,7 +67,7 @@
             class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
             style="color: #ffffff !important;"
           >
-            <RefreshIcon className="w-5 h-5 mr-2" />
+            <RefreshIcon className="w-5 h-5 mr-2.5" />
             {{ TEXT.RETRY }}
           </button>
         </div>
@@ -87,7 +87,7 @@
             class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
             style="color: #ffffff !important;"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             {{ TEXT.ADD_PRODUCTS }}
@@ -142,7 +142,7 @@
               aria-label="Clear all products from compare"
               class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg v-if="clearingAll" class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg v-if="clearingAll" class="w-4 h-4 mr-2.5 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
               </svg>
               <span>{{ clearingAll ? TEXT.CLEARING : TEXT.CLEAR_ALL }}</span>
@@ -154,7 +154,7 @@
             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-white font-semibold transition-all shadow-sm hover:shadow-md btn-brand-primary"
             style="color: #ffffff !important;"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ffffff;">
+            <svg class="w-4 h-4 mr-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ffffff;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             <span style="color: #ffffff !important;">{{ TEXT.COMPARE_ADD_MORE }}</span>
