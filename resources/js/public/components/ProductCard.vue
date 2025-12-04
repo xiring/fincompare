@@ -4,6 +4,7 @@
       <img
         :src="productImageUrl"
         :alt="product.name || 'Product'"
+        loading="lazy"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
     </div>
@@ -20,6 +21,7 @@
             <img
               :src="partnerLogoUrl"
               :alt="product.partner?.name || 'Partner'"
+              loading="lazy"
               class="w-12 h-12 rounded bg-gray-100 object-contain"
             />
           </a>
@@ -27,6 +29,7 @@
             v-else
             :src="partnerLogoUrl"
             :alt="product.partner?.name || 'Partner'"
+            loading="lazy"
             class="w-12 h-12 rounded bg-gray-100 object-contain"
           />
           <div>

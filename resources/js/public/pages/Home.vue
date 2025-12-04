@@ -144,6 +144,7 @@
                 v-if="category.image_url"
                 :src="getImageUrl(category.image_url)"
                 :alt="category.name || 'Category'"
+                loading="lazy"
                 class="w-full h-full object-cover"
               />
               <DollarIcon class="w-14 h-14 text-[color:var(--brand-primary)]" />
@@ -250,6 +251,7 @@
               <img
                 :src="partner.logo_url || 'https://placehold.co/120x30?text=Logo'"
                 :alt="partner.name || 'Partner'"
+                loading="lazy"
                 class="max-h-8"
               />
             </a>
@@ -262,6 +264,7 @@
               <img
                 :src="partner.logo_url || 'https://placehold.co/120x30?text=Logo'"
                 :alt="partner.name || 'Partner'"
+                loading="lazy"
                 class="max-h-8"
               />
             </div>

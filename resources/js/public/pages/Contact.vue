@@ -13,7 +13,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
       <div class="bg-white border rounded-2xl p-6">
         <h2 class="font-semibold mb-3">Send a message</h2>
-        <div v-if="success" class="mb-4 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
+        <div v-if="success" data-success-message class="mb-4 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
           <div class="flex items-center gap-2">
             <CheckCircleSolidIcon />
             <span>Thank you! Your message has been sent.</span>
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { webService } from '../services/api';
 import { useSiteSettings, useSEO } from '../composables';
 import { CheckCircleSolidIcon } from '../components/icons';
@@ -138,6 +138,12 @@ const submitForm = async () => {
       message: '',
       submitted_at: Math.floor(Date.now() / 1000) // Reset timestamp for next submission
     };
+    // Scroll to success message
+    await nextTick();
+    const successElement = document.querySelector('[data-success-message]');
+    if (successElement) {
+      successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   } catch (err) {
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors;

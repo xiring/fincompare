@@ -28,10 +28,44 @@
       </div>
 
       <div class="bg-white border rounded-2xl p-6 md:p-8">
-        <div v-if="success" class="mb-6 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
+        <div v-if="success" data-success-message class="mb-6 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
           <div class="flex items-center gap-2">
             <CheckCircleSolidIcon />
             <span>Thanks! Your inquiry has been received.</span>
+          </div>
+        </div>
+
+        <!-- Product Loading Skeleton -->
+        <div v-if="productLoading" class="mb-6 p-4 bg-gray-50 border rounded-2xl animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gray-200 rounded-lg"></div>
+            <div class="flex-1">
+              <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Error State -->
+        <div v-else-if="productError" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm text-red-700 font-medium mb-1">Failed to load product</p>
+              <p class="text-xs text-red-600 mb-2">{{ productError }}</p>
+              <button
+                @click="loadProduct"
+                type="button"
+                class="inline-flex items-center gap-1 text-xs text-red-700 hover:text-red-800 font-medium"
+              >
+                <RefreshIcon class="w-3 h-3" />
+                Retry
+              </button>
+            </div>
           </div>
         </div>
         <form v-if="!success" @submit.prevent="submitForm" class="space-y-5">
@@ -106,16 +140,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, webService } from '../services/api';
 import { useSEO } from '../composables';
-import { CheckCircleSolidIcon } from '../components/icons';
+import { CheckCircleSolidIcon, RefreshIcon } from '../components/icons';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const route = useRoute();
 const router = useRouter();
 const product = ref(null);
+const productLoading = ref(false);
+const productError = ref(null);
 const form = ref({
   full_name: '',
   email: '',
@@ -165,6 +201,12 @@ const submitForm = async () => {
       message: '',
       product_id: product.value?.id || product.value?.slug || form.value.product_id
     };
+    // Scroll to success message
+    await nextTick();
+    const successElement = document.querySelector('[data-success-message]');
+    if (successElement) {
+      successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   } catch (err) {
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors;
@@ -176,17 +218,26 @@ const submitForm = async () => {
   }
 };
 
-onMounted(async () => {
+const loadProduct = async () => {
   const productParam = route.query.product;
-  if (productParam) {
-    try {
-      const response = await apiService.getProduct(productParam);
-      product.value = response.data.product;
-      form.value.product_id = product.value.id || productParam;
-    } catch (err) {
-      console.error('Failed to fetch product:', err);
-      // Could set error state here for better UX
-    }
+  if (!productParam) return;
+
+  productLoading.value = true;
+  productError.value = null;
+
+  try {
+    const response = await apiService.getProduct(productParam);
+    product.value = response.data.product;
+    form.value.product_id = product.value.id || productParam;
+  } catch (err) {
+    console.error('Failed to fetch product:', err);
+    productError.value = err.response?.data?.message || err.message || 'Failed to load product information. You can still submit your inquiry.';
+  } finally {
+    productLoading.value = false;
   }
+};
+
+onMounted(() => {
+  loadProduct();
 });
 </script>

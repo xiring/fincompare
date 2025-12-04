@@ -70,8 +70,30 @@
       </form>
 
       <!-- Posts Grid -->
+      <!-- Error State -->
+      <div v-if="error && posts.length === 0 && !loading" class="bg-white border rounded-2xl p-12 text-center">
+        <div class="max-w-md mx-auto">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to load blog posts</h3>
+          <p class="text-sm text-gray-600 mb-6">{{ error }}</p>
+          <button
+            @click="fetchPosts"
+            type="button"
+            class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white transition-all shadow-sm hover:shadow-md btn-brand-primary"
+            style="color: #ffffff !important;"
+          >
+            <RefreshIcon class="w-5 h-5 mr-2" />
+            Try Again
+          </button>
+        </div>
+      </div>
+
       <!-- Loading skeleton when applying filters/search -->
-      <div v-if="loading && posts.length === 0" id="posts-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div v-else-if="loading && posts.length === 0" id="posts-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div v-for="i in 6" :key="i" class="bg-white border rounded-2xl p-5 animate-pulse">
           <div class="h-40 bg-gray-200 rounded-lg mb-3"></div>
           <div class="h-4 w-24 bg-gray-200 rounded mb-2"></div>
@@ -91,6 +113,7 @@
             v-if="post.featured_image"
             :src="post.featured_image"
             :alt="post.title"
+            loading="lazy"
             class="w-full h-40 object-cover rounded-lg mb-3"
           />
           <div class="text-xs text-gray-500">{{ post.category || 'General' }}</div>
@@ -138,7 +161,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
 import { debounce, getExcerpt } from '../../utils';
 import { useSEO } from '../../composables';
-import { SearchIcon, DocumentIcon } from '../../components/icons';
+import { SearchIcon, DocumentIcon, RefreshIcon } from '../../components/icons';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
@@ -148,6 +171,7 @@ const posts = ref([]);
 const categories = ref([]);
 const tags = ref([]);
 const loading = ref(false);
+const error = ref(null);
 const hasNext = ref(false);
 const nextPageUrl = ref(null);
 const showProgressBar = ref(false);
@@ -209,9 +233,14 @@ const fetchPosts = async (url = null) => {
     nextPageUrl.value = response.data.posts.next_page_url;
     hasNext.value = !!nextPageUrl.value;
     progress.value = 100;
+    error.value = null;
   } catch (err) {
     console.error('Failed to fetch blog posts:', err);
-    // Could set error state here for better UX
+    error.value = err.response?.data?.message || err.message || 'Failed to load blog posts. Please try again.';
+    // Only set error if we don't have any posts yet
+    if (posts.value.length === 0) {
+      posts.value = [];
+    }
   } finally {
     loading.value = false;
     setTimeout(() => {
