@@ -35,14 +35,26 @@
         <!-- Controls Bar -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 p-4 bg-white border rounded-2xl shadow-sm">
           <div class="flex flex-wrap items-center gap-3">
-            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer group">
               <input
                 type="checkbox"
                 v-model="highlightDiff"
                 aria-label="Highlight differences between products"
                 class="w-4 h-4 rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2 cursor-pointer"
               >
-              <span>Highlight differences</span>
+              <span class="flex items-center gap-1.5">
+                <svg
+                  v-if="highlightDiff"
+                  class="w-4 h-4 text-amber-500"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+                <span>Highlight differences</span>
+              </span>
             </label>
             <div class="h-4 w-px bg-gray-300"></div>
             <button
@@ -54,8 +66,9 @@
               Clear all
             </button>
           </div>
-          <router-link
-            to="/products"
+          <button
+            @click="openAddProductModal"
+            type="button"
             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-white font-semibold transition-all shadow-sm hover:shadow-md btn-brand-primary"
             style="color: #ffffff !important;"
           >
@@ -63,7 +76,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             <span style="color: #ffffff !important;">Add more products</span>
-          </router-link>
+          </button>
         </div>
 
         <!-- Desktop Table View -->
@@ -142,10 +155,15 @@
                 <td
                   v-for="p in products"
                   :key="p.id + '-' + f.key"
-                  :class="getCellClass(p.id, f.key)"
-                  class="px-6 py-4 text-sm text-gray-700 align-top"
+                  :class="[
+                    'px-6 py-4 text-sm align-top transition-colors',
+                    getCellClass(p.id, f.key),
+                    highlightDiff && hasDifferentValues(f.key) ? 'text-[color:var(--brand-primary)]' : 'text-gray-700'
+                  ]"
                 >
-                  <span class="font-medium">{{ formatValue(getValue(p.id, f.key)) }}</span>
+                  <span :class="highlightDiff && hasDifferentValues(f.key) ? 'font-bold' : 'font-medium'">
+                    {{ formatValue(getValue(p.id, f.key)) }}
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -216,7 +234,10 @@
                 class="px-4 py-3 grid grid-cols-2 gap-4"
               >
                 <dt class="text-sm font-medium text-gray-600">{{ f.label }}</dt>
-                <dd class="text-sm font-semibold text-gray-900 text-right">
+                <dd
+                  class="text-sm text-right transition-colors"
+                  :class="highlightDiff && hasDifferentValues(f.key) ? 'font-bold text-[color:var(--brand-primary)]' : 'font-semibold text-gray-900'"
+                >
                   {{ formatValue(getValue(p.id, f.key)) }}
                 </dd>
               </div>
@@ -226,6 +247,13 @@
 
       </div>
     </div>
+
+    <!-- Add Product Modal -->
+    <AddProductModal
+      :is-open="showAddProductModal"
+      @close="closeAddProductModal"
+      @added="handleProductsAdded"
+    />
   </GuestLayout>
 </template>
 
@@ -235,11 +263,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
 import { getImageUrl } from '../../utils/helpers';
 import { EmptyBoxIcon } from '../../components/icons';
+import AddProductModal from '../../components/AddProductModal.vue';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
 const router = useRouter();
 const highlightDiff = ref(true);
+const showAddProductModal = ref(false);
 
 const { toggleCompare, clearAll: clearCompareList, compareIds } = useCompare();
 
@@ -262,12 +292,18 @@ useSEO({
 
 const getCellClass = (productId, key) => {
   if (!highlightDiff.value) return '';
-  return hasDifferentValues(key) ? 'bg-amber-50/50 border-l-2 border-amber-400' : '';
+  if (hasDifferentValues(key)) {
+    return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)] font-semibold';
+  }
+  return '';
 };
 
 const getMobileRowClass = (productId, key) => {
   if (!highlightDiff.value) return '';
-  return hasDifferentValues(key) ? 'bg-amber-50/50' : '';
+  if (hasDifferentValues(key)) {
+    return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)]';
+  }
+  return '';
 };
 
 /**
@@ -337,6 +373,26 @@ watch(() => route.query.products, async (newProducts) => {
     await updateProductIds(ids);
   }
 }, { immediate: false });
+
+const openAddProductModal = () => {
+  showAddProductModal.value = true;
+};
+
+const closeAddProductModal = () => {
+  showAddProductModal.value = false;
+};
+
+const handleProductsAdded = async (productIds) => {
+  // Refresh compare data with new products
+  const currentIds = compareIds.value || [];
+  const allIds = [...new Set([...currentIds, ...productIds])];
+  await updateProductIds(allIds);
+
+  // Update URL
+  if (allIds.length > 0) {
+    router.replace({ query: { products: allIds.join(',') } });
+  }
+};
 
 onMounted(async () => {
   // Initialize with current product IDs
