@@ -27,6 +27,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 
 defineProps({
   benefits: {
@@ -46,7 +47,7 @@ defineProps({
   },
   title: {
     type: String,
-    default: 'Why choose FinCompare'
+    default: TEXT.SECTION_WHY_CHOOSE
   }
 });
 

@@ -48,7 +48,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { getImageUrl } from '../../utils';
+import { getImageUrl, TEXT } from '../../utils';
 
 const props = defineProps({
   partners: {
@@ -65,7 +65,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Our Trusted Partners'
+    default: TEXT.SECTION_TRUSTED_PARTNERS
   }
 });
 

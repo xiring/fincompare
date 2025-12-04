@@ -32,6 +32,7 @@
 </template>
 
 <script setup>
+import { TEXT } from '../utils';
 import { ErrorIcon, RefreshIcon } from './icons';
 
 defineProps({
@@ -53,7 +54,7 @@ defineProps({
   },
   retryText: {
     type: String,
-    default: 'Try Again'
+    default: TEXT.TRY_AGAIN
   },
   backUrl: {
     type: String,

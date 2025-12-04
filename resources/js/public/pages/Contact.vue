@@ -1,18 +1,18 @@
 <template>
   <GuestLayout>
-    <HeroSection title="Contact Us" subtitle="We'd love to hear from you." />
+    <HeroSection :title="TEXT.CONTACT_US" :subtitle="TEXT.HERO_CONTACT_SUBTITLE" />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
       <div class="bg-white border rounded-2xl p-6">
-        <h2 class="font-semibold mb-3">Send a message</h2>
+        <h2 class="font-semibold mb-3">{{ TEXT.CONTACT_SEND_MESSAGE }}</h2>
         <div v-if="success" data-success-message class="mb-4 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
           <div class="flex items-center gap-2">
             <CheckCircleSolidIcon />
-            <span>Thank you! Your message has been sent.</span>
+            <span>{{ SUCCESS_MESSAGES.CONTACT }}</span>
           </div>
         </div>
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">Name</label>
+            <label class="block text-sm font-medium text-gray-700">{{ TEXT.LABEL_NAME }}</label>
             <input
               v-model="form.name"
               required
@@ -22,7 +22,7 @@
             <p v-if="errors.name" class="text-xs text-red-600 mt-1">{{ errors.name }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <label class="block text-sm font-medium text-gray-700">{{ TEXT.LABEL_EMAIL }}</label>
             <input
               v-model="form.email"
               required
@@ -32,7 +32,7 @@
             <p v-if="errors.email" class="text-xs text-red-600 mt-1">{{ errors.email }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Message</label>
+            <label class="block text-sm font-medium text-gray-700">{{ TEXT.LABEL_MESSAGE }}</label>
             <textarea
               v-model="form.message"
               required
@@ -46,13 +46,13 @@
             :disabled="loading"
             class="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed btn-brand-primary"
           >
-            {{ loading ? 'Sending...' : 'Submit' }}
+            {{ loading ? BUTTON_TEXT.LOADING.SENDING : TEXT.SUBMIT }}
           </button>
         </form>
       </div>
       <div class="space-y-4">
         <div v-if="siteSettings" class="p-6 bg-white border rounded-2xl">
-          <h3 class="font-semibold">Email</h3>
+          <h3 class="font-semibold">{{ TEXT.LABEL_EMAIL }}</h3>
           <p class="text-sm text-gray-700 mt-1">
             <a :href="`mailto:${siteSettings.email_address}`" class="text-[color:var(--brand-primary)] hover:underline">
               {{ siteSettings.email_address }}
@@ -88,6 +88,7 @@
 import { ref, onMounted } from 'vue';
 import { webService } from '../services/api';
 import { useSiteSettings, useSEO, useFormSubmission } from '../composables';
+import { TEXT, SUCCESS_MESSAGES, BUTTON_TEXT } from '../utils';
 import { CheckCircleSolidIcon } from '../components/icons';
 import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
@@ -123,9 +124,9 @@ const { loading, errors, success, submit: submitForm } = useFormSubmission(
 );
 
 useSEO({
-  title: 'Contact Us',
-  description: 'Get in touch with FinCompare. We\'d love to hear from you and help with any questions about our financial product comparison platform.',
-  keywords: ['contact fincompare', 'customer support', 'financial advice']
+  title: TEXT.CONTACT_US,
+  description: TEXT.SEO_CONTACT_DESCRIPTION,
+  keywords: TEXT.SEO_KEYWORDS_CONTACT
 });
 
 const handleSubmit = () => {

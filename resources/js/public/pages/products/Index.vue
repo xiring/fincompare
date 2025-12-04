@@ -23,7 +23,7 @@
               <input
                 v-model="filters.q"
                 @input="debouncedSearch"
-                placeholder="Search products..."
+                :placeholder="TEXT.LABEL_SEARCH_PRODUCTS"
                 :disabled="loading"
                 class="w-full pl-10 pr-3 py-2.5 rounded-xl border-gray-300 focus-brand disabled:opacity-50 disabled:cursor-not-allowed"
               />
@@ -48,28 +48,28 @@
         <!-- Sidebar Filters -->
         <aside class="lg:w-1/4 w-full">
           <div class="lg:sticky lg:top-8 p-4 bg-white border rounded-2xl">
-            <h2 class="text-lg font-semibold mb-4">Filter by</h2>
+            <h2 class="text-lg font-semibold mb-4">{{ TEXT.LABEL_FILTER_BY }}</h2>
             <form @submit.prevent="applyFilters" class="space-y-3">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.LABEL_CATEGORY }}</label>
                 <select
                   v-model="filters.category"
                   @change="applyFilters"
                   class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)]"
                 >
-                  <option value="">All</option>
+                  <option value="">{{ TEXT.LABEL_ALL }}</option>
                   <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.LABEL_PARTNER }}</label>
             <select
               v-model="filters.partner_id"
               @change="applyFilters"
               :disabled="loading"
               class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                  <option value="">All</option>
+                  <option value="">{{ TEXT.LABEL_ALL }}</option>
                   <option v-for="partner in partners" :key="partner.id" :value="partner.id">{{ partner.name }}</option>
                 </select>
               </div>
@@ -82,7 +82,7 @@
                     :disabled="loading"
                     class="rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                  <span>Featured Products Only</span>
+                  <span>{{ TEXT.LABEL_FEATURED_ONLY }}</span>
                 </label>
               </div>
               <div class="flex gap-2 mt-4">
@@ -91,7 +91,7 @@
                   @click="resetFilters"
                   class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                 >
-                  Reset
+                  {{ TEXT.LABEL_RESET }}
                 </button>
               </div>
             </form>
@@ -107,7 +107,7 @@
           <!-- Error State -->
           <ErrorState
             v-if="error && products.length === 0 && !loading"
-            title="Failed to load products"
+            :title="ERROR_MESSAGES.PRODUCTS.LOAD"
             :message="error"
             @retry="fetchProducts"
           />
@@ -126,10 +126,10 @@
           </div>
           <EmptyState
             v-else-if="!loading"
-            title="No products found"
-            message="Try adjusting your filters or search terms."
+            :title="EMPTY_STATES.NO_PRODUCTS.TITLE"
+            :message="EMPTY_STATES.NO_PRODUCTS.MESSAGE"
             action-url="/products"
-            action-text="Browse All Products"
+            :action-text="TEXT.BROWSE_ALL_PRODUCTS"
           />
 
           <div
@@ -144,7 +144,7 @@
                 <div class="mt-4 h-24 bg-gray-100 rounded animate-pulse"></div>
               </div>
             </div>
-            <span v-show="loading" class="mt-3">Loading…</span>
+            <span v-show="loading" class="mt-3">{{ TEXT.LABEL_LOADING }}</span>
           </div>
         </main>
       </div>
@@ -156,7 +156,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
-import { debounce, getImageUrl } from '../../utils';
+import { debounce, getImageUrl, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
 import { useSEO, useErrorHandling } from '../../composables';
 import { SearchIcon } from '../../components/icons';
 import { ErrorState, EmptyState, ProductSkeleton } from '../../components';
@@ -176,7 +176,7 @@ const nextPageUrl = ref(null);
 const showProgressBar = ref(false);
 const progress = ref(0);
 const sentinelRef = ref(null);
-const categoryName = ref('All Products');
+const categoryName = ref(TEXT.LABEL_ALL_PRODUCTS);
 
 const filters = ref({
   q: route.query.q || '',
@@ -186,9 +186,9 @@ const filters = ref({
 });
 
 useSEO({
-  title: 'Products',
+  title: TEXT.PRODUCTS,
   description: 'Browse and compare financial products including loans, credit cards, and more. Filter by category, partner, and features to find the best options.',
-  keywords: ['financial products', 'compare products', 'loans', 'credit cards', 'financial comparison']
+  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS
 });
 
 const isActiveCategory = (slug) => {
@@ -231,7 +231,7 @@ const fetchProducts = async (url = null) => {
       categories.value = response.data.categories || [];
       partners.value = response.data.partners || [];
       if (response.data.category) {
-        categoryName.value = response.data.category.name || 'All Products';
+        categoryName.value = response.data.category.name || TEXT.LABEL_ALL_PRODUCTS;
       }
     }
 
@@ -240,7 +240,7 @@ const fetchProducts = async (url = null) => {
     progress.value = 100;
     clearError();
   } catch (err) {
-    handleError(err, 'Failed to load products. Please try again.');
+    handleError(err, ERROR_MESSAGES.PRODUCTS.LOAD_DETAIL);
     // Only set error if we don't have any products yet
     if (products.value.length === 0) {
       products.value = [];

@@ -6,7 +6,7 @@
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">Blog</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight">{{ TEXT.BLOG }}</h1>
         <p class="mt-2 text-white/90">Insights and guides from FinCompare.</p>
       </div>
     </section>
@@ -26,45 +26,45 @@
           <input
             v-model="filters.q"
             @input="debouncedSearch"
-            placeholder="Search posts"
+            :placeholder="TEXT.LABEL_SEARCH_POSTS"
             :disabled="loading"
             class="w-full pl-10 pr-3 py-2.5 rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.LABEL_CATEGORY }}</label>
           <select
             v-model="filters.category"
             @change="applyFilters"
             :disabled="loading"
             class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <option value="">All</option>
+            <option value="">{{ TEXT.LABEL_ALL }}</option>
             <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.TAG }}</label>
           <select
             v-model="filters.tag"
             @change="applyFilters"
             :disabled="loading"
             class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <option value="">All</option>
+            <option value="">{{ TEXT.LABEL_ALL }}</option>
             <option v-for="tag in tags" :key="tag" :value="tag">{{ tag }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Sort</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ TEXT.SORT }}</label>
           <select
             v-model="filters.sort"
             @change="applyFilters"
             :disabled="loading"
             class="w-full rounded-lg border-gray-300 focus:border-[color:var(--brand-primary)] focus:ring-[color:var(--brand-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <option value="desc">Newest</option>
-            <option value="asc">Oldest</option>
+            <option value="desc">{{ TEXT.NEWEST }}</option>
+            <option value="asc">{{ TEXT.OLDEST }}</option>
           </select>
         </div>
       </form>
@@ -73,7 +73,7 @@
       <!-- Error State -->
       <ErrorState
         v-if="error && posts.length === 0 && !loading"
-        title="Failed to load blog posts"
+        :title="ERROR_MESSAGES.POSTS.LOAD"
         :message="error"
         @retry="fetchPosts"
       />
@@ -96,22 +96,22 @@
             loading="lazy"
             class="w-full h-40 object-cover rounded-lg mb-3"
           />
-          <div class="text-xs text-gray-500">{{ post.category || 'General' }}</div>
+          <div class="text-xs text-gray-500">{{ post.category || TEXT.GENERAL }}</div>
           <h2 class="mt-1 font-semibold text-gray-900">{{ post.title }}</h2>
           <p class="mt-2 text-sm text-gray-600 line-clamp-3">{{ getExcerpt(post.content) }}</p>
           <router-link
             :to="`/blog/${post.slug}`"
             class="mt-3 inline-flex text-sm text-[color:var(--brand-primary)] hover:underline"
           >
-            Read more
+            {{ TEXT.READ_MORE }}
           </router-link>
         </article>
       </div>
 
       <EmptyState
         v-else-if="!loading"
-        title="No posts found"
-        message="Try adjusting your filters or search terms."
+        :title="EMPTY_STATES.NO_POSTS.TITLE"
+        :message="EMPTY_STATES.NO_POSTS.MESSAGE"
         :icon="DocumentIcon"
         :show-action="false"
       />
@@ -131,7 +131,7 @@
             <div class="mt-1 h-4 w-full bg-gray-100 rounded animate-pulse"></div>
           </div>
         </div>
-        <span v-show="loading" class="mt-3">Loading…</span>
+        <span v-show="loading" class="mt-3">{{ TEXT.LABEL_LOADING }}</span>
       </div>
     </div>
   </GuestLayout>
@@ -141,7 +141,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
-import { debounce, getExcerpt } from '../../utils';
+import { debounce, getExcerpt, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
 import { useSEO, useErrorHandling } from '../../composables';
 import { SearchIcon, DocumentIcon } from '../../components/icons';
 import { ErrorState, BlogPostSkeleton, EmptyState } from '../../components';
@@ -218,7 +218,7 @@ const fetchPosts = async (url = null) => {
     progress.value = 100;
     clearError();
   } catch (err) {
-    handleError(err, 'Failed to load blog posts. Please try again.');
+    handleError(err, ERROR_MESSAGES.POSTS.LOAD_DETAIL);
     // Only set error if we don't have any posts yet
     if (posts.value.length === 0) {
       posts.value = [];

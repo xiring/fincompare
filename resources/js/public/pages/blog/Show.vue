@@ -2,7 +2,7 @@
   <GuestLayout>
     <HeroSection v-if="post" :title="post.title" :subtitle="`${post.category || 'General'} · ${formatDate(post.created_at)}`">
       <template #breadcrumb>
-        <router-link to="/blog" class="text-white/90 hover:underline text-sm">← Back to Blog</router-link>
+        <router-link to="/blog" class="text-white/90 hover:underline text-sm">{{ TEXT.BACK_TO_BLOG }}</router-link>
       </template>
     </HeroSection>
 
@@ -19,17 +19,17 @@
 
     <!-- Error State -->
     <div v-else-if="error && !loading" class="w-full">
-      <HeroSection title="Post Not Found">
+      <HeroSection :title="TEXT.POST_NOT_FOUND">
         <template #breadcrumb>
-          <router-link to="/blog" class="text-white/90 hover:underline text-sm">← Back to Blog</router-link>
+          <router-link to="/blog" class="text-white/90 hover:underline text-sm">{{ TEXT.BACK_TO_BLOG }}</router-link>
         </template>
       </HeroSection>
       <article class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <ErrorState
-          title="Failed to load blog post"
+          :title="ERROR_MESSAGES.POST.LOAD"
           :message="error"
           back-url="/blog"
-          back-text="Back to Blog"
+          :back-text="TEXT.BACK_TO_BLOG_TEXT"
           @retry="retryLoad"
         />
       </article>
@@ -67,7 +67,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiService } from '../../services/api';
 import { useSEO, useErrorHandling } from '../../composables';
-import { formatDate, getExcerpt } from '../../utils';
+import { formatDate, getExcerpt, TEXT, ERROR_MESSAGES } from '../../utils';
 import { ErrorState, HeroSection } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 
@@ -120,7 +120,7 @@ const loadPost = async () => {
     post.value = response.data;
     clearError();
   } catch (err) {
-    handleError(err, 'Failed to load blog post');
+    handleError(err, ERROR_MESSAGES.POST.LOAD_DETAIL);
   } finally {
     loading.value = false;
   }

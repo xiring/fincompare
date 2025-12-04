@@ -8,9 +8,9 @@
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav class="text-sm mb-4 inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-            <router-link to="/" class="text-white hover:underline font-medium">Home</router-link>
+            <router-link to="/" class="text-white hover:underline font-medium">{{ TEXT.HOME }}</router-link>
             <span class="mx-2 text-white/80">/</span>
-            <router-link to="/products" class="text-white hover:underline font-medium">Products</router-link>
+            <router-link to="/products" class="text-white hover:underline font-medium">{{ TEXT.PRODUCTS }}</router-link>
             <span class="mx-2 text-white/80">/</span>
             <span class="text-white font-semibold">{{ product.name }}</span>
           </nav>
@@ -44,13 +44,13 @@
                 :class="inCompare ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30' : 'bg-white border border-white/20 hover:bg-white/90 text-[color:var(--brand-primary)]'"
                 class="inline-flex items-center justify-center px-4 py-2.5 sm:py-3 rounded-xl font-semibold transition-colors text-sm sm:text-base"
               >
-                {{ inCompare ? 'In Compare' : 'Add to Compare' }}
+                {{ inCompare ? TEXT.IN_COMPARE : TEXT.ADD_TO_COMPARE }}
               </button>
               <router-link
                 :to="`/lead?product=${product.slug || product.id}`"
                 class="inline-flex items-center justify-center px-5 py-2.5 sm:py-3 rounded-xl bg-white text-[color:var(--brand-primary)] font-semibold shadow hover:bg-white/90 transition-colors text-sm sm:text-base"
               >
-                Send Inquiry
+                {{ TEXT.SEND_INQUIRY }}
               </router-link>
             </div>
           </div>
@@ -60,15 +60,15 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 animate-fade-in-up">
           <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">Interest Rate</div>
+            <div class="text-xs text-gray-500">{{ TEXT.INTEREST_RATE }}</div>
             <div class="text-lg font-semibold text-gray-900">{{ product.attribute_highlights?.interest_rate || '—' }}</div>
           </div>
           <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">Max Amount</div>
+            <div class="text-xs text-gray-500">{{ TEXT.MAX_AMOUNT }}</div>
             <div class="text-lg font-semibold text-gray-900">{{ product.attribute_highlights?.max_amount || '—' }}</div>
           </div>
           <div class="p-4 rounded-2xl bg-white border">
-            <div class="text-xs text-gray-500">Partner</div>
+            <div class="text-xs text-gray-500">{{ TEXT.LABEL_PARTNER }}</div>
             <div class="text-lg font-semibold text-gray-900">{{ product.partner?.name || '—' }}</div>
           </div>
         </div>
@@ -90,17 +90,17 @@
 
           <div v-show="activeTab === 'overview'" class="mt-6 prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)] prose-a:no-underline hover:prose-a:underline">
             <div v-if="product.description" v-html="product.description"></div>
-            <p v-else class="text-gray-600">No description available for this product.</p>
+            <p v-else class="text-gray-600">{{ TEXT.NO_DESCRIPTION }}</p>
           </div>
 
           <div v-show="activeTab === 'features'" class="mt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h2 class="text-lg font-semibold">Features & Attributes</h2>
+              <h2 class="text-lg font-semibold">{{ TEXT.TAB_FEATURES_ATTRIBUTES }}</h2>
               <div class="relative">
                 <input
                   v-model="featureQuery"
                   type="text"
-                  placeholder="Search attributes..."
+                  :placeholder="TEXT.LABEL_SEARCH_ATTRIBUTES"
                   class="w-full sm:w-64 rounded-lg border-gray-300 text-sm focus-brand pl-9 pr-3 py-2"
                 >
                 <SearchIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -130,7 +130,7 @@
               <h3 class="text-lg font-semibold mb-4">Eligibility Criteria</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.eligibility" v-html="product.eligibility"></div>
-                <p v-else class="text-gray-600">Details provided by the partner.</p>
+                <p v-else class="text-gray-600">{{ TEXT.DETAILS_BY_PARTNER }}</p>
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@
               <h3 class="text-lg font-semibold mb-4">Required Documents</h3>
               <div class="prose max-w-none prose-headings:font-semibold prose-a:text-[color:var(--brand-primary)]">
                 <div v-if="product.documents" v-html="product.documents"></div>
-                <p v-else class="text-gray-600">Details provided by the partner.</p>
+                <p v-else class="text-gray-600">{{ TEXT.DETAILS_BY_PARTNER }}</p>
               </div>
             </div>
           </div>
@@ -206,13 +206,13 @@
               :class="inCompare ? 'bg-[color:var(--brand-primary)] text-white border border-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)]' : 'bg-white border border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-gray-50'"
               class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors whitespace-nowrap"
             >
-              {{ inCompare ? 'Remove from Compare' : 'Add to Compare' }}
+              {{ inCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE }}
             </button>
             <router-link
               :to="`/lead?product=${product.slug || product.id}`"
               class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors shadow-sm whitespace-nowrap btn-brand-primary"
             >
-              Apply Now
+              {{ TEXT.APPLY_NOW }}
             </router-link>
           </div>
         </div>
@@ -221,13 +221,13 @@
 
     <!-- Error State -->
     <div v-else-if="error && !loading" class="w-full">
-      <HeroSection title="Product Not Found" />
+      <HeroSection :title="TEXT.PRODUCT_NOT_FOUND" />
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <ErrorState
-          title="Failed to load product"
+          :title="ERROR_MESSAGES.PRODUCT.LOAD"
           :message="error"
           back-url="/products"
-          back-text="Browse Products"
+          :back-text="TEXT.BROWSE_PRODUCTS"
           @retry="retryLoad"
         />
       </div>
@@ -270,7 +270,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiService } from '../../services/api';
 import { useCompare, useSEO, useImageUrl, useErrorHandling } from '../../composables';
-import { getExcerpt, copyToClipboard } from '../../utils';
+import { getExcerpt, copyToClipboard, TEXT, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../utils';
 import { useToastStore } from '../../stores/toast';
 import { SearchIcon, CopyIcon } from '../../components/icons';
 import { ErrorState, HeroSection } from '../../components';
@@ -291,10 +291,10 @@ const toastStore = useToastStore();
 const inCompare = computed(() => product.value ? checkInCompare(product.value.id) : false);
 
 const tabs = [
-  { key: 'overview', label: 'Overview' },
-  { key: 'features', label: 'Features' },
-  { key: 'eligibility', label: 'Eligibility' },
-  { key: 'documents', label: 'Documents' }
+  { key: 'overview', label: TEXT.TAB_OVERVIEW },
+  { key: 'features', label: TEXT.TAB_FEATURES },
+  { key: 'eligibility', label: TEXT.TAB_ELIGIBILITY },
+  { key: 'documents', label: TEXT.TAB_DOCUMENTS }
 ];
 
 
@@ -318,7 +318,7 @@ const copyLink = async () => {
   if (success) {
     toastStore.success('Link copied to clipboard!');
   } else {
-    toastStore.error('Failed to copy link. Please try again.');
+    toastStore.error(ERROR_MESSAGES.COPY_LINK);
   }
 };
 
@@ -371,7 +371,7 @@ const loadProduct = async () => {
     attributes.value = response.data.attributes || [];
     clearError();
   } catch (err) {
-    handleError(err, 'Failed to load product. Please try again.');
+    handleError(err, ERROR_MESSAGES.PRODUCT.LOAD_DETAIL);
   } finally {
     loading.value = false;
   }

@@ -40,6 +40,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 import ProductCard from '../ProductCard.vue';
 import ProductSkeleton from '../ProductSkeleton.vue';
 
@@ -58,7 +59,7 @@ defineProps({
   },
   title: {
     type: String,
-    default: "Editor's Picks"
+    default: TEXT.SECTION_EDITORS_PICKS
   },
   showViewAll: {
     type: Boolean,
@@ -70,11 +71,11 @@ defineProps({
   },
   viewAllText: {
     type: String,
-    default: 'See all'
+    default: TEXT.SEE_ALL
   },
   emptyMessage: {
     type: String,
-    default: 'No featured products available at the moment.'
+    default: TEXT.EMPTY_NO_FEATURED
   }
 });
 

@@ -6,7 +6,7 @@
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">Frequently Asked Questions</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight">{{ TEXT.SECTION_FREQUENTLY_ASKED }}</h1>
         <p class="mt-2 text-white/90">Answers to common questions about FinCompare.</p>
       </div>
     </section>
@@ -28,7 +28,7 @@
       <!-- Error State -->
       <ErrorState
         v-else-if="error"
-        title="Failed to load FAQs"
+        :title="ERROR_MESSAGES.FAQS.LOAD"
         :message="error"
         @retry="loadFaqs"
       />
@@ -64,7 +64,7 @@
               @click="toggleFaq(0)"
               class="w-full flex items-center justify-between text-left"
             >
-              <span class="font-medium text-gray-900">Is FinCompare free to use?</span>
+              <span class="font-medium text-gray-900">{{ TEXT.FAQ_FREE_USE_Q }}</span>
               <svg
                 :class="openFaqs[0] ? 'rotate-180' : ''"
                 class="h-5 w-5 text-gray-500 transition"
@@ -81,7 +81,7 @@
               v-cloak
               class="mt-2 text-sm text-gray-600"
             >
-              Yes. Comparing products on FinCompare is free.
+              {{ TEXT.FAQ_FREE_USE_A }}
             </div>
           </div>
         </div>
@@ -94,6 +94,7 @@
 import { ref, onMounted } from 'vue';
 import { apiService } from '../services/api';
 import { useSEO, useErrorHandling } from '../composables';
+import { TEXT, ERROR_MESSAGES } from '../utils';
 import { ChevronDownIcon } from '../components/icons';
 import { ErrorState, LoadingSkeleton, HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
@@ -104,9 +105,9 @@ const loading = ref(true);
 const { error, handleError, clearError } = useErrorHandling();
 
 useSEO({
-  title: 'FAQ',
-  description: 'Frequently asked questions about FinCompare. Find answers about our financial product comparison platform, how it works, and how to get started.',
-  keywords: ['faq', 'frequently asked questions', 'fincompare help', 'financial comparison help']
+  title: TEXT.FAQ,
+  description: TEXT.SEO_FAQ_DESCRIPTION,
+  keywords: TEXT.SEO_KEYWORDS_FAQ
 });
 
 const toggleFaq = (index) => {
@@ -121,7 +122,7 @@ const loadFaqs = async () => {
     const response = await apiService.getFaqs();
     faqs.value = response.data || [];
   } catch (err) {
-    handleError(err, 'Failed to load FAQs. Please try again.');
+    handleError(err, ERROR_MESSAGES.FAQS.LOAD_DETAIL);
   } finally {
     loading.value = false;
   }

@@ -6,8 +6,8 @@
         <div class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[color:var(--brand-primary)]/20 blur-3xl"></div>
       </div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl font-extrabold tracking-tight">Compare Products</h1>
-        <p class="mt-2 text-white/90">See specs side-by-side. Toggle highlights to spot differences quickly.</p>
+        <h1 class="text-3xl font-extrabold tracking-tight">{{ TEXT.COMPARE_PRODUCTS_TITLE }}</h1>
+        <p class="mt-2 text-white/90">{{ TEXT.COMPARE_PRODUCTS_SUBTITLE }}</p>
       </div>
     </section>
 
@@ -59,8 +59,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to load comparison</h3>
-          <p class="text-sm text-gray-600 mb-6">We couldn't load your product comparison. Please try again.</p>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ ERROR_MESSAGES.COMPARISON.LOAD }}</h3>
+          <p class="text-sm text-gray-600 mb-6">{{ ERROR_MESSAGES.COMPARISON.LOAD_DETAIL }}</p>
           <button
             @click="retryLoad"
             type="button"
@@ -68,7 +68,7 @@
             style="color: #ffffff !important;"
           >
             <RefreshIcon className="w-5 h-5 mr-2" />
-            Retry
+            {{ TEXT.RETRY }}
           </button>
         </div>
       </div>
@@ -76,9 +76,9 @@
       <!-- Empty State -->
       <div v-else-if="products.length === 0 && !loading" class="bg-white border rounded-2xl p-12 text-center">
         <EmptyBoxIcon className="mx-auto h-16 w-16 text-gray-300" />
-        <h3 class="mt-6 text-xl font-semibold text-gray-900">No products to compare</h3>
+        <h3 class="mt-6 text-xl font-semibold text-gray-900">{{ EMPTY_STATES.NO_COMPARE.TITLE }}</h3>
         <p class="mt-2 text-sm text-gray-600 max-w-md mx-auto">
-          Add products to your compare list to see them side by side and make informed decisions.
+          {{ EMPTY_STATES.NO_COMPARE.MESSAGE }}
         </p>
         <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <button
@@ -90,13 +90,13 @@
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
-            Add Products
+            {{ TEXT.ADD_PRODUCTS }}
           </button>
           <router-link
             to="/products"
             class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
           >
-            Browse All Products
+            {{ TEXT.BROWSE_ALL_PRODUCTS }}
           </router-link>
         </div>
       </div>
@@ -117,7 +117,7 @@
               <input
                 type="checkbox"
                 v-model="highlightDiff"
-                aria-label="Highlight differences between products"
+                :aria-label="TEXT.COMPARE_HIGHLIGHT_DIFF"
                 class="w-4 h-4 rounded border-gray-300 text-[color:var(--brand-primary)] focus:ring-2 focus:ring-[color:var(--brand-primary)] focus:ring-offset-2 cursor-pointer"
               >
               <span class="flex items-center gap-1.5">
@@ -131,7 +131,7 @@
                 >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                 </svg>
-                <span>Highlight differences</span>
+                <span>{{ TEXT.COMPARE_HIGHLIGHT_DIFF }}</span>
               </span>
             </label>
             <div class="h-4 w-px bg-gray-300"></div>
@@ -145,7 +145,7 @@
               <svg v-if="clearingAll" class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
               </svg>
-              <span>{{ clearingAll ? 'Clearing...' : 'Clear all' }}</span>
+              <span>{{ clearingAll ? TEXT.CLEARING : TEXT.CLEAR_ALL }}</span>
             </button>
           </div>
           <button
@@ -157,7 +157,7 @@
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ffffff;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
-            <span style="color: #ffffff !important;">Add more products</span>
+            <span style="color: #ffffff !important;">{{ TEXT.COMPARE_ADD_MORE }}</span>
           </button>
         </div>
 
@@ -167,7 +167,7 @@
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider sticky left-0 bg-gradient-to-r from-gray-50 to-gray-100 z-20 border-r border-gray-200">
-                  Feature
+                  {{ TEXT.COMPARE_FEATURE }}
                 </th>
                 <th v-for="p in products" :key="p.id" class="px-6 py-4 text-left min-w-[280px]">
                   <div class="flex flex-col gap-3">
@@ -203,7 +203,7 @@
                           :disabled="removingProductId === p.id || clearingAll"
                           :aria-label="`Remove ${p.name || 'product'} from compare`"
                           class="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Remove from compare"
+                          :title="TEXT.COMPARE_REMOVE_TITLE"
                         >
                           <svg v-if="removingProductId === p.id" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -218,14 +218,14 @@
                           :to="`/products/${p.slug || p.id}`"
                           class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                          View Details
+                          {{ TEXT.VIEW_DETAILS }}
                         </router-link>
                         <router-link
                           :to="`/lead?product=${p.slug || p.id}`"
                           class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold text-white bg-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary-2)] rounded-lg transition-colors shadow-sm"
                           style="color: #ffffff !important;"
                         >
-                          Apply
+                          {{ TEXT.APPLY }}
                         </router-link>
                       </div>
                     </div>
@@ -348,11 +348,11 @@
     <!-- Confirm Clear All Modal -->
     <ConfirmModal
       :is-open="showClearConfirmModal"
-      title="Clear All Products"
-      message="Are you sure you want to clear all products from comparison?"
+      :title="TEXT.COMPARE_CLEAR_ALL_TITLE"
+      :message="TEXT.COMPARE_CLEAR_ALL_MESSAGE"
       description="This action cannot be undone. All products will be removed from your comparison list."
-      confirm-text="Clear All"
-      cancel-text="Cancel"
+      :confirm-text="TEXT.COMPARE_CLEAR_ALL_CONFIRM"
+      :cancel-text="TEXT.CANCEL"
       @confirm="confirmClearAll"
       @close="showClearConfirmModal = false"
     />
@@ -363,7 +363,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
-import { getImageUrl } from '../../utils/helpers';
+import { getImageUrl, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
 import { EmptyBoxIcon, RefreshIcon } from '../../components/icons';
 import AddProductModal from '../../components/AddProductModal.vue';
 import ConfirmModal from '../../components/ConfirmModal.vue';

@@ -37,6 +37,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 import { ChevronDownIcon } from '../icons';
 
 const props = defineProps({
@@ -53,7 +54,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Frequently asked questions'
+    default: TEXT.SECTION_FAQ
   }
 });
 

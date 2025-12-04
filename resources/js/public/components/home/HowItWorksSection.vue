@@ -27,6 +27,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 
 defineProps({
   steps: {
@@ -46,7 +47,7 @@ defineProps({
   },
   title: {
     type: String,
-    default: 'How FinCompare Works'
+    default: TEXT.SECTION_HOW_IT_WORKS
   }
 });
 

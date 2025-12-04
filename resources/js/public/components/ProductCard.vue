@@ -3,7 +3,7 @@
     <div v-if="product.image_url" class="relative h-48 overflow-hidden bg-gray-100">
       <img
         :src="productImageUrl"
-        :alt="product.name || 'Product'"
+        :alt="product.name || TEXT.PRODUCT"
         loading="lazy"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
@@ -20,7 +20,7 @@
           >
             <img
               :src="partnerLogoUrl"
-              :alt="product.partner?.name || 'Partner'"
+              :alt="product.partner?.name || TEXT.PARTNER"
               loading="lazy"
               class="w-12 h-12 rounded bg-gray-100 object-contain"
             />
@@ -34,9 +34,9 @@
           />
           <div>
             <router-link :to="`/products/${product.slug || product.id}`" class="block hover:underline">
-              <h3 class="font-semibold text-gray-900">{{ product.name || 'Product' }}</h3>
+              <h3 class="font-semibold text-gray-900">{{ product.name || TEXT.PRODUCT }}</h3>
             </router-link>
-            <p class="text-xs text-gray-500">{{ product.partner?.name || 'Partner' }}</p>
+            <p class="text-xs text-gray-500">{{ product.partner?.name || TEXT.PARTNER }}</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -44,12 +44,12 @@
             v-if="product.is_featured"
             class="px-2 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-700 font-semibold"
           >
-            Featured
+            {{ TEXT.FEATURED }}
           </span>
           <button
             type="button"
-            :title="isInCompare ? 'Remove from compare' : 'Add to compare'"
-            :aria-label="isInCompare ? 'Remove from compare' : 'Add to compare'"
+            :title="isInCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE"
+            :aria-label="isInCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE"
             @click="handleToggleCompare"
             :class="isInCompare ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'"
             class="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -62,13 +62,13 @@
       </div>
       <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div class="p-3 rounded-lg bg-gray-50">
-          <div class="text-xs text-gray-500">Interest Rate</div>
+          <div class="text-xs text-gray-500">{{ TEXT.INTEREST_RATE }}</div>
           <div class="font-medium text-gray-900">
             {{ product.attribute_highlights?.interest_rate || '—' }}
           </div>
         </div>
         <div class="p-3 rounded-lg bg-gray-50">
-          <div class="text-xs text-gray-500">Max Amount</div>
+          <div class="text-xs text-gray-500">{{ TEXT.MAX_AMOUNT }}</div>
           <div class="font-medium text-gray-900">
             {{ product.attribute_highlights?.max_amount || '—' }}
           </div>
@@ -79,7 +79,7 @@
       <router-link
         :to="`/products/${product.slug || product.id}`"
         class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)] hover:text-white transition-all duration-200 group"
-        title="View details"
+        :title="TEXT.VIEW_DETAILS"
       >
         <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
       </router-link>
@@ -88,16 +88,16 @@
           :to="`/lead?product=${product.slug || product.id}`"
           class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-[color:var(--brand-primary)]/20 bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)] hover:text-white transition-colors text-sm font-medium"
         >
-          Apply
+          {{ TEXT.APPLY }}
         </router-link>
         <button
           type="button"
           @click="handleToggleCompare"
-          :aria-label="isInCompare ? 'Remove from compare' : 'Add to compare'"
+          :aria-label="isInCompare ? TEXT.REMOVE_FROM_COMPARE : TEXT.ADD_TO_COMPARE"
           :class="isInCompare ? 'bg-amber-500 text-white hover:bg-amber-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
           class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
         >
-          {{ isInCompare ? 'In Compare' : 'Compare' }}
+          {{ isInCompare ? TEXT.IN_COMPARE : TEXT.ADD_TO_COMPARE }}
         </button>
       </div>
     </div>
@@ -107,7 +107,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useCompare } from '../composables';
-import { getImageUrl } from '../utils';
+import { getImageUrl, TEXT } from '../utils';
 import { ArrowRightIcon } from './icons';
 
 const props = defineProps({

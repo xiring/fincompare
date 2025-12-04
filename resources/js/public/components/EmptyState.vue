@@ -23,6 +23,7 @@
 </template>
 
 <script setup>
+import { TEXT } from '../utils';
 import { EmptyBoxIcon } from './icons';
 
 defineProps({
@@ -52,7 +53,7 @@ defineProps({
   },
   actionText: {
     type: String,
-    default: 'Get Started'
+    default: TEXT.GET_STARTED
   }
 });
 </script>

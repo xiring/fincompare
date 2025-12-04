@@ -67,28 +67,29 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { TEXT } from '../../utils';
 import { SearchIcon } from '../icons';
 
 const props = defineProps({
   title: {
     type: String,
-    default: 'Find and compare the best financial products'
+    default: TEXT.HERO_TITLE
   },
   subtitle: {
     type: String,
-    default: 'Loans, cards, and more — compare side-by-side and apply with confidence.'
+    default: TEXT.HERO_SUBTITLE
   },
   searchPlaceholder: {
     type: String,
-    default: 'Search for credit cards, personal loans, ...'
+    default: TEXT.HERO_SEARCH_PLACEHOLDER
   },
   filterPills: {
     type: Array,
     default: () => [
-      { label: '0% APR', value: '0% APR' },
-      { label: 'Cashback', value: 'cashback' },
-      { label: 'Travel', value: 'travel' },
-      { label: 'Personal Loans', value: 'personal loan' }
+      { label: TEXT.FILTER_0_APR, value: TEXT.FILTER_0_APR },
+      { label: TEXT.FILTER_CASHBACK, value: 'cashback' },
+      { label: TEXT.FILTER_TRAVEL, value: 'travel' },
+      { label: TEXT.FILTER_PERSONAL_LOANS, value: 'personal loan' }
     ]
   },
   showImage: {

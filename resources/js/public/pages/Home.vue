@@ -67,6 +67,7 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
+import { TEXT } from '../utils';
 import GuestLayout from '../layouts/GuestLayout.vue';
 import {
   HeroSearch,
@@ -92,67 +93,67 @@ const validPartners = computed(() => {
 
 // Stats data
 const stats = ref([
-  { target: 250000, mode: 'kplus', label: 'Comparisons made', display: '0' },
-  { target: 1200, mode: 'plus', label: 'Products listed', display: '0' },
-  { target: 95, mode: 'percent', label: 'User satisfaction', display: '0%' },
-  { target: 50, mode: 'plus', label: 'Trusted partners', display: '0' }
+  { target: 250000, mode: 'kplus', label: TEXT.STATS_COMPARISONS_MADE, display: '0' },
+  { target: 1200, mode: 'plus', label: TEXT.STATS_PRODUCTS_LISTED, display: '0' },
+  { target: 95, mode: 'percent', label: TEXT.STATS_USER_SATISFACTION, display: '0%' },
+  { target: 50, mode: 'plus', label: TEXT.STATS_TRUSTED_PARTNERS, display: '0' }
 ]);
 
 // Benefits data
 const benefits = ref([
   {
-    title: 'Transparent comparisons',
-    description: 'Clear specs and side-by-side views so you always know what you get.',
+    title: TEXT.BENEFIT_TRANSPARENT_TITLE,
+    description: TEXT.BENEFIT_TRANSPARENT_DESC,
     icon: EyeIcon
   },
   {
-    title: 'Guidance, not noise',
-    description: 'Smart defaults and highlights to help you decide faster.',
+    title: TEXT.BENEFIT_GUIDANCE_TITLE,
+    description: TEXT.BENEFIT_GUIDANCE_DESC,
     icon: LightbulbIcon
   },
   {
-    title: 'No hidden costs',
-    description: 'We surface fees and terms upfront — no surprises.',
+    title: TEXT.BENEFIT_NO_HIDDEN_TITLE,
+    description: TEXT.BENEFIT_NO_HIDDEN_DESC,
     icon: CheckCircleIcon
   }
 ]);
 
 // Testimonials
 const testimonials = ref([
-  { text: 'Found a perfect card in minutes. The comparison made it obvious.', author: 'Alex P.' },
-  { text: 'Loved the clarity. Sent an inquiry and got a reply same day.', author: 'Priya S.' },
-  { text: 'Side-by-side features saved me a ton of time.', author: 'Michael R.' }
+  { text: TEXT.TESTIMONIAL_1_TEXT, author: TEXT.TESTIMONIAL_1_AUTHOR },
+  { text: TEXT.TESTIMONIAL_2_TEXT, author: TEXT.TESTIMONIAL_2_AUTHOR },
+  { text: TEXT.TESTIMONIAL_3_TEXT, author: TEXT.TESTIMONIAL_3_AUTHOR }
 ]);
 
 // How it works
 const howItWorks = ref([
-  { number: 1, title: 'Browse & Filter', description: 'Explore categories and filter by what matters to you.' },
-  { number: 2, title: 'Compare', description: 'Select products and compare them side-by-side.' },
-  { number: 3, title: 'Apply & Track', description: 'Send an inquiry or apply — we route you to partners.' }
+  { number: 1, title: TEXT.HOW_IT_WORKS_BROWSE_TITLE, description: TEXT.HOW_IT_WORKS_BROWSE_DESC },
+  { number: 2, title: TEXT.HOW_IT_WORKS_COMPARE_TITLE, description: TEXT.HOW_IT_WORKS_COMPARE_DESC },
+  { number: 3, title: TEXT.HOW_IT_WORKS_APPLY_TITLE, description: TEXT.HOW_IT_WORKS_APPLY_DESC }
 ]);
 
 // FAQ
 const homeFaqs = ref([
   {
-    question: 'Does comparing affect my credit score?',
-    answer: 'No. Viewing and comparing products on FinCompare does not impact your credit score.'
+    question: TEXT.FAQ_CREDIT_SCORE_Q,
+    answer: TEXT.FAQ_CREDIT_SCORE_A
   },
   {
-    question: 'How do you make recommendations?',
-    answer: 'We use product data and your filters to surface options that align with your needs.'
+    question: TEXT.FAQ_RECOMMENDATIONS_Q,
+    answer: TEXT.FAQ_RECOMMENDATIONS_A
   },
   {
-    question: 'Can I apply directly through FinCompare?',
-    answer: 'Yes — use "Send Inquiry" and we route you to the right partner or form.'
+    question: TEXT.FAQ_APPLY_DIRECTLY_Q,
+    answer: TEXT.FAQ_APPLY_DIRECTLY_A
   }
 ]);
 
 // Filter pills for hero search
 const filterPills = ref([
-  { label: '0% APR', value: '0% APR' },
-  { label: 'Cashback', value: 'cashback' },
-  { label: 'Travel', value: 'travel' },
-  { label: 'Personal Loans', value: 'personal loan' }
+  { label: TEXT.FILTER_0_APR, value: TEXT.FILTER_0_APR },
+  { label: TEXT.FILTER_CASHBACK, value: 'cashback' },
+  { label: TEXT.FILTER_TRAVEL, value: 'travel' },
+  { label: TEXT.FILTER_PERSONAL_LOANS, value: 'personal loan' }
 ]);
 
 // Component refs for reveal animations
@@ -179,9 +180,9 @@ const { visible: ctaVisible, init: initCta } = useReveal(0.18);
 
 // SEO setup
 useSEO({
-  title: 'Home',
-  description: 'Find and compare the best financial products including loans, credit cards, and more. Compare side-by-side and apply with confidence.',
-  keywords: ['financial products', 'compare loans', 'credit cards', 'personal loans', 'financial comparison']
+  title: TEXT.HOME,
+  description: TEXT.SEO_HOME_DESCRIPTION,
+  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS
 });
 
 const handleFilterClick = (filter) => {

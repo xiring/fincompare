@@ -1,6 +1,6 @@
 <template>
   <GuestLayout>
-    <HeroSection title="Get Started" subtitle="Tell us about your needs and we'll help you find the right product." />
+    <HeroSection :title="TEXT.GET_STARTED_TITLE" :subtitle="TEXT.HERO_LEAD_SUBTITLE" />
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div v-if="product" class="mb-6 p-4 bg-white border rounded-2xl">
@@ -22,7 +22,7 @@
         <div v-if="success" data-success-message class="mb-6 rounded-lg bg-green-50 text-green-700 px-4 py-3 text-sm border border-green-200">
           <div class="flex items-center gap-2">
             <CheckCircleSolidIcon />
-            <span>Thanks! Your inquiry has been received.</span>
+            <span>{{ SUCCESS_MESSAGES.LEAD }}</span>
           </div>
         </div>
 
@@ -46,7 +46,7 @@
               </svg>
             </div>
             <div class="flex-1">
-              <p class="text-sm text-red-700 font-medium mb-1">Failed to load product</p>
+              <p class="text-sm text-red-700 font-medium mb-1">{{ ERROR_MESSAGES.PRODUCT.LOAD }}</p>
               <p class="text-xs text-red-600 mb-2">{{ productError }}</p>
               <button
                 @click="loadProduct"
@@ -54,14 +54,14 @@
                 class="inline-flex items-center gap-1 text-xs text-red-700 hover:text-red-800 font-medium"
               >
                 <RefreshIcon class="w-3 h-3" />
-                Retry
+                {{ TEXT.RETRY }}
               </button>
             </div>
           </div>
         </div>
         <form v-if="!success" @submit.prevent="submitForm" class="space-y-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+            <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.FULL_NAME }}</label>
             <input
               v-model="form.full_name"
               name="full_name"
@@ -73,7 +73,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.EMAIL }}</label>
               <input
                 v-model="form.email"
                 name="email"
@@ -84,7 +84,7 @@
               <p v-if="errors.email" class="text-sm text-red-600 mt-1">{{ errors.email[0] }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Phone</label>
+              <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.PHONE }}</label>
               <input
                 v-model="form.phone"
                 name="phone"
@@ -97,7 +97,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">City (Optional)</label>
+            <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.CITY }} (Optional)</label>
             <input
               v-model="form.city"
               name="city"
@@ -107,7 +107,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700">Message (Optional)</label>
+            <label class="block text-sm font-medium text-gray-700">{{ FORM_LABELS.MESSAGE }} (Optional)</label>
             <textarea
               v-model="form.message"
               name="message"
@@ -122,7 +122,7 @@
             :disabled="loading"
             class="w-full inline-flex items-center justify-center px-6 py-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed btn-brand-primary"
           >
-            {{ loading ? 'Submitting...' : 'Submit Inquiry' }}
+            {{ loading ? BUTTON_TEXT.LOADING.SUBMITTING : TEXT.SUBMIT_INQUIRY }}
           </button>
         </form>
       </div>
@@ -135,6 +135,7 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, webService } from '../services/api';
 import { useSEO } from '../composables';
+import { TEXT, SUCCESS_MESSAGES, ERROR_MESSAGES, BUTTON_TEXT, FORM_LABELS } from '../utils';
 import { CheckCircleSolidIcon, RefreshIcon } from '../components/icons';
 import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
@@ -157,9 +158,9 @@ const loading = ref(false);
 const success = ref(false);
 
 useSEO({
-  title: 'Get Started',
-  description: 'Get started with FinCompare. Submit an inquiry to learn more about financial products and connect with trusted partners.',
-  keywords: ['get started', 'apply now', 'financial product inquiry', 'loan application']
+  title: TEXT.GET_STARTED_TITLE,
+  description: TEXT.SEO_LEAD_DESCRIPTION,
+  keywords: TEXT.SEO_KEYWORDS_LEAD
 });
 
 const productImageUrl = computed(() => {
@@ -203,7 +204,7 @@ const submitForm = async () => {
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors;
     } else {
-      errors.value = { message: ['Failed to submit. Please try again.'] };
+      errors.value = { message: [ERROR_MESSAGES.SUBMIT] };
     }
   } finally {
     loading.value = false;
@@ -223,7 +224,7 @@ const loadProduct = async () => {
     form.value.product_id = product.value.id || productParam;
   } catch (err) {
     console.error('Failed to fetch product:', err);
-    productError.value = err.response?.data?.message || err.message || 'Failed to load product information. You can still submit your inquiry.';
+    productError.value = err.response?.data?.message || err.message || ERROR_MESSAGES.PRODUCT.LOAD_INFO;
   } finally {
     productLoading.value = false;
   }

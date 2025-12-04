@@ -23,6 +23,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 
 defineProps({
   visible: {
@@ -31,11 +32,11 @@ defineProps({
   },
   title: {
     type: String,
-    default: "Not sure which product fits?"
+    default: TEXT.CTA_TITLE
   },
   subtitle: {
     type: String,
-    default: "Tell us your needs — we'll help you choose."
+    default: TEXT.CTA_SUBTITLE
   },
   actionUrl: {
     type: String,
@@ -43,7 +44,7 @@ defineProps({
   },
   actionText: {
     type: String,
-    default: 'Get Started'
+    default: TEXT.GET_STARTED
   }
 });
 

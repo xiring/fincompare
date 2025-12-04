@@ -23,7 +23,7 @@
           <!-- Offer Banner -->
           <div v-if="index < 2 && showOffers" class="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
             <div class="relative bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-lg shadow-sm whitespace-nowrap">
-              {{ index === 1 ? '5% Cashback' : 'Cashback Offer' }}
+              {{ index === 1 ? TEXT.OFFER_5_CASHBACK : TEXT.OFFER_CASHBACK }}
               <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
                 <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-green-100"></div>
               </div>
@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { getImageUrl } from '../../utils';
+import { getImageUrl, TEXT } from '../../utils';
 import { DollarIcon } from '../icons';
 
 defineProps({
@@ -66,7 +66,7 @@ defineProps({
   },
   title: {
     type: String,
-    default: 'Explore Financial Products'
+    default: TEXT.SECTION_EXPLORE_PRODUCTS
   },
   showViewAll: {
     type: Boolean,
@@ -78,7 +78,7 @@ defineProps({
   },
   viewAllText: {
     type: String,
-    default: 'Browse all'
+    default: TEXT.BROWSE_ALL
   },
   showOffers: {
     type: Boolean,

@@ -24,6 +24,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { TEXT } from '../../utils';
 
 defineProps({
   testimonials: {
@@ -39,7 +40,7 @@ defineProps({
   },
   title: {
     type: String,
-    default: 'What our users say'
+    default: TEXT.SECTION_TESTIMONIALS
   }
 });
 
