@@ -1,10 +1,6 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-charcoal-800">Import Products</h1>
-      <p class="mt-1 text-sm text-charcoal-600">Import products from CSV file</p>
-    </div>
+    <PageHeader title="Import Products" description="Import products from CSV file" />
 
     <!-- Error Message -->
     <ErrorMessage v-if="errorMessage" :message="errorMessage" class="mb-6" />
@@ -13,105 +9,101 @@
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
     <!-- Form -->
-    <div class="bg-white">
+    <FormCard>
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- File Upload -->
-        <div>
-          <label for="file" class="block text-sm font-medium text-charcoal-700">
-            CSV File <span class="text-red-500">*</span>
-          </label>
-          <input
-            id="file"
-            type="file"
-            accept=".csv,.txt"
-            @change="handleFileChange"
-            required
-            class="block w-full text-sm text-charcoal-500"
-            :class="{ 'border-red-300': errors.file }"
-          />
-          <p v-if="errors.file" class="mt-1 text-sm text-red-600">{{ errors.file }}</p>
-          <p class="mt-2 text-xs text-charcoal-500">
-            Supported formats: CSV, TXT (max 20MB)
-          </p>
-        </div>
+        <FormFileInput
+          id="file"
+          v-model="form.file"
+          label="CSV File"
+          accept=".csv,.txt"
+          required
+          :error="errors.file"
+          hint="Supported formats: CSV, TXT (max 20MB)"
+          @update:modelValue="handleFileChange"
+        />
 
         <!-- Delimiter -->
-        <div>
-          <label for="delimiter" class="block text-sm font-medium text-charcoal-700">
-            Delimiter
-          </label>
-          <select
-            id="delimiter"
-            v-model="form.delimiter"
-            class="block w-full px-4 py-2 border border-charcoal-300"
-          >
-            <option value=",">Comma (,)</option>
-            <option value=";">Semicolon (;)</option>
-            <option value="|">Pipe (|)</option>
-            <option value="\t">Tab</option>
-          </select>
-          <p class="mt-1 text-xs text-charcoal-500">
-            Select the delimiter used in your CSV file
-          </p>
-        </div>
+        <FormSelect
+          id="delimiter"
+          v-model="form.delimiter"
+          label="Delimiter"
+          hint="Select the delimiter used in your CSV file"
+          :options="delimiterOptions"
+          option-value="value"
+          option-label="label"
+          :placeholder="false"
+        />
 
         <!-- Has Header -->
-        <div>
-          <label class="flex items-center">
+        <div class="mb-6">
+          <label for="has_header" class="block text-sm font-medium text-charcoal-700 mb-2">
+            File has header row
+          </label>
+          <div class="flex items-center">
             <input
+              id="has_header"
               type="checkbox"
               v-model="form.has_header"
-              class="rounded border-charcoal-300 text-primary-500 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+              class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
             />
-            <span class="ml-2 text-sm text-charcoal-700">File has header row</span>
-          </label>
-          <p class="mt-1 text-xs text-charcoal-500">
-            Check if the first row contains column names
-          </p>
+            <span class="ml-2 text-sm text-charcoal-700">Check if the first row contains column names</span>
+          </div>
         </div>
 
         <!-- CSV Format Info -->
-        <div class="bg-blue-50">
-          <h3 class="text-sm font-semibold text-blue-900">CSV Format Requirements</h3>
-          <ul class="text-xs text-blue-800">
-            <li><strong>Required columns:</strong> name, partner_id, product_category_id, status</li>
-            <li><strong>Optional columns:</strong> slug, description, is_featured, attributes</li>
-            <li><strong>Attributes:</strong> JSON string mapping attribute_id → value (e.g., {"10":"3% cashback","11":true})</li>
-            <li><strong>Status:</strong> active or inactive</li>
-            <li><strong>is_featured:</strong> true or false</li>
-          </ul>
-        </div>
+        <FormSection title="CSV Format Requirements">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <div>
+              <p class="text-sm font-medium text-blue-900 mb-2">Download Sample CSV:</p>
+              <a
+                href="/examples/product_import_sample.csv"
+                download="product_import_sample.csv"
+                class="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              >
+                <DownloadIcon class="h-4 w-4 mr-1.5" />
+                Download Sample CSV File
+              </a>
+            </div>
+            <div class="border-t border-blue-200 pt-3">
+              <ul class="text-sm text-blue-800 space-y-1">
+                <li><strong>Required columns:</strong> name, partner_id, product_category_id, status</li>
+                <li><strong>Optional columns:</strong> slug, description, is_featured, attributes</li>
+                <li><strong>Attributes:</strong> JSON string mapping attribute_id → value (e.g., {"10":"3% cashback","11":true})</li>
+                <li><strong>Status:</strong> active or inactive</li>
+                <li><strong>is_featured:</strong> true or false</li>
+              </ul>
+            </div>
+          </div>
+        </FormSection>
 
         <!-- Actions -->
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-charcoal-200">
-          <router-link
-            to="/admin/products"
-            class="inline-flex items-center justify-center px-4 py-2.5 border border-charcoal-300"
-          >
-            Cancel
-          </router-link>
-          <button
-            type="submit"
-            :disabled="loading || !form.file"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
-            <span>{{ loading ? 'Importing...' : 'Import Products' }}</span>
-          </button>
-        </div>
+        <FormActions
+          :loading="loading"
+          :disabled="!form.file"
+          submit-text="Import Products"
+          loading-text="Importing..."
+          cancel-route="/admin/products"
+        />
       </form>
-    </div>
+    </FormCard>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
 import { extractValidationErrors } from '../../utils/validation';
-import LoadingSpinner from '../../components/LoadingSpinner.vue';
+import PageHeader from '../../components/PageHeader.vue';
+import FormCard from '../../components/FormCard.vue';
+import FormFileInput from '../../components/FormFileInput.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import FormSection from '../../components/FormSection.vue';
+import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { DownloadIcon } from '../../components/icons';
 
 const router = useRouter();
 const productsStore = useProductsStore();
@@ -125,12 +117,18 @@ const form = reactive({
   has_header: true
 });
 
+const delimiterOptions = [
+  { value: ',', label: 'Comma (,)' },
+  { value: ';', label: 'Semicolon (;)' },
+  { value: '|', label: 'Pipe (|)' },
+  { value: '\t', label: 'Tab' }
+];
+
 const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
 
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
+const handleFileChange = (file) => {
   if (file) {
     // Validate file size (20MB max)
     if (file.size > 20 * 1024 * 1024) {

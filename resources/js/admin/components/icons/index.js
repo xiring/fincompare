@@ -29,4 +29,5 @@ export { default as UploadIcon } from './UploadIcon.vue';
 export { default as SearchIcon } from './SearchIcon.vue';
 export { default as ArrowUpIcon } from './ArrowUpIcon.vue';
 export { default as ArrowDownIcon } from './ArrowDownIcon.vue';
+export { default as DownloadIcon } from './DownloadIcon.vue';
 

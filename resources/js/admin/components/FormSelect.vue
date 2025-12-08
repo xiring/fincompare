@@ -16,7 +16,7 @@
       ]"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="placeholder" value="">{{ placeholder }}</option>
+      <option v-if="placeholder && placeholder !== false && !modelValue" value="">{{ placeholder === true ? '-- Select --' : placeholder }}</option>
       <option
         v-for="option in options"
         :key="getOptionValue(option)"
@@ -61,7 +61,7 @@ const props = defineProps({
     default: false
   },
   placeholder: {
-    type: String,
+    type: [String, Boolean],
     default: '-- Select --'
   },
   error: {

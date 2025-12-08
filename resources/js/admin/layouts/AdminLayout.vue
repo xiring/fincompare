@@ -369,11 +369,6 @@
           <div class="text-sm text-charcoal-600">
             <p>&copy; {{ currentYear }} FinCompare. All rights reserved.</p>
           </div>
-          <div class="flex items-center gap-6 text-sm text-charcoal-600">
-            <a href="#" class="hover:text-primary-600 transition-colors">Privacy Policy</a>
-            <a href="#" class="hover:text-primary-600 transition-colors">Terms of Service</a>
-            <a href="#" class="hover:text-primary-600 transition-colors">Support</a>
-          </div>
         </div>
       </footer>
     </div>
