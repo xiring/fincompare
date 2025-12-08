@@ -155,7 +155,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors } from '../../utils/validation';
@@ -169,9 +169,47 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
-const settings = ref(null);
-const form = reactive({
+interface Settings {
+  site_name?: string;
+  site_slogon?: string;
+  email_address?: string;
+  contact_number?: string;
+  address?: string;
+  map_url?: string;
+  logo?: string;
+  favicon?: string;
+  seo_titl?: string;
+  seo_title?: string;
+  seo_keyword?: string;
+  seo_keywords?: string;
+  seo_description?: string;
+  facebook_url?: string;
+  instgram_url?: string;
+  instagram_url?: string;
+  twitter_url?: string;
+}
+
+interface SettingsFormData {
+  site_name: string;
+  site_slogon: string;
+  email_address: string;
+  contact_number: string;
+  address: string;
+  map_url: string;
+  logo: File | null;
+  favicon: File | null;
+  seo_titl: string;
+  seo_keyword: string;
+  seo_description: string;
+  facebook_url: string;
+  instgram_url: string;
+  twitter_url: string;
+}
+
+const settings = ref<Settings | null>(null);
+const form = reactive<SettingsFormData>({
   site_name: '',
   site_slogon: '',
   email_address: '',
@@ -185,15 +223,15 @@ const form = reactive({
   seo_description: '',
   facebook_url: '',
   instgram_url: '',
-  twitter_url: ''
+  twitter_url: '',
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
-const loading = ref(false);
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
+const loading = ref<boolean>(false);
 
-const loadSettings = async () => {
+const loadSettings = async (): Promise<void> => {
   loading.value = true;
   try {
     const response = await adminApi.settings.show();
@@ -215,7 +253,7 @@ const loadSettings = async () => {
       form.instgram_url = settings.value.instgram_url || settings.value.instagram_url || '';
       form.twitter_url = settings.value.twitter_url || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading settings:', error);
     errorMessage.value = 'Failed to load settings';
   } finally {
@@ -223,7 +261,7 @@ const loadSettings = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -231,7 +269,7 @@ const handleSubmit = async () => {
 
   try {
     // Only include logo/favicon if they're files (new uploads)
-    const data = { ...form };
+    const data: any = { ...form };
     if (!(data.logo instanceof File)) {
       delete data.logo;
     }
@@ -249,7 +287,7 @@ const handleSubmit = async () => {
       successMessage.value = '';
       loadSettings(); // Reload to get updated file paths
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);

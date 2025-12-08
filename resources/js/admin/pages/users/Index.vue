@@ -124,7 +124,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '../../stores';
@@ -132,6 +132,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { User } from '../../types/index';
 
 const route = useRoute();
 const usersStore = useUsersStore();
@@ -150,9 +151,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(usersStore);
+} = useIndexPage<User>(usersStore);
 
-const handleDelete = async (user) => {
+const handleDelete = async (user: User): Promise<void> => {
   if (!confirm(`Delete user "${user.name}"?`)) return;
 
   try {
@@ -161,14 +162,14 @@ const handleDelete = async (user) => {
     if (users.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting user:', error);
     alert('Failed to delete user');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

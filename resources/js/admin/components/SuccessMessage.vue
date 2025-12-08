@@ -17,12 +17,13 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  message: {
-    type: String,
-    default: null
-  }
+<script setup lang="ts">
+interface Props {
+  message?: string | null;
+}
+
+withDefaults(defineProps<Props>(), {
+  message: null,
 });
 </script>
 

@@ -84,7 +84,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePartnersStore } from '../../stores';
@@ -97,31 +97,42 @@ import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const router = useRouter();
 const partnersStore = usePartnersStore();
 
-const form = reactive({
+interface FormData {
+  name: string;
+  slug: string;
+  website_url: string;
+  contact_email: string;
+  contact_phone: string;
+  status: 'active' | 'inactive';
+  logo: File | null;
+}
+
+const form = reactive<FormData>({
   name: '',
   slug: '',
   website_url: '',
   contact_email: '',
   contact_phone: '',
   status: 'active',
-  logo: null
+  logo: null,
 });
 
 const statusOptions = [
   { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' }
+  { id: 'inactive', name: 'Inactive' },
 ];
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => partnersStore.loading);
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -136,7 +147,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/partners');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

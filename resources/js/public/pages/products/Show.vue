@@ -305,7 +305,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiService } from '../../services/api';
@@ -315,45 +315,45 @@ import { useToastStore } from '../../stores/toast';
 import { SearchIcon, CopyIcon } from '../../components/icons';
 import { ErrorState, HeroSection } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
+import type { Product, Attribute } from '../../types/index';
 
 const route = useRoute();
-const product = ref(null);
-const attributes = ref([]);
-const loading = ref(true);
-const activeTab = ref('overview');
-const featureQuery = ref('');
+const product = ref<Product | null>(null);
+const attributes = ref<Attribute[]>([]);
+const loading = ref<boolean>(true);
+const activeTab = ref<'overview' | 'features' | 'eligibility' | 'documents'>('overview');
+const featureQuery = ref<string>('');
 
 const { toggleCompare: toggleCompareAction, isInCompare: checkInCompare } = useCompare();
 const { error, handleError, clearError } = useErrorHandling();
 const { productImageUrl, partnerLogoUrl } = useImageUrl(product);
 const toastStore = useToastStore();
 
-const inCompare = computed(() => product.value ? checkInCompare(product.value.id) : false);
+const inCompare = computed<boolean>(() => (product.value ? checkInCompare(product.value.id) : false));
 
 const tabs = [
   { key: 'overview', label: TEXT.TAB_OVERVIEW },
   { key: 'features', label: TEXT.TAB_FEATURES },
   { key: 'eligibility', label: TEXT.TAB_ELIGIBILITY },
-  { key: 'documents', label: TEXT.TAB_DOCUMENTS }
+  { key: 'documents', label: TEXT.TAB_DOCUMENTS },
 ];
 
-
-const filteredAttributes = computed(() => {
+const filteredAttributes = computed<Attribute[]>(() => {
   if (!featureQuery.value) return attributes.value;
   const query = featureQuery.value.toLowerCase();
-  return attributes.value.filter(attr =>
-    (attr.name || '').toLowerCase().includes(query) ||
-    (attr.value || '').toLowerCase().includes(query)
+  return attributes.value.filter(
+    (attr) =>
+      (attr.name || '').toLowerCase().includes(query) || (String(attr.value || '')).toLowerCase().includes(query)
   );
 });
 
-const toggleCompare = () => {
+const toggleCompare = (): void => {
   if (product.value) {
     toggleCompareAction(product.value.id);
   }
 };
 
-const copyLink = async () => {
+const copyLink = async (): Promise<void> => {
   const success = await copyToClipboard(window.location.href);
   if (success) {
     toastStore.success(SUCCESS_MESSAGES.COPY_LINK);
@@ -362,23 +362,23 @@ const copyLink = async () => {
   }
 };
 
-const retryLoad = async () => {
+const retryLoad = async (): Promise<void> => {
   clearError();
   loading.value = true;
   await loadProduct();
 };
 
 // SEO setup - will be updated when product loads
-const getProductDescription = () => {
+const getProductDescription = (): string => {
   if (!product.value) return '';
   return getExcerpt(product.value.description || '', 160);
 };
 
-const getProductKeywords = () => {
+const getProductKeywords = (): string[] => {
   if (!product.value) return [];
-  const keywords = [product.value.name];
+  const keywords: string[] = [product.value.name];
   if (product.value.partner?.name) keywords.push(product.value.partner.name);
-  if (product.value.product_category?.name) keywords.push(product.value.product_category.name);
+  if ((product.value as any).product_category?.name) keywords.push((product.value as any).product_category.name);
   return keywords;
 };
 
@@ -386,31 +386,35 @@ const getProductKeywords = () => {
 useSEO({
   title: 'Product Details',
   description: 'View product details and compare financial products',
-  type: 'product'
+  type: 'product',
 });
 
 // Update SEO when product loads
-watch(product, (newProduct) => {
-  if (newProduct) {
-    useSEO({
-      title: newProduct.name || 'Product Details',
-      description: getProductDescription() || `Learn more about ${newProduct.name} and compare with other financial products.`,
-      image: newProduct.image_url || newProduct.partner?.logo_url,
-      keywords: getProductKeywords(),
-      type: 'product'
-    });
-  }
-}, { immediate: true });
+watch(
+  product,
+  (newProduct) => {
+    if (newProduct) {
+      useSEO({
+        title: newProduct.name || 'Product Details',
+        description: getProductDescription() || `Learn more about ${newProduct.name} and compare with other financial products.`,
+        image: newProduct.image_url || newProduct.partner?.logo_url,
+        keywords: getProductKeywords(),
+        type: 'product',
+      });
+    }
+  },
+  { immediate: true }
+);
 
-const loadProduct = async () => {
-  const slug = route.params.slug;
+const loadProduct = async (): Promise<void> => {
+  const slug = route.params.slug as string;
 
   try {
     const response = await apiService.getProduct(slug);
     product.value = response.data.product;
     attributes.value = response.data.attributes || [];
     clearError();
-  } catch (err) {
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.PRODUCT.LOAD_DETAIL);
   } finally {
     loading.value = false;

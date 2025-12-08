@@ -144,7 +144,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLeadsStore } from '../../stores';
@@ -152,6 +152,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Lead } from '../../types/index';
 
 const route = useRoute();
 const leadsStore = useLeadsStore();
@@ -170,23 +171,23 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(leadsStore, {
+} = useIndexPage<Lead>(leadsStore, {
   extraFilters: {
     status: '',
   },
 });
 
-const exportLeads = async () => {
+const exportLeads = async (): Promise<void> => {
   try {
     await leadsStore.exportLeads();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error exporting leads:', error);
     alert('Failed to export leads');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

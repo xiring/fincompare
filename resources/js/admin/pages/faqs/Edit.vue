@@ -37,7 +37,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useFaqsStore } from '../../stores';
@@ -50,32 +50,38 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const faqId = route.params.id;
+const faqId = route.params.id as string;
 
 const faqsStore = useFaqsStore();
 const faq = computed(() => faqsStore.currentItem);
 
-const form = reactive({
+interface FormData {
+  question: string;
+  answer: string;
+}
+
+const form = reactive<FormData>({
   question: '',
-  answer: ''
+  answer: '',
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => faqsStore.loading);
 
-const loadFaq = async () => {
+const loadFaq = async (): Promise<void> => {
   try {
     await faqsStore.fetchItem(faqId);
     if (faq.value) {
       form.question = faq.value.question || '';
       form.answer = faq.value.answer || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading FAQ:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'FAQ not found';
@@ -85,7 +91,7 @@ const loadFaq = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -96,7 +102,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/faqs');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

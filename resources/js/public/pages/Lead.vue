@@ -130,7 +130,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, webService } from '../services/api';
@@ -139,31 +139,43 @@ import { TEXT, SUCCESS_MESSAGES, ERROR_MESSAGES, BUTTON_TEXT, FORM_LABELS } from
 import { CheckCircleSolidIcon, RefreshIcon } from '../components/icons';
 import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
+import type { Product } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const product = ref(null);
-const productLoading = ref(false);
-const productError = ref(null);
-const form = ref({
+const product = ref<Product | null>(null);
+const productLoading = ref<boolean>(false);
+const productError = ref<string | null>(null);
+
+interface LeadFormData {
+  full_name: string;
+  email: string;
+  phone: string;
+  city: string;
+  message: string;
+  product_id: string | number;
+}
+
+const form = ref<LeadFormData>({
   full_name: '',
   email: '',
   phone: '',
   city: '',
   message: '',
-  product_id: ''
+  product_id: '',
 });
-const errors = ref({});
-const loading = ref(false);
-const success = ref(false);
+
+const errors = ref<Record<string, string[]>>({});
+const loading = ref<boolean>(false);
+const success = ref<boolean>(false);
 
 useSEO({
   title: TEXT.GET_STARTED_TITLE,
   description: TEXT.SEO_LEAD_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_LEAD
+  keywords: TEXT.SEO_KEYWORDS_LEAD,
 });
 
-const productImageUrl = computed(() => {
+const productImageUrl = computed<string | null>(() => {
   if (product.value?.image_url) {
     return product.value.image_url.startsWith('http')
       ? product.value.image_url
@@ -172,7 +184,7 @@ const productImageUrl = computed(() => {
   return null;
 });
 
-const submitForm = async () => {
+const submitForm = async (): Promise<void> => {
   loading.value = true;
   errors.value = {};
   success.value = false;
@@ -180,7 +192,7 @@ const submitForm = async () => {
   try {
     const payload = {
       ...form.value,
-      product_id: product.value?.id || product.value?.slug || form.value.product_id
+      product_id: product.value?.id || product.value?.slug || form.value.product_id,
     };
 
     await webService.submitLead(payload);
@@ -192,7 +204,7 @@ const submitForm = async () => {
       phone: '',
       city: '',
       message: '',
-      product_id: product.value?.id || product.value?.slug || form.value.product_id
+      product_id: product.value?.id || product.value?.slug || form.value.product_id,
     };
     // Scroll to success message
     await nextTick();
@@ -200,7 +212,7 @@ const submitForm = async () => {
     if (successElement) {
       successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  } catch (err) {
+  } catch (err: any) {
     if (err.response?.data?.errors) {
       errors.value = err.response.data.errors;
     } else {
@@ -211,8 +223,8 @@ const submitForm = async () => {
   }
 };
 
-const loadProduct = async () => {
-  const productParam = route.query.product;
+const loadProduct = async (): Promise<void> => {
+  const productParam = route.query.product as string | undefined;
   if (!productParam) return;
 
   productLoading.value = true;
@@ -222,7 +234,7 @@ const loadProduct = async () => {
     const response = await apiService.getProduct(productParam);
     product.value = response.data.product;
     form.value.product_id = product.value.id || productParam;
-  } catch (err) {
+  } catch (err: any) {
     console.error('Failed to fetch product:', err);
     productError.value = err.response?.data?.message || err.message || ERROR_MESSAGES.PRODUCT.LOAD_INFO;
   } finally {

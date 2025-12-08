@@ -128,7 +128,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFormsStore } from '../../stores';
@@ -136,6 +136,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Form } from '../../types/index';
 
 const route = useRoute();
 const formsStore = useFormsStore();
@@ -154,9 +155,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(formsStore);
+} = useIndexPage<Form>(formsStore);
 
-const handleDelete = async (form) => {
+const handleDelete = async (form: Form): Promise<void> => {
   if (!confirm(`Delete form "${form.name}"?`)) return;
 
   try {
@@ -164,26 +165,26 @@ const handleDelete = async (form) => {
     if (forms.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting form:', error);
     alert('Failed to delete form');
   }
 };
 
-const handleDuplicate = async (form) => {
+const handleDuplicate = async (form: Form): Promise<void> => {
   if (!confirm(`Duplicate form "${form.name}"?`)) return;
 
   try {
     await formsStore.duplicateItem(form.id);
     fetchItems(pagination.value?.current_page || 1);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error duplicating form:', error);
     alert('Failed to duplicate form');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

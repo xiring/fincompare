@@ -5,16 +5,14 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    default: ''
-  }
+<script setup lang="ts">
+interface Props {
+  title: string;
+  description?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+  description: '',
 });
 </script>
 

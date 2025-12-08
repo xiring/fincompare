@@ -25,16 +25,15 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  message: {
-    type: [String, Array],
-    default: null
-  },
-  title: {
-    type: String,
-    default: 'Error'
-  }
+<script setup lang="ts">
+interface Props {
+  message?: string | string[] | null;
+  title?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+  message: null,
+  title: 'Error',
 });
 </script>
 

@@ -108,7 +108,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useBlogsStore } from '../../stores';
@@ -125,15 +125,28 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const blogId = route.params.id;
+const blogId = route.params.id as string;
 
 const blogsStore = useBlogsStore();
 const blog = computed(() => blogsStore.currentItem);
 
-const form = reactive({
+interface FormData {
+  title: string;
+  slug: string;
+  category: string;
+  content: string;
+  status: 'draft' | 'published' | 'archived';
+  featured_image: File | null;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+}
+
+const form = reactive<FormData>({
   title: '',
   slug: '',
   category: '',
@@ -142,21 +155,21 @@ const form = reactive({
   featured_image: null,
   seo_title: '',
   seo_description: '',
-  seo_keywords: ''
+  seo_keywords: '',
 });
 
 const statusOptions = [
   { id: 'draft', name: 'Draft' },
   { id: 'published', name: 'Published' },
-  { id: 'archived', name: 'Archived' }
+  { id: 'archived', name: 'Archived' },
 ];
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => blogsStore.loading);
 
-const loadBlog = async () => {
+const loadBlog = async (): Promise<void> => {
   try {
     await blogsStore.fetchItem(blogId);
     if (blog.value) {
@@ -164,12 +177,12 @@ const loadBlog = async () => {
       form.slug = blog.value.slug || '';
       form.category = blog.value.category || '';
       form.content = blog.value.content || '';
-      form.status = blog.value.status || 'draft';
+      form.status = (blog.value.status as 'draft' | 'published' | 'archived') || 'draft';
       form.seo_title = blog.value.seo_title || '';
       form.seo_description = blog.value.seo_description || '';
       form.seo_keywords = blog.value.seo_keywords || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading blog:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'Blog post not found';
@@ -179,7 +192,7 @@ const loadBlog = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -190,7 +203,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/blogs');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

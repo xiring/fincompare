@@ -25,20 +25,17 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  text: {
-    type: String,
-    default: ''
-  },
-  containerClass: {
-    type: String,
-    default: 'py-8'
-  },
-  spinnerClass: {
-    type: String,
-    default: 'h-5 w-5'
-  }
+<script setup lang="ts">
+interface Props {
+  text?: string;
+  containerClass?: string;
+  spinnerClass?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+  text: '',
+  containerClass: 'py-8',
+  spinnerClass: 'h-5 w-5',
 });
 </script>
 

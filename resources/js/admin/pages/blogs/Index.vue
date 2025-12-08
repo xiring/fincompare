@@ -149,7 +149,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBlogsStore } from '../../stores';
@@ -157,6 +157,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { BlogPost } from '../../types/index';
 
 const route = useRoute();
 const blogsStore = useBlogsStore();
@@ -175,13 +176,13 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(blogsStore, {
+} = useIndexPage<BlogPost>(blogsStore, {
   extraFilters: {
     status: '',
   },
 });
 
-const handleDelete = async (blog) => {
+const handleDelete = async (blog: BlogPost): Promise<void> => {
   if (!confirm(`Delete blog post "${blog.title}"?`)) return;
 
   try {
@@ -189,14 +190,14 @@ const handleDelete = async (blog) => {
     if (blogs.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting blog:', error);
     alert('Failed to delete blog post');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

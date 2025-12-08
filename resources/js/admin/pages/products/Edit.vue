@@ -221,7 +221,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
@@ -234,10 +234,11 @@ import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
 import FormCard from '../../components/FormCard.vue';
+import type { Attribute, Partner, ProductCategory, FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const productId = route.params.id;
+const productId = route.params.id as string;
 
 const productsStore = useProductsStore();
 const partnersStore = usePartnersStore();
@@ -247,7 +248,19 @@ const productCategoriesStore = useProductCategoriesStore();
 const loading = computed(() => productsStore.loading);
 const product = computed(() => productsStore.currentItem);
 
-const form = reactive({
+interface ProductFormData {
+  name: string;
+  slug: string;
+  partner_id: string;
+  product_category_id: string;
+  description: string;
+  image: File | null;
+  is_featured: boolean;
+  status: 'active' | 'inactive';
+  attributes: Record<string, any>;
+}
+
+const form = reactive<ProductFormData>({
   name: '',
   slug: '',
   partner_id: '',
@@ -256,25 +269,26 @@ const form = reactive({
   image: null,
   is_featured: false,
   status: 'active',
-  attributes: {}
+  attributes: {},
 });
 
-const partners = ref([]);
-const categories = ref([]);
-const attributes = ref([]);
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
-const loadingAttributes = ref(false);
-const imagePreview = ref(null);
+const partners = ref<Partner[]>([]);
+const categories = ref<ProductCategory[]>([]);
+const attributes = ref<Attribute[]>([]);
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
+const loadingAttributes = ref<boolean>(false);
+const imagePreview = ref<string | null>(null);
 
-const handleImageChange = (event) => {
-  const file = event.target.files[0];
+const handleImageChange = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
   if (file) {
     form.image = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-      imagePreview.value = e.target.result;
+      imagePreview.value = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   } else {
@@ -283,8 +297,16 @@ const handleImageChange = (event) => {
   }
 };
 
+interface AttributeValue {
+  attribute_id: number;
+  value_number?: number | null;
+  value_boolean?: boolean | null;
+  value_text?: string | null;
+  value_json?: any;
+}
+
 // Helper function to extract scalar value from attribute value object
-const getScalarValue = (attributeValue) => {
+const getScalarValue = (attributeValue: AttributeValue | null | undefined): any => {
   if (!attributeValue) return null;
 
   // Check value_number first (most common for numeric attributes)
@@ -310,7 +332,7 @@ const getScalarValue = (attributeValue) => {
   return null;
 };
 
-const loadAttributes = async () => {
+const loadAttributes = async (): Promise<void> => {
   if (!form.product_category_id) {
     attributes.value = [];
     return;
@@ -322,12 +344,12 @@ const loadAttributes = async () => {
     attributes.value = response.data || [];
 
     // Initialize attribute values from existing product or empty
-    attributes.value.forEach(attr => {
+    const currentItem = productsStore.currentItem as any;
+    const attributeValues: AttributeValue[] = currentItem?.attributeValues || currentItem?.attribute_values || [];
+    attributes.value.forEach((attr) => {
       if (!(attr.id in form.attributes)) {
         // Try to get existing value from product
-        // Laravel returns relationships in camelCase, so use attributeValues not attribute_values
-        const attributeValues = productsStore.currentItem?.attributeValues || productsStore.currentItem?.attribute_values || [];
-        const existingValue = attributeValues.find(av => av.attribute_id === attr.id);
+        const existingValue = attributeValues.find((av) => av.attribute_id === attr.id);
 
         if (existingValue) {
           const scalarValue = getScalarValue(existingValue);
@@ -337,7 +359,7 @@ const loadAttributes = async () => {
         }
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading attributes:', error);
     errorMessage.value = 'Failed to load attributes';
   } finally {
@@ -345,23 +367,24 @@ const loadAttributes = async () => {
   }
 };
 
-const loadProduct = async () => {
+const loadProduct = async (): Promise<void> => {
   try {
     await productsStore.fetchItem(productId);
 
     // Populate form
-    form.name = productsStore.currentItem?.name || '';
-    form.slug = productsStore.currentItem?.slug || '';
-    form.partner_id = productsStore.currentItem?.partner_id || '';
-    form.product_category_id = productsStore.currentItem?.product_category_id || '';
-    form.description = productsStore.currentItem?.description || '';
-    form.is_featured = productsStore.currentItem?.is_featured || false;
-    form.status = productsStore.currentItem?.status || 'active';
+    const currentItem = productsStore.currentItem as any;
+    form.name = currentItem?.name || '';
+    form.slug = currentItem?.slug || '';
+    form.partner_id = String(currentItem?.partner_id || '');
+    form.product_category_id = String(currentItem?.product_category_id || '');
+    form.description = currentItem?.description || '';
+    form.is_featured = currentItem?.is_featured || false;
+    form.status = currentItem?.status || 'active';
 
     // Initialize attribute values from existing product data
-    const attributeValues = productsStore.currentItem?.attributeValues || productsStore.currentItem?.attribute_values || [];
+    const attributeValues: AttributeValue[] = currentItem?.attributeValues || currentItem?.attribute_values || [];
     if (attributeValues.length > 0) {
-      attributeValues.forEach(av => {
+      attributeValues.forEach((av) => {
         const scalarValue = getScalarValue(av);
         if (scalarValue !== null && scalarValue !== undefined) {
           form.attributes[av.attribute_id] = scalarValue;
@@ -373,7 +396,7 @@ const loadProduct = async () => {
     if (form.product_category_id) {
       await loadAttributes();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading product:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'Product not found';
@@ -383,7 +406,7 @@ const loadProduct = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -394,7 +417,7 @@ const handleSubmit = async () => {
       partner_id: parseInt(form.partner_id),
       product_category_id: parseInt(form.product_category_id),
       is_featured: form.is_featured ? 1 : 0,
-      attributes: form.attributes
+      attributes: form.attributes,
     };
 
     await productsStore.updateItem(productId, data);
@@ -402,7 +425,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/products');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -416,14 +439,14 @@ onMounted(async () => {
     // Load partners and categories using stores (fetch all items for dropdowns)
     await Promise.all([
       partnersStore.fetchItems({ per_page: 1000 }),
-      productCategoriesStore.fetchItems({ per_page: 1000 })
+      productCategoriesStore.fetchItems({ per_page: 1000 }),
     ]);
     partners.value = partnersStore.items;
     categories.value = productCategoriesStore.items;
 
     // Load product
     await loadProduct();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading form data:', error);
     errorMessage.value = 'Failed to load form data';
   }

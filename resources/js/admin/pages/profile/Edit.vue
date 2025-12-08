@@ -86,7 +86,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors } from '../../utils/validation';
@@ -97,29 +97,41 @@ import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormActions from '../../components/FormActions.vue';
+import type { User, FormErrors } from '../../types/index';
 
-const user = ref(null);
-const loading = ref(false);
-const profileLoading = ref(false);
-const passwordLoading = ref(false);
-const errorMessage = ref('');
-const successMessage = ref('');
+const user = ref<User | null>(null);
+const loading = ref<boolean>(false);
+const profileLoading = ref<boolean>(false);
+const passwordLoading = ref<boolean>(false);
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 
-const profileForm = reactive({
+interface ProfileFormData {
+  name: string;
+  email: string;
+}
+
+const profileForm = reactive<ProfileFormData>({
   name: '',
-  email: ''
+  email: '',
 });
 
-const passwordForm = reactive({
+interface PasswordFormData {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+const passwordForm = reactive<PasswordFormData>({
   current_password: '',
   password: '',
-  password_confirmation: ''
+  password_confirmation: '',
 });
 
-const profileErrors = ref({});
-const passwordErrors = ref({});
+const profileErrors = ref<FormErrors>({});
+const passwordErrors = ref<FormErrors>({});
 
-const loadUser = async () => {
+const loadUser = async (): Promise<void> => {
   loading.value = true;
   try {
     const response = await adminApi.profile.show();
@@ -127,7 +139,7 @@ const loadUser = async () => {
 
     profileForm.name = user.value.name || '';
     profileForm.email = user.value.email || '';
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading user:', error);
     errorMessage.value = 'Failed to load profile';
   } finally {
@@ -135,7 +147,7 @@ const loadUser = async () => {
   }
 };
 
-const handleProfileUpdate = async () => {
+const handleProfileUpdate = async (): Promise<void> => {
   profileErrors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -148,7 +160,7 @@ const handleProfileUpdate = async () => {
       successMessage.value = '';
       loadUser();
     }, 2000);
-  } catch (error) {
+  } catch (error: any) {
     profileLoading.value = false;
     if (error.response?.status === 422) {
       profileErrors.value = extractValidationErrors(error);
@@ -158,7 +170,7 @@ const handleProfileUpdate = async () => {
   }
 };
 
-const handlePasswordUpdate = async () => {
+const handlePasswordUpdate = async (): Promise<void> => {
   passwordErrors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -175,7 +187,7 @@ const handlePasswordUpdate = async () => {
     setTimeout(() => {
       successMessage.value = '';
     }, 2000);
-  } catch (error) {
+  } catch (error: any) {
     passwordLoading.value = false;
     if (error.response?.status === 422) {
       passwordErrors.value = extractValidationErrors(error);

@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductCategoriesStore } from '../../stores';
@@ -56,26 +56,33 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const categoryId = route.params.id;
+const categoryId = route.params.id as string;
 
 const productCategoriesStore = useProductCategoriesStore();
 const category = computed(() => productCategoriesStore.currentItem);
 
-const form = reactive({
+interface FormData {
+  name: string;
+  slug: string;
+  description: string;
+}
+
+const form = reactive<FormData>({
   name: '',
   slug: '',
-  description: ''
+  description: '',
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => productCategoriesStore.loading);
 
-const loadCategory = async () => {
+const loadCategory = async (): Promise<void> => {
   try {
     await productCategoriesStore.fetchItem(categoryId);
     if (category.value) {
@@ -83,7 +90,7 @@ const loadCategory = async () => {
       form.slug = category.value.slug || '';
       form.description = category.value.description || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading category:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'Category not found';
@@ -93,7 +100,7 @@ const loadCategory = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -104,7 +111,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/product-categories');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

@@ -30,7 +30,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePermissionsStore } from '../../stores';
@@ -42,30 +42,35 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const permissionId = route.params.id;
+const permissionId = route.params.id as string;
 
 const permissionsStore = usePermissionsStore();
 const permission = computed(() => permissionsStore.currentItem);
 
-const form = reactive({
-  name: ''
+interface FormData {
+  name: string;
+}
+
+const form = reactive<FormData>({
+  name: '',
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => permissionsStore.loading);
 
-const loadPermission = async () => {
+const loadPermission = async (): Promise<void> => {
   try {
     await permissionsStore.fetchItem(permissionId);
     if (permission.value) {
       form.name = permission.value.name || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading permission:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'Permission not found';
@@ -75,7 +80,7 @@ const loadPermission = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -86,7 +91,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/permissions');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

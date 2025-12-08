@@ -20,7 +20,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSEO } from '../composables';
 import { TEXT } from '../utils';
 import { HeroSection } from '../components';
@@ -29,7 +29,7 @@ import GuestLayout from '../layouts/GuestLayout.vue';
 useSEO({
   title: TEXT.PRIVACY_POLICY,
   description: TEXT.SEO_PRIVACY_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_PRIVACY
+  keywords: TEXT.SEO_KEYWORDS_PRIVACY,
 });
 </script>
 

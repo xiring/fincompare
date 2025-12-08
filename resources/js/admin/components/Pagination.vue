@@ -24,14 +24,17 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  pagination: {
-    type: Object,
-    default: null
-  }
-});
+<script setup lang="ts">
+import type { PaginationMeta } from '../../types/index';
 
-defineEmits(['page-change']);
+interface Props {
+  pagination: PaginationMeta | null;
+}
+
+defineProps<Props>();
+
+defineEmits<{
+  'page-change': [page: number];
+}>();
 </script>
 

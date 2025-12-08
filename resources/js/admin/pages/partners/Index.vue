@@ -151,7 +151,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { usePartnersStore } from '../../stores';
@@ -159,6 +159,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Partner } from '../../types/index';
 
 const route = useRoute();
 
@@ -178,9 +179,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(partnersStore);
+} = useIndexPage<Partner>(partnersStore);
 
-const handleDelete = async (partner) => {
+const handleDelete = async (partner: Partner): Promise<void> => {
   if (!confirm(`Delete partner "${partner.name}"?`)) return;
 
   try {
@@ -189,14 +190,14 @@ const handleDelete = async (partner) => {
     if (partners.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting partner:', error);
     alert('Failed to delete partner');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

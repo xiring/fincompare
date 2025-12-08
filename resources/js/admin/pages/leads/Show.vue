@@ -77,7 +77,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { adminApi } from '../../services/api';
@@ -85,26 +85,32 @@ import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import FormCard from '../../components/FormCard.vue';
+import type { Lead } from '../../types/index';
 
 const route = useRoute();
-const leadId = route.params.id;
+const leadId = route.params.id as string;
 
-const lead = ref(null);
-const form = reactive({
-  status: ''
+const lead = ref<Lead | null>(null);
+
+interface StatusFormData {
+  status: string;
+}
+
+const form = reactive<StatusFormData>({
+  status: '',
 });
 
-const errorMessage = ref('');
-const successMessage = ref('');
-const loading = ref(false);
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
+const loading = ref<boolean>(false);
 
-const loadLead = async () => {
+const loadLead = async (): Promise<void> => {
   loading.value = true;
   try {
     const response = await adminApi.leads.show(leadId);
     lead.value = response.data;
     form.status = lead.value.status || 'new';
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading lead:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'Lead not found';
@@ -116,15 +122,17 @@ const loadLead = async () => {
   }
 };
 
-const handleStatusUpdate = async () => {
+const handleStatusUpdate = async (): Promise<void> => {
   try {
     await adminApi.leads.update(leadId, { status: form.status });
     successMessage.value = 'Status updated successfully!';
-    lead.value.status = form.status;
+    if (lead.value) {
+      lead.value.status = form.status;
+    }
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating lead status:', error);
     errorMessage.value = 'Failed to update status';
     setTimeout(() => {

@@ -222,7 +222,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFormsStore } from '../../stores';
@@ -235,39 +235,64 @@ import FormSelect from '../../components/FormSelect.vue';
 import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const router = useRouter();
 const formsStore = useFormsStore();
 
-const form = reactive({
+interface FormInputData {
+  _id?: string;
+  id?: number;
+  label: string;
+  name: string;
+  type: 'text' | 'textarea' | 'dropdown' | 'checkbox';
+  options: string[] | null;
+  options_text: string;
+  placeholder: string;
+  help_text: string;
+  is_required: boolean;
+  validation_rules: string;
+  sort_order: number;
+}
+
+interface FormData {
+  name: string;
+  slug: string;
+  description: string;
+  type: 'pre_form' | 'post_form';
+  status: 'active' | 'inactive';
+  inputs: FormInputData[];
+}
+
+const form = reactive<FormData>({
   name: '',
   slug: '',
   description: '',
   type: 'pre_form',
   status: 'active',
-  inputs: []
+  inputs: [],
 });
 
 const typeOptions = [
   { id: 'pre_form', name: 'Pre Form' },
-  { id: 'post_form', name: 'Post Form' }
+  { id: 'post_form', name: 'Post Form' },
 ];
 
 const statusOptions = [
   { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' }
+  { id: 'inactive', name: 'Inactive' },
 ];
 
 const inputTypeOptions = [
   { id: 'text', name: 'Text' },
   { id: 'textarea', name: 'Textarea' },
   { id: 'dropdown', name: 'Dropdown' },
-  { id: 'checkbox', name: 'Checkbox' }
+  { id: 'checkbox', name: 'Checkbox' },
 ];
 
 let inputIdCounter = 0;
 
-const addInput = () => {
+const addInput = (): void => {
   form.inputs.push({
     _id: `input-${++inputIdCounter}`,
     label: '',
@@ -279,11 +304,11 @@ const addInput = () => {
     help_text: '',
     is_required: false,
     validation_rules: '',
-    sort_order: form.inputs.length
+    sort_order: form.inputs.length,
   });
 };
 
-const removeInput = (index) => {
+const removeInput = (index: number): void => {
   form.inputs.splice(index, 1);
   // Update sort_order for remaining inputs
   form.inputs.forEach((input, idx) => {
@@ -291,7 +316,7 @@ const removeInput = (index) => {
   });
 };
 
-const moveInput = (index, direction) => {
+const moveInput = (index: number, direction: 'up' | 'down'): void => {
   if (direction === 'up' && index > 0) {
     const temp = form.inputs[index];
     form.inputs[index] = form.inputs[index - 1];
@@ -311,12 +336,12 @@ const moveInput = (index, direction) => {
   }
 };
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => formsStore.loading);
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -328,7 +353,7 @@ const handleSubmit = async () => {
 
     // Prepare inputs data
     const inputsData = form.inputs.map((input, index) => {
-      const inputData = {
+      const inputData: any = {
         label: input.label,
         name: input.name,
         type: input.type,
@@ -336,15 +361,15 @@ const handleSubmit = async () => {
         help_text: input.help_text || null,
         is_required: input.is_required || false,
         validation_rules: input.validation_rules || null,
-        sort_order: index
+        sort_order: index,
       };
 
       // Handle options for dropdown
       if (input.type === 'dropdown' && input.options_text) {
         inputData.options = input.options_text
           .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0);
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
       } else if (input.type === 'dropdown' && input.options && Array.isArray(input.options)) {
         inputData.options = input.options;
       }
@@ -354,7 +379,7 @@ const handleSubmit = async () => {
 
     const formData = {
       ...form,
-      inputs: inputsData
+      inputs: inputsData,
     };
 
     await formsStore.createItem(formData);
@@ -362,7 +387,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/forms');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

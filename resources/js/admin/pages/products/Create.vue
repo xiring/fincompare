@@ -214,19 +214,20 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
 import { usePartnersStore } from '../../stores';
 import { useProductCategoriesStore } from '../../stores';
 import { adminApi } from '../../services/api';
-import { extractValidationErrors, formatValidationError } from '../../utils/validation';
+import { extractValidationErrors } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
 import FormCard from '../../components/FormCard.vue';
+import type { Attribute, Partner, ProductCategory, FormErrors } from '../../types/index';
 
 const router = useRouter();
 const productsStore = useProductsStore();
@@ -236,7 +237,19 @@ const productCategoriesStore = useProductCategoriesStore();
 // Use store loading state
 const loading = computed(() => productsStore.loading);
 
-const form = reactive({
+interface ProductFormData {
+  name: string;
+  slug: string;
+  partner_id: string;
+  product_category_id: string;
+  description: string;
+  image: File | null;
+  is_featured: boolean;
+  status: 'active' | 'inactive';
+  attributes: Record<string, any>;
+}
+
+const form = reactive<ProductFormData>({
   name: '',
   slug: '',
   partner_id: '',
@@ -245,25 +258,26 @@ const form = reactive({
   image: null,
   is_featured: false,
   status: 'active',
-  attributes: {}
+  attributes: {},
 });
 
-const partners = ref([]);
-const categories = ref([]);
-const attributes = ref([]);
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
-const loadingAttributes = ref(false);
-const imagePreview = ref(null);
+const partners = ref<Partner[]>([]);
+const categories = ref<ProductCategory[]>([]);
+const attributes = ref<Attribute[]>([]);
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
+const loadingAttributes = ref<boolean>(false);
+const imagePreview = ref<string | null>(null);
 
-const handleImageChange = (event) => {
-  const file = event.target.files[0];
+const handleImageChange = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
   if (file) {
     form.image = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-      imagePreview.value = e.target.result;
+      imagePreview.value = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   } else {
@@ -272,7 +286,7 @@ const handleImageChange = (event) => {
   }
 };
 
-const loadAttributes = async () => {
+const loadAttributes = async (): Promise<void> => {
   if (!form.product_category_id) {
     attributes.value = [];
     return;
@@ -283,12 +297,12 @@ const loadAttributes = async () => {
     const response = await adminApi.attributes.byCategory(form.product_category_id);
     attributes.value = response.data || [];
     // Initialize attribute values
-    attributes.value.forEach(attr => {
+    attributes.value.forEach((attr) => {
       if (!(attr.id in form.attributes)) {
         form.attributes[attr.id] = '';
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading attributes:', error);
     errorMessage.value = 'Failed to load attributes';
   } finally {
@@ -296,11 +310,10 @@ const loadAttributes = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
-  loading.value = true;
 
   try {
     // Auto-generate slug if not provided
@@ -313,7 +326,7 @@ const handleSubmit = async () => {
       partner_id: parseInt(form.partner_id),
       product_category_id: parseInt(form.product_category_id),
       is_featured: form.is_featured ? 1 : 0,
-      attributes: form.attributes
+      attributes: form.attributes,
     };
 
     await productsStore.createItem(data);
@@ -321,7 +334,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/products');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -335,11 +348,11 @@ onMounted(async () => {
     // Load partners and categories using stores (fetch all items for dropdowns)
     await Promise.all([
       partnersStore.fetchItems({ per_page: 1000 }),
-      productCategoriesStore.fetchItems({ per_page: 1000 })
+      productCategoriesStore.fetchItems({ per_page: 1000 }),
     ]);
     partners.value = partnersStore.items;
     categories.value = productCategoriesStore.items;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading form data:', error);
     errorMessage.value = 'Failed to load form data';
   }

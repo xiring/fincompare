@@ -152,25 +152,32 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
+import type { FormErrors } from '../types/index';
 
 const router = useRouter();
 const route = useRoute();
 
-const form = reactive({
+interface LoginFormData {
+  email: string;
+  password: string;
+  remember: boolean;
+}
+
+const form = reactive<LoginFormData>({
   email: '',
   password: '',
-  remember: false
+  remember: false,
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
-const loading = ref(false);
-const showPassword = ref(false);
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
+const loading = ref<boolean>(false);
+const showPassword = ref<boolean>(false);
 
 // Check for session status or errors from Laravel
 onMounted(() => {
@@ -180,7 +187,7 @@ onMounted(() => {
   }
 });
 
-const handleLogin = async () => {
+const handleLogin = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -190,16 +197,16 @@ const handleLogin = async () => {
     const response = await axios.post('/login', {
       email: form.email,
       password: form.password,
-      remember: form.remember
+      remember: form.remember,
     });
 
     // If successful, redirect
     if (response.status === 200 || response.status === 204) {
       localStorage.setItem('authenticated', 'true');
-      const redirect = route.query.redirect || '/admin';
+      const redirect = (route.query.redirect as string) || '/admin';
       window.location.href = redirect;
     }
-  } catch (error) {
+  } catch (error: any) {
     loading.value = false;
 
     if (error.response?.status === 422) {

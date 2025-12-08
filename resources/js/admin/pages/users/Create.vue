@@ -63,7 +63,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsersStore, useRolesStore } from '../../stores';
@@ -75,26 +75,35 @@ import FormCheckbox from '../../components/FormCheckbox.vue';
 import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const router = useRouter();
 const usersStore = useUsersStore();
 const rolesStore = useRolesStore();
 
-const form = reactive({
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  roles: Array<string | number>;
+}
+
+const form = reactive<FormData>({
   name: '',
   email: '',
   password: '',
   password_confirmation: '',
-  roles: []
+  roles: [],
 });
 
 const roles = computed(() => rolesStore.items);
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => usersStore.loading || rolesStore.loading);
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -105,7 +114,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/users');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -117,7 +126,7 @@ const handleSubmit = async () => {
 onMounted(async () => {
   try {
     await rolesStore.fetchItems();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading roles:', error);
   }
 });

@@ -119,7 +119,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useRolesStore } from '../../stores';
@@ -127,6 +127,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Role } from '../../types/index';
 
 const route = useRoute();
 const rolesStore = useRolesStore();
@@ -145,9 +146,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(rolesStore);
+} = useIndexPage<Role>(rolesStore);
 
-const handleDelete = async (role) => {
+const handleDelete = async (role: Role): Promise<void> => {
   if (!confirm(`Delete role "${role.name}"?`)) return;
 
   try {
@@ -155,14 +156,14 @@ const handleDelete = async (role) => {
     if (roles.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting role:', error);
     alert('Failed to delete role');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

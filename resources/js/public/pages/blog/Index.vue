@@ -137,7 +137,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
@@ -146,36 +146,44 @@ import { useSEO, useErrorHandling } from '../../composables';
 import { SearchIcon, DocumentIcon } from '../../components/icons';
 import { ErrorState, BlogPostSkeleton, EmptyState } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
+import type { BlogPost } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 
-const posts = ref([]);
-const categories = ref([]);
-const tags = ref([]);
-const loading = ref(false);
+const posts = ref<BlogPost[]>([]);
+const categories = ref<string[]>([]);
+const tags = ref<string[]>([]);
+const loading = ref<boolean>(false);
 const { error, handleError, clearError } = useErrorHandling();
-const hasNext = ref(false);
-const nextPageUrl = ref(null);
-const showProgressBar = ref(false);
-const progress = ref(0);
-const sentinelRef = ref(null);
+const hasNext = ref<boolean>(false);
+const nextPageUrl = ref<string | null>(null);
+const showProgressBar = ref<boolean>(false);
+const progress = ref<number>(0);
+const sentinelRef = ref<HTMLElement | null>(null);
 
-const filters = ref({
-  q: route.query.q || '',
-  category: route.query.category || '',
-  tag: route.query.tag || '',
-  sort: route.query.sort || 'desc'
+interface Filters {
+  q: string;
+  category: string;
+  tag: string;
+  sort: 'asc' | 'desc';
+}
+
+const filters = ref<Filters>({
+  q: (route.query.q as string) || '',
+  category: (route.query.category as string) || '',
+  tag: (route.query.tag as string) || '',
+  sort: (route.query.sort as 'asc' | 'desc') || 'desc',
 });
 
 useSEO({
   title: 'Blog',
   description: 'Read our latest articles about financial products, tips, and insights to help you make informed financial decisions.',
-  keywords: ['financial blog', 'financial tips', 'money advice', 'financial education']
+  keywords: ['financial blog', 'financial tips', 'money advice', 'financial education'],
 });
 
-const getQueryParams = () => {
-  const params = {};
+const getQueryParams = (): Record<string, string> => {
+  const params: Record<string, string> = {};
   if (filters.value.q) params.q = filters.value.q;
   if (filters.value.category) params.category = filters.value.category;
   if (filters.value.tag) params.tag = filters.value.tag;
@@ -183,7 +191,7 @@ const getQueryParams = () => {
   return params;
 };
 
-const fetchPosts = async (url = null) => {
+const fetchPosts = async (url: string | null = null): Promise<void> => {
   if (loading.value) return;
 
   loading.value = true;
@@ -191,7 +199,7 @@ const fetchPosts = async (url = null) => {
   progress.value = 10;
 
   try {
-    let response;
+    let response: any;
     if (url) {
       // For pagination, use the full URL (Laravel pagination URLs are absolute)
       response = await apiClient.get(url);
@@ -205,7 +213,7 @@ const fetchPosts = async (url = null) => {
 
     if (url) {
       // Append to existing posts for infinite scroll
-      posts.value.push(...response.data.posts.data);
+      posts.value.push(...(response.data.posts.data || []));
     } else {
       // Replace posts for new search/filter
       posts.value = response.data.posts.data || [];
@@ -217,7 +225,7 @@ const fetchPosts = async (url = null) => {
     hasNext.value = !!nextPageUrl.value;
     progress.value = 100;
     clearError();
-  } catch (err) {
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.POSTS.LOAD_DETAIL);
     // Only set error if we don't have any posts yet
     if (posts.value.length === 0) {
@@ -232,12 +240,12 @@ const fetchPosts = async (url = null) => {
   }
 };
 
-const applyFilters = () => {
+const applyFilters = (): void => {
   // Clear posts immediately to show loading state
   posts.value = [];
 
   // Update URL without reload
-  const query = {};
+  const query: Record<string, string> = {};
   if (filters.value.q) query.q = filters.value.q;
   if (filters.value.category) query.category = filters.value.category;
   if (filters.value.tag) query.tag = filters.value.tag;
@@ -247,7 +255,7 @@ const applyFilters = () => {
   fetchPosts();
 };
 
-const loadMore = () => {
+const loadMore = (): void => {
   if (nextPageUrl.value && !loading.value) {
     fetchPosts(nextPageUrl.value);
   }
@@ -264,7 +272,7 @@ onMounted(() => {
   // Set up intersection observer for infinite scroll
   if (sentinelRef.value) {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting && hasNext.value && !loading.value) {
           loadMore();
         }

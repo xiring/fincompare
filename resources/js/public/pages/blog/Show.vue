@@ -62,7 +62,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiService } from '../../services/api';
@@ -70,21 +70,22 @@ import { useSEO, useErrorHandling } from '../../composables';
 import { formatDate, getExcerpt, TEXT, ERROR_MESSAGES } from '../../utils';
 import { ErrorState, HeroSection } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
+import type { BlogPost } from '../../types/index';
 
 const route = useRoute();
-const post = ref(null);
-const loading = ref(true);
+const post = ref<BlogPost | null>(null);
+const loading = ref<boolean>(true);
 const { error, handleError, clearError } = useErrorHandling();
 
 // SEO setup - will be updated when post loads
-const getPostDescription = () => {
+const getPostDescription = (): string => {
   if (!post.value) return '';
   return getExcerpt(post.value.content || '', 160);
 };
 
-const getPostKeywords = () => {
+const getPostKeywords = (): string[] => {
   if (!post.value) return [];
-  const keywords = [];
+  const keywords: string[] = [];
   if (post.value.category) keywords.push(post.value.category);
   if (post.value.tags && Array.isArray(post.value.tags)) {
     keywords.push(...post.value.tags);
@@ -96,37 +97,41 @@ const getPostKeywords = () => {
 useSEO({
   title: 'Blog Post',
   description: 'Read our latest blog post',
-  type: 'article'
+  type: 'article',
 });
 
 // Update SEO when post loads
-watch(post, (newPost) => {
-  if (newPost) {
-    useSEO({
-      title: newPost.title || 'Blog Post',
-      description: getPostDescription() || `Read our blog post: ${newPost.title}`,
-      image: newPost.featured_image,
-      keywords: getPostKeywords(),
-      type: 'article'
-    });
-  }
-}, { immediate: true });
+watch(
+  post,
+  (newPost) => {
+    if (newPost) {
+      useSEO({
+        title: newPost.title || 'Blog Post',
+        description: getPostDescription() || `Read our blog post: ${newPost.title}`,
+        image: newPost.featured_image,
+        keywords: getPostKeywords(),
+        type: 'article',
+      });
+    }
+  },
+  { immediate: true }
+);
 
-const loadPost = async () => {
-  const slug = route.params.slug;
+const loadPost = async (): Promise<void> => {
+  const slug = route.params.slug as string;
 
   try {
     const response = await apiService.getBlogPost(slug);
     post.value = response.data;
     clearError();
-  } catch (err) {
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.POST.LOAD_DETAIL);
   } finally {
     loading.value = false;
   }
 };
 
-const retryLoad = async () => {
+const retryLoad = async (): Promise<void> => {
   clearError();
   loading.value = true;
   await loadPost();

@@ -84,7 +84,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { webService } from '../services/api';
 import { useSiteSettings, useSEO, useFormSubmission } from '../composables';
@@ -94,20 +94,28 @@ import { HeroSection } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 const { siteSettings, fetchSiteSettings } = useSiteSettings();
-const form = ref({
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+  submitted_at: number; // Timestamp when form was rendered (set on mount)
+}
+
+const form = ref<ContactFormData>({
   name: '',
   email: '',
   message: '',
-  submitted_at: 0 // Timestamp when form was rendered (set on mount)
+  submitted_at: 0, // Timestamp when form was rendered (set on mount)
 });
 
 const { loading, errors, success, submit: submitForm } = useFormSubmission(
-  async (data) => {
+  async (data: ContactFormData) => {
     const payload = {
       name: data.name || '',
       email: data.email || '',
       message: data.message || '',
-      submitted_at: parseInt(data.submitted_at || Math.floor(Date.now() / 1000), 10),
+      submitted_at: parseInt(String(data.submitted_at || Math.floor(Date.now() / 1000)), 10),
     };
     await webService.submitContact(payload);
     // Reset form after successful submission
@@ -115,21 +123,21 @@ const { loading, errors, success, submit: submitForm } = useFormSubmission(
       name: '',
       email: '',
       message: '',
-      submitted_at: Math.floor(Date.now() / 1000)
+      submitted_at: Math.floor(Date.now() / 1000),
     };
   },
   {
-    scrollToSuccess: true
+    scrollToSuccess: true,
   }
 );
 
 useSEO({
   title: TEXT.CONTACT_US,
   description: TEXT.SEO_CONTACT_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_CONTACT
+  keywords: TEXT.SEO_KEYWORDS_CONTACT,
 });
 
-const handleSubmit = () => {
+const handleSubmit = (): void => {
   submitForm(form.value);
 };
 

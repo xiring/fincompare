@@ -43,7 +43,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductCategoriesStore } from '../../stores';
@@ -55,22 +55,29 @@ import FormTextarea from '../../components/FormTextarea.vue';
 import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const router = useRouter();
 const productCategoriesStore = useProductCategoriesStore();
 
-const form = reactive({
+interface FormData {
+  name: string;
+  slug: string;
+  description: string;
+}
+
+const form = reactive<FormData>({
   name: '',
   slug: '',
-  description: ''
+  description: '',
 });
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => productCategoriesStore.loading);
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -85,7 +92,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/product-categories');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

@@ -104,7 +104,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { usePermissionsStore } from '../../stores';
@@ -112,6 +112,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Permission } from '../../types/index';
 
 const route = useRoute();
 const permissionsStore = usePermissionsStore();
@@ -130,9 +131,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(permissionsStore);
+} = useIndexPage<Permission>(permissionsStore);
 
-const handleDelete = async (permission) => {
+const handleDelete = async (permission: Permission): Promise<void> => {
   if (!confirm(`Delete permission "${permission.name}"?`)) return;
 
   try {
@@ -140,14 +141,14 @@ const handleDelete = async (permission) => {
     if (permissions.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting permission:', error);
     alert('Failed to delete permission');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

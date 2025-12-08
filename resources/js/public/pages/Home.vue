@@ -63,8 +63,8 @@
   </GuestLayout>
 </template>
 
-<script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, computed, nextTick, type ComponentPublicInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
 import { TEXT } from '../utils';
@@ -82,90 +82,125 @@ import {
   CTASection
 } from '../components/home';
 import { EyeIcon, LightbulbIcon, CheckCircleIcon } from '../components/icons';
+import type { Partner } from '../../types/index';
 
 const router = useRouter();
 const { featuredProducts, categories, partners, loading, fetchHomeData } = useHomeData();
 
 // Filter out any invalid partners
 const validPartners = computed(() => {
-  return (partners.value || []).filter(p => p && (p.id || p.name));
+  return (partners.value || []).filter((p: Partner) => p && (p.id || p.name));
 });
 
+interface Stat {
+  target: number;
+  mode: 'kplus' | 'plus' | 'percent';
+  label: string;
+  display: string;
+}
+
 // Stats data
-const stats = ref([
+const stats = ref<Stat[]>([
   { target: 250000, mode: 'kplus', label: TEXT.STATS_COMPARISONS_MADE, display: '0' },
   { target: 1200, mode: 'plus', label: TEXT.STATS_PRODUCTS_LISTED, display: '0' },
   { target: 95, mode: 'percent', label: TEXT.STATS_USER_SATISFACTION, display: '0%' },
-  { target: 50, mode: 'plus', label: TEXT.STATS_TRUSTED_PARTNERS, display: '0' }
+  { target: 50, mode: 'plus', label: TEXT.STATS_TRUSTED_PARTNERS, display: '0' },
 ]);
 
+interface Benefit {
+  title: string;
+  description: string;
+  icon: any;
+}
+
 // Benefits data
-const benefits = ref([
+const benefits = ref<Benefit[]>([
   {
     title: TEXT.BENEFIT_TRANSPARENT_TITLE,
     description: TEXT.BENEFIT_TRANSPARENT_DESC,
-    icon: EyeIcon
+    icon: EyeIcon,
   },
   {
     title: TEXT.BENEFIT_GUIDANCE_TITLE,
     description: TEXT.BENEFIT_GUIDANCE_DESC,
-    icon: LightbulbIcon
+    icon: LightbulbIcon,
   },
   {
     title: TEXT.BENEFIT_NO_HIDDEN_TITLE,
     description: TEXT.BENEFIT_NO_HIDDEN_DESC,
-    icon: CheckCircleIcon
-  }
+    icon: CheckCircleIcon,
+  },
 ]);
+
+interface Testimonial {
+  text: string;
+  author: string;
+}
 
 // Testimonials
-const testimonials = ref([
+const testimonials = ref<Testimonial[]>([
   { text: TEXT.TESTIMONIAL_1_TEXT, author: TEXT.TESTIMONIAL_1_AUTHOR },
   { text: TEXT.TESTIMONIAL_2_TEXT, author: TEXT.TESTIMONIAL_2_AUTHOR },
-  { text: TEXT.TESTIMONIAL_3_TEXT, author: TEXT.TESTIMONIAL_3_AUTHOR }
+  { text: TEXT.TESTIMONIAL_3_TEXT, author: TEXT.TESTIMONIAL_3_AUTHOR },
 ]);
+
+interface HowItWorksStep {
+  number: number;
+  title: string;
+  description: string;
+}
 
 // How it works
-const howItWorks = ref([
+const howItWorks = ref<HowItWorksStep[]>([
   { number: 1, title: TEXT.HOW_IT_WORKS_BROWSE_TITLE, description: TEXT.HOW_IT_WORKS_BROWSE_DESC },
   { number: 2, title: TEXT.HOW_IT_WORKS_COMPARE_TITLE, description: TEXT.HOW_IT_WORKS_COMPARE_DESC },
-  { number: 3, title: TEXT.HOW_IT_WORKS_APPLY_TITLE, description: TEXT.HOW_IT_WORKS_APPLY_DESC }
+  { number: 3, title: TEXT.HOW_IT_WORKS_APPLY_TITLE, description: TEXT.HOW_IT_WORKS_APPLY_DESC },
 ]);
 
+interface HomeFaq {
+  question: string;
+  answer: string;
+}
+
 // FAQ
-const homeFaqs = ref([
+const homeFaqs = ref<HomeFaq[]>([
   {
     question: TEXT.FAQ_CREDIT_SCORE_Q,
-    answer: TEXT.FAQ_CREDIT_SCORE_A
+    answer: TEXT.FAQ_CREDIT_SCORE_A,
   },
   {
     question: TEXT.FAQ_RECOMMENDATIONS_Q,
-    answer: TEXT.FAQ_RECOMMENDATIONS_A
+    answer: TEXT.FAQ_RECOMMENDATIONS_A,
   },
   {
     question: TEXT.FAQ_APPLY_DIRECTLY_Q,
-    answer: TEXT.FAQ_APPLY_DIRECTLY_A
-  }
+    answer: TEXT.FAQ_APPLY_DIRECTLY_A,
+  },
 ]);
 
+interface FilterPill {
+  label: string;
+  value: string;
+}
+
 // Filter pills for hero search
-const filterPills = ref([
+const filterPills = ref<FilterPill[]>([
   { label: TEXT.FILTER_0_APR, value: TEXT.FILTER_0_APR },
   { label: TEXT.FILTER_CASHBACK, value: 'cashback' },
   { label: TEXT.FILTER_TRAVEL, value: 'travel' },
-  { label: TEXT.FILTER_PERSONAL_LOANS, value: 'personal loan' }
+  { label: TEXT.FILTER_PERSONAL_LOANS, value: 'personal loan' },
 ]);
 
 // Component refs for reveal animations
-const statsRef = ref(null);
-const categoriesRef = ref(null);
-const benefitsRef = ref(null);
-const productsRef = ref(null);
-const partnersRef = ref(null);
-const testimonialsRef = ref(null);
-const howItWorksRef = ref(null);
-const faqRef = ref(null);
-const ctaRef = ref(null);
+const statsRef = ref<ComponentPublicInstance | null>(null);
+const categoriesRef = ref<ComponentPublicInstance | null>(null);
+const benefitsRef = ref<ComponentPublicInstance | null>(null);
+const productsRef = ref<ComponentPublicInstance | null>(null);
+const partnersRef = ref<ComponentPublicInstance | null>(null);
+const testimonialsRef = ref<ComponentPublicInstance | null>(null);
+const howItWorksRef = ref<ComponentPublicInstance | null>(null);
+const faqRef = ref<ComponentPublicInstance | null>(null);
+const ctaRef = ref<ComponentPublicInstance | null>(null);
 
 // Reveal animations
 const { visible: statsVisible, init: initStats } = useReveal(0.4);
@@ -182,10 +217,10 @@ const { visible: ctaVisible, init: initCta } = useReveal(0.18);
 useSEO({
   title: TEXT.HOME,
   description: TEXT.SEO_HOME_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS
+  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS,
 });
 
-const handleFilterClick = (filter) => {
+const handleFilterClick = (filter: string): void => {
   router.push({ path: '/products', query: { q: filter } });
 };
 

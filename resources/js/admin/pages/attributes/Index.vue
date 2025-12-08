@@ -117,7 +117,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAttributesStore } from '../../stores';
@@ -125,6 +125,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Attribute } from '../../types/index';
 
 const route = useRoute();
 const attributesStore = useAttributesStore();
@@ -143,23 +144,23 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(attributesStore, {
+} = useIndexPage<Attribute>(attributesStore, {
   defaultSort: 'id',
   defaultDir: 'desc',
 });
 
-const formatDataType = (dataType) => {
-  const typeMap = {
-    'text': 'Text',
-    'number': 'Number',
-    'percentage': 'Percentage',
-    'boolean': 'Boolean',
-    'json': 'JSON'
+const formatDataType = (dataType: string): string => {
+  const typeMap: Record<string, string> = {
+    text: 'Text',
+    number: 'Number',
+    percentage: 'Percentage',
+    boolean: 'Boolean',
+    json: 'JSON',
   };
   return typeMap[dataType] || dataType;
 };
 
-const handleDelete = async (attribute) => {
+const handleDelete = async (attribute: Attribute): Promise<void> => {
   if (!confirm(`Delete attribute "${attribute.name}"?`)) return;
 
   try {
@@ -167,14 +168,14 @@ const handleDelete = async (attribute) => {
     if (attributes.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting attribute:', error);
     alert('Failed to delete attribute');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

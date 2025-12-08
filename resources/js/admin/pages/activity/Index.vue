@@ -104,7 +104,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useActivityStore } from '../../stores';
@@ -112,6 +112,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { ActivityLog } from '../../types/index';
 
 const route = useRoute();
 const activityStore = useActivityStore();
@@ -130,14 +131,14 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(activityStore, {
+} = useIndexPage<ActivityLog>(activityStore, {
   extraFilters: {
     log_name: '',
   },
 });
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

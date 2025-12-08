@@ -78,7 +78,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
@@ -94,47 +94,58 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
-const pageId = route.params.id;
+const pageId = route.params.id as string;
 
 const cmsPagesStore = useCmsPagesStore();
 const page = computed(() => cmsPagesStore.currentItem);
 
-const form = reactive({
+interface FormData {
+  title: string;
+  slug: string;
+  content: string;
+  status: 'draft' | 'published';
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+}
+
+const form = reactive<FormData>({
   title: '',
   slug: '',
   content: '',
   status: 'draft',
   seo_title: '',
   seo_description: '',
-  seo_keywords: ''
+  seo_keywords: '',
 });
 
 const statusOptions = [
   { id: 'draft', name: 'Draft' },
-  { id: 'published', name: 'Published' }
+  { id: 'published', name: 'Published' },
 ];
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 const loading = computed(() => cmsPagesStore.loading);
 
-const loadPage = async () => {
+const loadPage = async (): Promise<void> => {
   try {
     await cmsPagesStore.fetchItem(pageId);
     if (page.value) {
       form.title = page.value.title || '';
       form.slug = page.value.slug || '';
       form.content = page.value.content || '';
-      form.status = page.value.status || 'draft';
+      form.status = (page.value.status as 'draft' | 'published') || 'draft';
       form.seo_title = page.value.seo_title || '';
       form.seo_description = page.value.seo_description || '';
       form.seo_keywords = page.value.seo_keywords || '';
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading CMS page:', error);
     if (error.response?.status === 404) {
       errorMessage.value = 'CMS page not found';
@@ -144,7 +155,7 @@ const loadPage = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -155,7 +166,7 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/admin/cms-pages');
     }, 1500);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {

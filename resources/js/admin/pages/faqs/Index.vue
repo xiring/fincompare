@@ -106,7 +106,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFaqsStore } from '../../stores';
@@ -114,6 +114,7 @@ import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import type { Faq } from '../../types/index';
 
 const route = useRoute();
 const faqsStore = useFaqsStore();
@@ -132,9 +133,9 @@ const {
   resetFilters,
   sortBy,
   loadPage,
-} = useIndexPage(faqsStore);
+} = useIndexPage<Faq>(faqsStore);
 
-const handleDelete = async (faq) => {
+const handleDelete = async (faq: Faq): Promise<void> => {
   if (!confirm(`Delete FAQ "${faq.question}"?`)) return;
 
   try {
@@ -142,14 +143,14 @@ const handleDelete = async (faq) => {
     if (faqs.value.length === 0 && pagination.value.current_page > 1) {
       fetchItems(pagination.value.current_page - 1);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting FAQ:', error);
     alert('Failed to delete FAQ');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
+  const page = parseInt((route.query.page as string) || '1') || 1;
   fetchItems(page);
 });
 </script>

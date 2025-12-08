@@ -182,7 +182,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
@@ -192,43 +192,51 @@ import { SearchIcon } from '../../components/icons';
 import { ErrorState, EmptyState, ProductSkeleton } from '../../components';
 import GuestLayout from '../../layouts/GuestLayout.vue';
 import ProductCard from '../../components/ProductCard.vue';
+import type { Product, ProductCategory, Partner } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 
-const products = ref([]);
-const categories = ref([]);
-const partners = ref([]);
-const loading = ref(false);
+const products = ref<Product[]>([]);
+const categories = ref<ProductCategory[]>([]);
+const partners = ref<Partner[]>([]);
+const loading = ref<boolean>(false);
 const { error, handleError, clearError } = useErrorHandling();
-const hasNext = ref(false);
-const nextPageUrl = ref(null);
-const showProgressBar = ref(false);
-const progress = ref(0);
-const sentinelRef = ref(null);
-const categoryName = ref(TEXT.LABEL_ALL_PRODUCTS);
-const totalProducts = ref(0);
-const sortBy = ref('newest');
+const hasNext = ref<boolean>(false);
+const nextPageUrl = ref<string | null>(null);
+const showProgressBar = ref<boolean>(false);
+const progress = ref<number>(0);
+const sentinelRef = ref<HTMLElement | null>(null);
+const categoryName = ref<string>(TEXT.LABEL_ALL_PRODUCTS);
+const totalProducts = ref<number>(0);
+const sortBy = ref<'newest' | 'oldest' | 'name_asc' | 'name_desc'>('newest');
 
-const filters = ref({
-  q: route.query.q || '',
-  category: route.query.category || '',
-  partner_id: route.query.partner_id || '',
-  featured: route.query.featured === '1' || route.query.featured === 'true'
+interface Filters {
+  q: string;
+  category: string;
+  partner_id: string;
+  featured: boolean;
+}
+
+const filters = ref<Filters>({
+  q: (route.query.q as string) || '',
+  category: (route.query.category as string) || '',
+  partner_id: (route.query.partner_id as string) || '',
+  featured: route.query.featured === '1' || route.query.featured === 'true',
 });
 
 useSEO({
   title: TEXT.PRODUCTS,
   description: 'Browse and compare financial products including loans, credit cards, and more. Filter by category, partner, and features to find the best options.',
-  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS
+  keywords: TEXT.SEO_KEYWORDS_FINANCIAL_PRODUCTS,
 });
 
-const isActiveCategory = (slug) => {
+const isActiveCategory = (slug: string): boolean => {
   return filters.value.category === slug;
 };
 
-const getQueryParams = () => {
-  const params = {};
+const getQueryParams = (): Record<string, string> => {
+  const params: Record<string, string> = {};
   if (filters.value.q) params.q = filters.value.q;
   if (filters.value.category) params.category = filters.value.category;
   if (filters.value.partner_id) params.partner_id = filters.value.partner_id;
@@ -236,7 +244,7 @@ const getQueryParams = () => {
   return params;
 };
 
-const fetchProducts = async (url = null) => {
+const fetchProducts = async (url: string | null = null): Promise<void> => {
   if (loading.value) return;
 
   loading.value = true;
@@ -244,7 +252,7 @@ const fetchProducts = async (url = null) => {
   progress.value = 10;
 
   try {
-    let response;
+    let response: any;
     if (url) {
       // For pagination, use the full URL (Laravel pagination URLs are absolute)
       response = await apiClient.get(url);
@@ -257,7 +265,7 @@ const fetchProducts = async (url = null) => {
     progress.value = 60;
 
     if (url) {
-      products.value.push(...response.data.products.data);
+      products.value.push(...(response.data.products.data || []));
     } else {
       products.value = response.data.products.data || [];
       categories.value = response.data.categories || [];
@@ -272,7 +280,7 @@ const fetchProducts = async (url = null) => {
     hasNext.value = !!nextPageUrl.value;
     progress.value = 100;
     clearError();
-  } catch (err) {
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.PRODUCTS.LOAD_DETAIL);
     // Only set error if we don't have any products yet
     if (products.value.length === 0) {
@@ -287,11 +295,11 @@ const fetchProducts = async (url = null) => {
   }
 };
 
-const applyFilters = () => {
+const applyFilters = (): void => {
   // Clear products immediately to show loading state
   products.value = [];
 
-  const query = {};
+  const query: Record<string, string> = {};
   if (filters.value.q) query.q = filters.value.q;
   if (filters.value.category) query.category = filters.value.category;
   if (filters.value.partner_id) query.partner_id = filters.value.partner_id;
@@ -301,7 +309,7 @@ const applyFilters = () => {
   fetchProducts();
 };
 
-const resetFilters = () => {
+const resetFilters = (): void => {
   // Clear products immediately to show loading state
   products.value = [];
 
@@ -309,14 +317,14 @@ const resetFilters = () => {
     q: '',
     category: '',
     partner_id: '',
-    featured: false
+    featured: false,
   };
   sortBy.value = 'newest';
   router.replace({ query: {} });
   fetchProducts();
 };
 
-const applySorting = () => {
+const applySorting = (): void => {
   // Sort products client-side for now
   const sorted = [...products.value];
 
@@ -328,11 +336,11 @@ const applySorting = () => {
       sorted.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
       break;
     case 'oldest':
-      sorted.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+      sorted.sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
       break;
     case 'newest':
     default:
-      sorted.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      sorted.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       break;
   }
 
@@ -344,37 +352,41 @@ const debouncedSearch = debounce(() => {
   applyFilters();
 }, 500);
 
-const loadMore = () => {
+const loadMore = (): void => {
   if (nextPageUrl.value && !loading.value) {
     fetchProducts(nextPageUrl.value);
   }
 };
 
 // Watch for route query changes (e.g., when redirected from /categories/{slug})
-watch(() => route.query, (newQuery) => {
-  // Clear products immediately to show loading state
-  products.value = [];
+watch(
+  () => route.query,
+  (newQuery) => {
+    // Clear products immediately to show loading state
+    products.value = [];
 
-  filters.value = {
-    q: newQuery.q || '',
-    category: newQuery.category || '',
-    partner_id: newQuery.partner_id || '',
-    featured: newQuery.featured === '1' || newQuery.featured === 'true'
-  };
-  fetchProducts();
-}, { immediate: false });
+    filters.value = {
+      q: (newQuery.q as string) || '',
+      category: (newQuery.category as string) || '',
+      partner_id: (newQuery.partner_id as string) || '',
+      featured: newQuery.featured === '1' || newQuery.featured === 'true',
+    };
+    fetchProducts();
+  },
+  { immediate: false }
+);
 
 onMounted(() => {
   // Initialize filters from route query (handles redirects from /categories/{slug})
   if (route.query.category && !filters.value.category) {
-    filters.value.category = route.query.category;
+    filters.value.category = route.query.category as string;
   }
 
   fetchProducts();
 
   if (sentinelRef.value) {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting && hasNext.value && !loading.value) {
           loadMore();
         }
