@@ -1,21 +1,21 @@
 <template>
   <div>
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Activity Log</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">View system activity logs</p>
+      <h1 class="text-2xl font-bold text-charcoal-800">Activity Log</h1>
+      <p class="mt-1 text-sm text-charcoal-600">View system activity logs</p>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
         <input
           v-model="filters.q"
           type="text"
           placeholder="Search by description or causer"
-          class="min-w-[200px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
         <select
           v-model="filters.log_name"
-          class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         >
           <option value="">All Logs</option>
           <option value="products">Products</option>
@@ -28,7 +28,7 @@
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
-          class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 transition-colors"
+          class="px-4 py-2 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
         >
           Apply
         </button>
@@ -36,7 +36,7 @@
           v-if="hasFilters"
           type="button"
           @click="resetFilters"
-          class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          class="px-4 py-2 bg-charcoal-100 text-charcoal-700 rounded-lg font-medium text-sm hover:bg-charcoal-200 transition-colors"
         >
           Reset
         </button>
@@ -46,43 +46,43 @@
     <!-- Pagination (Above Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="min-w-full divide-y divide-charcoal-200">
+          <thead class="bg-charcoal-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Time</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Log Name</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Description</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Causer</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Subject</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Time</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Log Name</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Description</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Causer</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Subject</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-white">
             <tr v-if="loading" v-for="i in 5" :key="i" class="animate-pulse">
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div></td>
-              <td class="px-6 py-4"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="activities.length === 0" class="text-center">
-              <td colspan="5" class="px-6 py-12 text-gray-500 dark:text-gray-400">No activity logs found</td>
+              <td colspan="5" class="px-6 py-12 text-charcoal-500">No activity logs found</td>
             </tr>
-            <tr v-else v-for="activity in activities" :key="activity.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+            <tr v-else v-for="activity in activities" :key="activity.id" class="hover:bg-charcoal-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 {{ new Date(activity.created_at).toLocaleString() }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                   {{ activity.log_name }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ activity.description }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+              <td class="px-6 py-4 text-sm text-charcoal-800">{{ activity.description }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 {{ activity.causer?.name || '-' }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 {{ activity.subject_type ? `${activity.subject_type} #${activity.subject_id}` : '-' }}
               </td>
             </tr>

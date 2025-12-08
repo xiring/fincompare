@@ -103,8 +103,8 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function byCategory(ProductCategory $product_category, GetAttributesByCategoryAction $byCategory)
+    public function byCategory(int $id, GetAttributesByCategoryAction $byCategory)
     {
-        return response()->json($byCategory->execute($product_category->id));
+        return response()->json($byCategory->execute($id));
     }
 }

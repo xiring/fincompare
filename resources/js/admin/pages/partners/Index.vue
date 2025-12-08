@@ -3,12 +3,12 @@
     <!-- Header -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Partners</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Manage partners</p>
+        <h1 class="text-2xl font-bold text-charcoal-800">Partners</h1>
+        <p class="mt-1 text-sm text-charcoal-600">Manage partners</p>
       </div>
       <router-link
         to="/admin/partners/create"
-        class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 transition-colors"
+        class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
       >
         <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -18,18 +18,18 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
         <input
           v-model="filters.q"
           type="text"
           placeholder="Search by name"
-          class="min-w-[200px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
-          class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 transition-colors"
+          class="px-4 py-2 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
         >
           Apply
         </button>
@@ -37,7 +37,7 @@
           v-if="hasFilters"
           type="button"
           @click="resetFilters"
-          class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          class="px-4 py-2 bg-charcoal-100 text-charcoal-700 rounded-lg font-medium text-sm hover:bg-charcoal-200 transition-colors"
         >
           Reset
         </button>
@@ -48,63 +48,63 @@
     <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
     <!-- Partners Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="min-w-full divide-y divide-charcoal-200">
+          <thead class="bg-charcoal-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Logo</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                <button @click="sortBy('name')" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Logo</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
+                <button @click="sortBy('name')" class="hover:text-primary-500">
                   Name
                   <svg v-if="sortField === 'name'" class="inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                   </svg>
                 </button>
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Website</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                <button @click="sortBy('status')" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Website</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
+                <button @click="sortBy('status')" class="hover:text-primary-500">
                   Status
                   <svg v-if="sortField === 'status'" class="inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                   </svg>
                 </button>
               </th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-charcoal-600">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-white">
             <tr v-if="loading" v-for="i in 5" :key="`skeleton-${i}`" class="animate-pulse">
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap"><div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div></td>
-              <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 ml-auto"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-12 w-12 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-6 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="partners.length === 0" class="text-center">
-              <td colspan="6" class="px-6 py-12 text-gray-500 dark:text-gray-400">No partners found</td>
+              <td colspan="6" class="px-6 py-12 text-charcoal-500">No partners found</td>
             </tr>
-            <tr v-else v-for="partner in partners" :key="partner.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <tr v-else v-for="partner in partners" :key="partner.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <img
                   v-if="partner.logo_path"
                   :src="`/storage/${partner.logo_path}`"
                   :alt="partner.name"
-                  class="h-12 w-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                  class="h-12 w-12 object-cover rounded-lg border border-charcoal-200"
                 />
-                <div v-else class="h-12 w-12 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                  <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div v-else class="h-12 w-12 rounded-lg border border-charcoal-200">
+                  <svg class="h-6 w-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ partner.name }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{{ partner.contact_email || '-' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                <a v-if="partner.website_url" :href="partner.website_url" target="_blank" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ partner.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ partner.contact_email || '-' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
+                <a v-if="partner.website_url" :href="partner.website_url" target="_blank" class="text-primary-500 hover:text-primary-600">
                   {{ partner.website_url }}
                 </a>
                 <span v-else>-</span>
@@ -113,8 +113,8 @@
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="partner.status === 'active'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'"
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-charcoal-100 text-charcoal-800'"
                 >
                   {{ partner.status }}
                 </span>
@@ -124,7 +124,7 @@
                   <router-link
                     :to="`/admin/partners/${partner.id}/edit`"
                     title="Edit"
-                    class="inline-flex items-center justify-center p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:text-primary-400 rounded-lg transition-colors"
+                    class="inline-flex items-center justify-center p-2 text-primary-500 hover:text-primary-900 hover:bg-primary-50"
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -133,7 +133,7 @@
                   <button
                     @click="handleDelete(partner)"
                     title="Delete"
-                    class="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 rounded-lg transition-colors"
+                    class="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50"
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

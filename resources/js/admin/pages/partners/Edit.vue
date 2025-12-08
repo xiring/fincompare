@@ -62,10 +62,10 @@
 
           <div class="space-y-6">
             <div v-if="partner.logo_path && !form.logo" class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-charcoal-700">
                 Current Logo
               </label>
-              <img :src="`/storage/${partner.logo_path}`" alt="Current logo" class="h-32 w-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+              <img :src="`/storage/${partner.logo_path}`" alt="Current logo" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
             </div>
             <FormFileInput
               id="logo"

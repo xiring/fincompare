@@ -43,8 +43,8 @@ defineEmits(['click']);
 
 const variantClasses = computed(() => {
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700',
-    secondary: 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600',
+    primary: 'bg-primary-500 text-white hover:bg-primary-600',
+    secondary: 'bg-white',
     danger: 'bg-red-600 text-white hover:bg-red-700',
     success: 'bg-green-600 text-white hover:bg-green-700'
   };

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-50">
     <!-- Sidebar -->
     <aside
       :class="[
@@ -7,21 +7,21 @@
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         'lg:translate-x-0'
       ]"
-      class="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+      class="bg-charcoal-800 border-r border-charcoal-700"
     >
       <!-- Logo -->
-      <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between h-16 px-6 border-b border-charcoal-700">
         <div class="flex items-center">
-          <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div class="h-8 w-8 bg-primary-500 rounded-lg flex items-center justify-center">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <span class="ml-3 text-xl font-bold text-gray-900 dark:text-white">FinCompare</span>
+          <span class="ml-3 text-xl font-bold text-white">FinCompare</span>
         </div>
         <button
           @click="sidebarOpen = false"
-          class="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          class="lg:hidden text-charcoal-300 hover:text-white"
         >
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -36,8 +36,8 @@
           to="/admin"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
           :class="isActive('/admin') && route.path === '/admin'
-            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+            ? 'bg-primary-500/20 text-primary-300'
+            : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
         >
           <component :is="DashboardIcon" class="h-5 w-5 mr-3" />
           <span>Dashboard</span>
@@ -48,8 +48,8 @@
           to="/admin/partners"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
           :class="isActive('/admin/partners')
-            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+            ? 'bg-primary-500/20 text-primary-300'
+            : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
         >
           <component :is="PartnersIcon" class="h-5 w-5 mr-3" />
           <span>Partners</span>
@@ -61,8 +61,8 @@
             @click="catalogOpen = !catalogOpen"
             class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
             :class="isCatalogActive()
-              ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-              : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+              ? 'bg-primary-500/20 text-primary-300'
+              : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           >
             <div class="flex items-center">
               <component :is="CatalogIcon" class="h-5 w-5 mr-3" />
@@ -78,13 +78,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="catalogOpen" class="ml-8 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+          <div v-show="catalogOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/forms"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/forms')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Forms
             </router-link>
@@ -92,8 +92,8 @@
               to="/admin/product-categories"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/product-categories')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Categories
             </router-link>
@@ -101,8 +101,8 @@
               to="/admin/products"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/products')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Products
             </router-link>
@@ -110,8 +110,8 @@
               to="/admin/attributes"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/attributes')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Attributes
             </router-link>
@@ -123,8 +123,8 @@
           to="/admin/leads"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
           :class="isActive('/admin/leads')
-            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+            ? 'bg-primary-500/20 text-primary-300'
+            : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
         >
           <component :is="LeadsIcon" class="h-5 w-5 mr-3" />
           <span>Leads</span>
@@ -135,8 +135,8 @@
           to="/admin/activity"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
           :class="isActive('/admin/activity')
-            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+            ? 'bg-primary-500/20 text-primary-300'
+            : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
         >
           <component :is="ActivityIcon" class="h-5 w-5 mr-3" />
           <span>Activity</span>
@@ -148,8 +148,8 @@
             @click="accessOpen = !accessOpen"
             class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
             :class="isAccessActive()
-              ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-              : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+              ? 'bg-primary-500/20 text-primary-300'
+              : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           >
             <div class="flex items-center">
               <component :is="AccessIcon" class="h-5 w-5 mr-3" />
@@ -165,13 +165,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="accessOpen" class="ml-8 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+          <div v-show="accessOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/users"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/users')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Users
             </router-link>
@@ -179,8 +179,8 @@
               to="/admin/roles"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/roles')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Roles
             </router-link>
@@ -188,8 +188,8 @@
               to="/admin/permissions"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/permissions')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Permissions
             </router-link>
@@ -202,8 +202,8 @@
             @click="contentOpen = !contentOpen"
             class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
             :class="isContentActive()
-              ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-              : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+              ? 'bg-primary-500/20 text-primary-300'
+              : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           >
             <div class="flex items-center">
               <component :is="ContentIcon" class="h-5 w-5 mr-3" />
@@ -219,13 +219,13 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="contentOpen" class="ml-8 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+          <div v-show="contentOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/blogs"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/blogs')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               Blogs
             </router-link>
@@ -233,8 +233,8 @@
               to="/admin/cms-pages"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/cms-pages')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               CMS Pages
             </router-link>
@@ -242,8 +242,8 @@
               to="/admin/faqs"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/faqs')
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400 font-medium'
-                : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'"
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
               FAQs
             </router-link>
@@ -255,8 +255,8 @@
           to="/admin/settings"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
           :class="isActive('/admin/settings')
-            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'"
+            ? 'bg-primary-500/20 text-primary-300'
+            : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
         >
           <component :is="SettingsIcon" class="h-5 w-5 mr-3" />
           <span>Settings</span>
@@ -268,17 +268,17 @@
     <div
       v-if="sidebarOpen"
       @click="sidebarOpen = false"
-      class="fixed inset-0 z-30 bg-gray-900 bg-opacity-50 lg:hidden"
+      class="fixed inset-0 z-30 bg-charcoal-900 bg-opacity-50 lg:hidden"
     ></div>
 
     <!-- Main Content -->
     <div class="lg:pl-64">
       <!-- Header -->
-      <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <header class="sticky top-0 z-30 bg-white border-b border-charcoal-200">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           <button
             @click="sidebarOpen = true"
-            class="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            class="lg:hidden text-charcoal-500 hover:text-charcoal-700"
           >
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -287,7 +287,7 @@
 
           <div class="flex-1 flex items-center justify-end gap-4">
             <!-- Notifications -->
-            <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 relative">
+            <button class="p-2 text-charcoal-500 hover:text-charcoal-700 relative">
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
@@ -298,16 +298,16 @@
             <div class="relative" ref="userMenuRef">
               <button
                 @click="userMenuOpen = !userMenuOpen"
-                class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
               >
-                <div class="h-8 w-8 bg-primary-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                <div class="h-8 w-8 bg-primary-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                   {{ userInitials }}
                 </div>
                 <div class="hidden md:block text-left">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ userName }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ userEmail }}</div>
+                  <div class="text-sm font-medium text-charcoal-900">{{ userName }}</div>
+                  <div class="text-xs text-charcoal-500">{{ userEmail }}</div>
                 </div>
-                <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-5 w-5 text-charcoal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -315,18 +315,18 @@
               <!-- Dropdown Menu -->
               <div
                 v-if="userMenuOpen"
-                class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-charcoal-200 py-1 z-50"
               >
                 <router-link
                   to="/admin/profile"
-                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="block px-4 py-2 text-sm text-charcoal-700 hover:bg-gray-100"
                   @click="userMenuOpen = false"
                 >
                   Profile
                 </router-link>
                 <button
                   @click="handleLogout"
-                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="block w-full text-left px-4 py-2 text-sm text-charcoal-700 hover:bg-gray-100"
                 >
                   Sign out
                 </button>

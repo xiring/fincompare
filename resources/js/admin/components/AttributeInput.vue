@@ -6,7 +6,7 @@
       @input="$emit('update:modelValue', $event.target.value)"
       type="text"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white"
+      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
     />
     <input
       v-else-if="attr.data_type === 'number' || attr.data_type === 'percentage'"
@@ -15,7 +15,7 @@
       type="number"
       step="any"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white"
+      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
     />
     <div v-else-if="attr.data_type === 'boolean'" class="mt-2">
       <label class="flex items-center gap-3">
@@ -23,9 +23,9 @@
           :checked="modelValue === '1' || modelValue === true || modelValue === 1"
           @change="$emit('update:modelValue', $event.target.checked ? '1' : '0')"
           type="checkbox"
-          class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-gray-800 dark:border-gray-600"
+          class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
         />
-        <span class="text-sm text-gray-700 dark:text-gray-300">Yes</span>
+        <span class="text-sm text-charcoal-700">Yes</span>
       </label>
     </div>
     <select
@@ -33,7 +33,7 @@
       :value="modelValue"
       @change="$emit('update:modelValue', $event.target.value)"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white"
+      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
     >
       <option value="">-- Select Partner --</option>
       <option v-for="partner in partners" :key="partner.id" :value="partner.id">
@@ -46,7 +46,7 @@
       @input="handleJsonInput"
       rows="3"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-white font-mono"
+      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
       placeholder='{"key": "value"}'
     ></textarea>
   </div>

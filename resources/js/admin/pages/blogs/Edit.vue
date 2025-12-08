@@ -46,10 +46,10 @@
 
           <div class="space-y-6">
             <div v-if="blog.featured_image && !form.featured_image" class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-charcoal-700">
                 Current Image
               </label>
-              <img :src="`/storage/${blog.featured_image}`" alt="Current image" class="h-32 w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+              <img :src="`/storage/${blog.featured_image}`" alt="Current image" class="h-32 w-full object-cover rounded-lg border border-charcoal-200" />
             </div>
             <FormFileInput
               id="featured_image"

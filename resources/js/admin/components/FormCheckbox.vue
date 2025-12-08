@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-if="label" :for="id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+    <label v-if="label" :for="id" class="block text-sm font-medium text-charcoal-700">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -10,8 +10,8 @@
         :key="getOptionValue(option)"
         :class="[
           'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
-          'hover:bg-gray-50 dark:hover:bg-gray-700',
-          error ? 'border-red-300 dark:border-red-600' : 'border-gray-200 dark:border-gray-600'
+          'hover:bg-gray-50',
+          error ? 'border-red-300' : 'border-charcoal-200'
         ]"
       >
         <input
@@ -20,15 +20,15 @@
           :value="getOptionValue(option)"
           :checked="isChecked(option)"
           :disabled="disabled"
-          class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-gray-800 dark:border-gray-600"
+          class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
           @change="handleChange(option, $event)"
         />
-        <span class="text-sm text-gray-700 dark:text-gray-300">{{ getOptionLabel(option) }}</span>
+        <span class="text-sm text-charcoal-700">{{ getOptionLabel(option) }}</span>
       </label>
-      <p v-if="options.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No options available</p>
+      <p v-if="options.length === 0" class="text-sm text-charcoal-500">No options available</p>
     </div>
-    <p v-if="error" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-    <p v-if="hint && !error" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ hint }}</p>
+    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+    <p v-if="hint && !error" class="mt-1 text-xs text-charcoal-500">{{ hint }}</p>
   </div>
 </template>
 

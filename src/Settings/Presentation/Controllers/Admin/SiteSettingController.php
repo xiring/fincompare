@@ -2,6 +2,7 @@
 
 namespace Src\Settings\Presentation\Controllers\Admin;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Src\Settings\Application\Actions\UpdateSiteSettingAction;
@@ -17,14 +18,18 @@ class SiteSettingController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(SiteSettingRepositoryInterface $repository)
+    public function edit(SiteSettingRepositoryInterface $repository): JsonResponse
     {
         $settings = $repository->get();
+
+        return response()->json([
+            'data' => $settings->toArray()
+        ]);
     }
 
-    public function update(UpdateSiteSettingRequest $request, UpdateSiteSettingAction $action): RedirectResponse
+    public function update(UpdateSiteSettingRequest $request, UpdateSiteSettingAction $action): JsonResponse|RedirectResponse
     {
         $data = collect($request->validated())->except(['logo', 'favicon'])->toArray();
 
@@ -37,7 +42,14 @@ class SiteSettingController extends Controller
         }
 
         $dto = SiteSettingDTO::fromArray($data);
-        $action->execute($dto);
+        $updatedSettings = $action->execute($dto);
+
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json([
+                'data' => $updatedSettings->toArray(),
+                'message' => 'Settings updated successfully'
+            ]);
+        }
 
         return back()->with('status', 'settings-updated');
     }

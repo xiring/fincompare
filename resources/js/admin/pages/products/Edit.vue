@@ -2,8 +2,8 @@
   <div>
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Product</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Update product information</p>
+      <h1 class="text-2xl font-bold text-charcoal-800">Edit Product</h1>
+      <p class="mt-1 text-sm text-charcoal-600">Update product information</p>
     </div>
 
     <!-- Loading State -->
@@ -16,18 +16,18 @@
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
     <!-- Form -->
-    <div v-if="productsStore.currentItem" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <FormCard v-if="productsStore.currentItem">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left Column: Basic Product Information -->
           <div class="space-y-6">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product Information</h3>
+              <h3 class="text-lg font-semibold text-charcoal-800">Product Information</h3>
             </div>
 
             <!-- Name -->
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="name" class="block text-sm font-medium text-charcoal-700">
                 Name <span class="text-red-500">*</span>
               </label>
               <input
@@ -35,49 +35,49 @@
                 v-model="form.name"
                 type="text"
                 required
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.name }"
+                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                :class="{ 'border-red-300': errors.name }"
               />
-              <p v-if="errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.name }}</p>
+              <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
             </div>
 
             <!-- Slug -->
             <div>
-              <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="slug" class="block text-sm font-medium text-charcoal-700">
                 Slug (optional)
               </label>
               <input
                 id="slug"
                 v-model="form.slug"
                 type="text"
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.slug }"
+                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                :class="{ 'border-red-300': errors.slug }"
               />
-              <p v-if="errors.slug" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.slug }}</p>
+              <p v-if="errors.slug" class="mt-1 text-sm text-red-600">{{ errors.slug }}</p>
             </div>
 
             <!-- Partner & Category -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="partner_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="partner_id" class="block text-sm font-medium text-charcoal-700">
                   Partner <span class="text-red-500">*</span>
                 </label>
                 <select
                   id="partner_id"
                   v-model="form.partner_id"
                   required
-                  class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  :class="{ 'border-red-300 dark:border-red-600': errors.partner_id }"
+                  class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                  :class="{ 'border-red-300': errors.partner_id }"
                 >
                   <option value="">-- Select Partner --</option>
                   <option v-for="partner in partners" :key="partner.id" :value="partner.id">
                     {{ partner.name }}
                   </option>
                 </select>
-                <p v-if="errors.partner_id" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.partner_id }}</p>
+                <p v-if="errors.partner_id" class="mt-1 text-sm text-red-600">{{ errors.partner_id }}</p>
               </div>
               <div>
-                <label for="product_category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label for="product_category_id" class="block text-sm font-medium text-charcoal-700">
                   Category <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -85,53 +85,53 @@
                   v-model="form.product_category_id"
                   required
                   @change="loadAttributes"
-                  class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                  :class="{ 'border-red-300 dark:border-red-600': errors.product_category_id }"
+                  class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                  :class="{ 'border-red-300': errors.product_category_id }"
                 >
                   <option value="">-- Select Category --</option>
                   <option v-for="category in categories" :key="category.id" :value="category.id">
                     {{ category.name }}
                   </option>
                 </select>
-                <p v-if="errors.product_category_id" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.product_category_id }}</p>
+                <p v-if="errors.product_category_id" class="mt-1 text-sm text-red-600">{{ errors.product_category_id }}</p>
               </div>
             </div>
 
             <!-- Description -->
             <div>
-              <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="description" class="block text-sm font-medium text-charcoal-700">
                 Description
               </label>
               <textarea
                 id="description"
                 v-model="form.description"
                 rows="4"
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
               ></textarea>
             </div>
 
             <!-- Image -->
             <div>
-              <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="image" class="block text-sm font-medium text-charcoal-700">
                 Product Image
               </label>
               <div v-if="product.image && !imagePreview" class="mt-2 mb-2">
-                <img :src="`/storage/${product.image}`" alt="Current image" class="h-32 w-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Current image</p>
+                <img :src="`/storage/${product.image}`" alt="Current image" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
+                <p class="mt-1 text-xs text-charcoal-500">Current image</p>
               </div>
               <input
                 id="image"
                 type="file"
                 accept="image/*"
                 @change="handleImageChange"
-                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400"
+                class="block w-full text-sm text-charcoal-500"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image.</p>
+              <p class="mt-1 text-xs text-charcoal-500">JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image.</p>
               <div v-if="imagePreview" class="mt-2">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">New image preview:</p>
-                <img :src="imagePreview" alt="Preview" class="h-32 w-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+                <p class="text-xs text-charcoal-500">New image preview:</p>
+                <img :src="imagePreview" alt="Preview" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
               </div>
-              <p v-if="errors.image" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.image }}</p>
+              <p v-if="errors.image" class="mt-1 text-sm text-red-600">{{ errors.image }}</p>
             </div>
 
             <!-- Featured -->
@@ -140,53 +140,53 @@
                 id="is_featured"
                 v-model="form.is_featured"
                 type="checkbox"
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
               />
-              <label for="is_featured" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label for="is_featured" class="block text-sm font-medium text-charcoal-700">
                 Featured
               </label>
             </div>
 
             <!-- Status -->
             <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label for="status" class="block text-sm font-medium text-charcoal-700">
                 Status <span class="text-red-500">*</span>
               </label>
               <select
                 id="status"
                 v-model="form.status"
                 required
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.status }"
+                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                :class="{ 'border-red-300': errors.status }"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
-              <p v-if="errors.status" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.status }}</p>
+              <p v-if="errors.status" class="mt-1 text-sm text-red-600">{{ errors.status }}</p>
             </div>
           </div>
 
           <!-- Right Column: Product Attributes -->
           <div class="space-y-6">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product Attributes</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Add attribute values for this product</p>
+              <h3 class="text-lg font-semibold text-charcoal-800">Product Attributes</h3>
+              <p class="text-sm text-charcoal-600">Add attribute values for this product</p>
             </div>
 
             <LoadingSpinner v-if="loadingAttributes" text="Loading attributes..." />
-            <div v-else-if="attributes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">
+            <div v-else-if="attributes.length === 0" class="text-sm text-charcoal-500">
               Select a category to see available attributes
             </div>
             <div v-else class="space-y-4">
               <div
                 v-for="attr in attributes"
                 :key="attr.id"
-                class="bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-4"
+                class="bg-charcoal-50"
               >
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label class="block text-sm font-medium text-charcoal-700">
                   {{ attr.name }}
                   <span v-if="attr.is_required" class="text-red-500">*</span>
-                  <span v-if="attr.unit" class="text-gray-500 dark:text-gray-400 text-xs">({{ attr.unit }})</span>
+                  <span v-if="attr.unit" class="text-charcoal-500">({{ attr.unit }})</span>
                 </label>
                 <AttributeInput
                   :attr="attr"
@@ -200,24 +200,24 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3 pt-4 border-t border-charcoal-200">
           <router-link
             to="/admin/products"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            class="inline-flex items-center justify-center px-4 py-2.5 bg-white"
           >
             Cancel
           </router-link>
           <button
             type="submit"
             :disabled="loading"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
             <span>{{ loading ? 'Updating...' : 'Update Product' }}</span>
           </button>
         </div>
       </form>
-    </div>
+    </FormCard>
   </div>
 </template>
 
@@ -233,6 +233,7 @@ import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
+import FormCard from '../../components/FormCard.vue';
 
 const route = useRoute();
 const router = useRouter();

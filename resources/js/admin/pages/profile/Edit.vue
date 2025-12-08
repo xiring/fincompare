@@ -9,8 +9,8 @@
     <div v-if="user" class="space-y-6">
       <!-- Profile Information -->
       <FormCard>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Profile Information</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Update your account's profile information and email address.</p>
+        <h2 class="text-lg font-semibold text-charcoal-800">Profile Information</h2>
+        <p class="text-sm text-charcoal-600">Update your account's profile information and email address.</p>
 
         <form @submit.prevent="handleProfileUpdate" class="space-y-6">
           <FormInput
@@ -42,8 +42,8 @@
 
       <!-- Update Password -->
       <FormCard>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Update Password</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Ensure your account is using a long, random password to stay secure.</p>
+        <h2 class="text-lg font-semibold text-charcoal-800">Update Password</h2>
+        <p class="text-sm text-charcoal-600">Ensure your account is using a long, random password to stay secure.</p>
 
         <form @submit.prevent="handlePasswordUpdate" class="space-y-6">
           <FormInput

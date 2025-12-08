@@ -51,8 +51,10 @@ Route::middleware(['auth', 'throttle:120,1', 'role:admin|editor|viewer'])->prefi
     Route::patch('settings', [SiteSettingController::class, 'update'])->name('settings.update');
     Route::resource('partners', PartnerController::class);
     Route::resource('product-categories', ProductCategoryController::class);
+    // Define by-category route BEFORE resource route to avoid route conflict
+    // Use {id} instead of {product_category} to avoid slug-based route model binding
+    Route::get('attributes/by-category/{id}', [AttributeController::class, 'byCategory'])->name('attributes.by-category');
     Route::resource('attributes', AttributeController::class)->except(['show']);
-    Route::get('attributes/by-category/{product_category}', [AttributeController::class, 'byCategory'])->name('attributes.by-category');
     Route::get('products/import', [ProductImportController::class, 'create'])->name('products.import');
     Route::post('products/import', [ProductImportController::class, 'store'])->name('products.import.store');
     Route::resource('products', AdminProductController::class);

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="message" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+  <div v-if="message" class="bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex">
       <div class="flex-shrink-0">
         <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -11,10 +11,10 @@
         </svg>
       </div>
       <div class="ml-3">
-        <h3 v-if="title" class="text-sm font-medium text-red-800 dark:text-red-200">
+        <h3 v-if="title" class="text-sm font-medium text-red-800">
           {{ title }}
         </h3>
-        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+        <div class="mt-2 text-sm text-red-700">
           <p v-if="typeof message === 'string'">{{ message }}</p>
           <ul v-else-if="Array.isArray(message)" class="list-disc list-inside space-y-1">
             <li v-for="(msg, index) in message" :key="index">{{ msg }}</li>
