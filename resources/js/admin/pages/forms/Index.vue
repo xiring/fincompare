@@ -160,7 +160,7 @@ const filters = reactive({
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5;
+  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
 });
 
 // Update URL query parameters
@@ -213,6 +213,8 @@ const applyFilters = () => {
 const resetFilters = () => {
   filters.q = '';
   filters.per_page = 5;
+  sortField.value = 'id';
+  sortDir.value = 'desc';
   router.replace({ query: {} });
   fetchForms(1);
 };
