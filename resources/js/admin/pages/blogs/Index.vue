@@ -91,6 +91,7 @@
                   v-if="blog.featured_image"
                   :src="`/storage/${blog.featured_image}`"
                   :alt="blog.title"
+                  loading="lazy"
                   class="h-12 w-12 object-cover rounded-lg border border-charcoal-200"
                 />
                 <div v-else class="h-12 w-12 rounded-lg border border-charcoal-200">
@@ -142,126 +143,51 @@
         </table>
       </div>
     </div>
+
+    <!-- Pagination (Below Table) -->
+    <Pagination :pagination="pagination" @page-change="loadPage" />
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useBlogsStore } from '../../stores';
+import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 
-const router = useRouter();
 const route = useRoute();
 const blogsStore = useBlogsStore();
 
-// Reactive state from store
-const blogs = computed(() => blogsStore.items);
-const loading = computed(() => blogsStore.loading);
-const pagination = computed(() => blogsStore.pagination);
-
-const sortField = reactive({ value: route.query.sort || 'id' });
-const sortDir = reactive({ value: route.query.dir || 'desc' });
-
-// Initialize filters from URL query params
-const filters = reactive({
-  q: route.query.q || '',
-  status: route.query.status || '',
-  per_page: parseInt(route.query.per_page) || 5
+// Use the composable with extra filters
+const {
+  items: blogs,
+  loading,
+  pagination,
+  filters,
+  sortField,
+  sortDir,
+  hasFilters,
+  fetchItems,
+  applyFilters,
+  resetFilters,
+  sortBy,
+  loadPage,
+} = useIndexPage(blogsStore, {
+  extraFilters: {
+    status: '',
+  },
 });
-
-const hasFilters = computed(() => {
-  return filters.q || filters.status || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
-});
-
-// Update URL query parameters
-const updateQueryParams = (page = 1) => {
-  const query = {
-    ...route.query,
-    page: page > 1 ? page.toString() : undefined,
-    q: filters.q || undefined,
-    status: filters.status || undefined,
-    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
-    sort: sortField.value,
-    dir: sortDir.value
-  };
-
-  // Remove undefined values
-  Object.keys(query).forEach(key => {
-    if (query[key] === undefined) {
-      delete query[key];
-    }
-  });
-
-  router.replace({ query });
-};
-
-// Watch for per_page changes and automatically fetch
-watch(() => filters.per_page, () => {
-  updateQueryParams(1);
-  fetchBlogs(1);
-});
-
-const fetchBlogs = async (page = 1) => {
-  try {
-    const params = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      status: filters.status,
-      sort: sortField.value,
-      dir: sortDir.value
-    };
-    await blogsStore.fetchItems(params);
-  } catch (error) {
-    console.error('Error fetching blogs:', error);
-  }
-};
-
-const applyFilters = () => {
-  updateQueryParams(1);
-  fetchBlogs(1);
-};
-
-const resetFilters = () => {
-  filters.q = '';
-  filters.status = '';
-  filters.per_page = 5;
-  sortField.value = 'id';
-  sortDir.value = 'desc';
-  router.replace({ query: {} });
-  fetchBlogs(1);
-};
-
-const sortBy = (field) => {
-  if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortField.value = field;
-    sortDir.value = 'asc';
-  }
-  const currentPage = pagination.value?.current_page || 1;
-  updateQueryParams(currentPage);
-  fetchBlogs(currentPage);
-};
-
-const loadPage = (page) => {
-  updateQueryParams(page);
-  fetchBlogs(page);
-};
 
 const handleDelete = async (blog) => {
   if (!confirm(`Delete blog post "${blog.title}"?`)) return;
 
   try {
     await blogsStore.deleteItem(blog.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (blogs.value.length === 0 && pagination.value.current_page > 1) {
-      const newPage = pagination.value.current_page - 1;
-      updateQueryParams(newPage);
-      fetchBlogs(newPage);
+      fetchItems(pagination.value.current_page - 1);
     }
   } catch (error) {
     console.error('Error deleting blog:', error);
@@ -271,8 +197,6 @@ const handleDelete = async (blog) => {
 
 onMounted(() => {
   const page = parseInt(route.query.page) || 1;
-  sortField.value = route.query.sort || 'id';
-  sortDir.value = route.query.dir || 'desc';
-  fetchBlogs(page);
+  fetchItems(page);
 });
 </script>

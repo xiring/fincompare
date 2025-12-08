@@ -22,6 +22,7 @@ use Src\Auth\Presentation\Controllers\ProfileController;
 use Src\Shared\Presentation\Controllers\ActivityLogController;
 use Src\Shared\Presentation\Controllers\Api\ContentController;
 use Src\Shared\Presentation\Controllers\Api\SiteSettingsController;
+use Src\Shared\Presentation\Controllers\Admin\DashboardStatsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,7 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
 
 // Admin API routes - all admin endpoints under /api/admin
 Route::middleware(['auth', 'throttle:120,1', 'role:admin|editor|viewer'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('stats', [DashboardStatsController::class, 'index'])->name('stats.index');
     Route::get('settings', [SiteSettingController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [SiteSettingController::class, 'update'])->name('settings.update');
     Route::resource('partners', PartnerController::class);

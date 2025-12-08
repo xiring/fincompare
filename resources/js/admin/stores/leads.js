@@ -3,135 +3,32 @@
  * Manages leads state and operations
  */
 
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { adminApi } from '../services/api';
+import { createBaseStore } from './utils/baseStore';
 
-export const useLeadsStore = defineStore('leads', () => {
-  const items = ref([]);
-  const currentItem = ref(null);
-  const loading = ref(false);
-  const error = ref(null);
-  const pagination = ref({
-    current_page: 1,
-    last_page: 1,
-    per_page: 10,
-    total: 0,
-  });
-
-  const fetchItems = async (params = {}) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await adminApi.leads.index(params);
-      const data = response.data;
-      items.value = data.data || [];
-      // Handle pagination from response.data (Laravel pagination format)
-      if (data.current_page !== undefined) {
-        pagination.value = {
-          current_page: data.current_page || 1,
-          last_page: data.last_page || 1,
-          per_page: data.per_page || 10,
-          total: data.total || 0,
-          from: data.from || 0,
-          to: data.to || 0,
-          prev_page_url: data.prev_page_url || null,
-          next_page_url: data.next_page_url || null,
-        };
-      } else if (data.meta) {
-        // Fallback for meta-based pagination
-        pagination.value = {
-          current_page: data.meta.current_page || 1,
-          last_page: data.meta.last_page || 1,
-          per_page: data.meta.per_page || 10,
-          total: data.meta.total || 0,
-          from: data.meta.from || 0,
-          to: data.meta.to || 0,
-        };
+export const useLeadsStore = createBaseStore('leads', adminApi.leads, {
+  extraActions: {
+    exportLeads: async (storeState) => {
+      storeState.loading.value = true;
+      storeState.error.value = null;
+      try {
+        const response = await adminApi.leads.export();
+        // Create blob and download
+        const blob = new Blob([response.data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `leads-${new Date().toISOString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        storeState.error.value = err;
+        throw err;
+      } finally {
+        storeState.loading.value = false;
       }
-      return items.value;
-    } catch (err) {
-      error.value = err;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchItem = async (id) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await adminApi.leads.show(id);
-      currentItem.value = response.data;
-      return currentItem.value;
-    } catch (err) {
-      error.value = err;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const updateItem = async (id, data) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await adminApi.leads.update(id, data);
-      const index = items.value.findIndex(item => item.id === id);
-      if (index !== -1) {
-        items.value[index] = response.data;
-      }
-      if (currentItem.value?.id === id) {
-        currentItem.value = response.data;
-      }
-      return response.data;
-    } catch (err) {
-      error.value = err;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const exportLeads = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await adminApi.leads.export();
-      // Create blob and download
-      const blob = new Blob([response.data], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `leads-${new Date().toISOString()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      error.value = err;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const clearCurrentItem = () => {
-    currentItem.value = null;
-  };
-
-  return {
-    items,
-    currentItem,
-    loading,
-    error,
-    pagination,
-    fetchItems,
-    fetchItem,
-    updateItem,
-    exportLeads,
-    clearCurrentItem,
-  };
+    },
+  },
 });
-

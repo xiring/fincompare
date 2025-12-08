@@ -104,6 +104,7 @@
                   v-if="product.image"
                   :src="`/storage/${product.image}`"
                   :alt="product.name"
+                  loading="lazy"
                   class="h-12 w-12 object-cover rounded-lg border border-charcoal-200"
                 />
                 <div v-else class="h-12 w-12 rounded-lg border border-charcoal-200">
@@ -158,6 +159,8 @@ import { useProductsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 
 const router = useRouter();
 const route = useRoute();
@@ -181,7 +184,7 @@ const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
 });
 
-// Update URL query parameters
+// Update URL query parameters with debouncing
 const updateQueryParams = (page = 1) => {
   const query = {
     ...route.query,
@@ -199,13 +202,19 @@ const updateQueryParams = (page = 1) => {
     }
   });
 
-  router.replace({ query });
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
 };
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchProducts = debounce((page) => {
+  fetchProducts(page);
+}, 300);
 
 // Watch for per_page changes and automatically fetch
 watch(() => filters.per_page, () => {
   updateQueryParams(1);
-  fetchProducts(1);
+  debouncedFetchProducts(1);
 });
 
 const fetchProducts = async (page = 1) => {
@@ -228,7 +237,7 @@ const fetchProducts = async (page = 1) => {
 
 const applyFilters = () => {
   updateQueryParams(1);
-  fetchProducts(1);
+  debouncedFetchProducts(1);
 };
 
 const resetFilters = () => {
@@ -237,7 +246,7 @@ const resetFilters = () => {
   sortField.value = 'id';
   sortDir.value = 'desc';
   router.replace({ query: {} });
-  fetchProducts(1);
+  debouncedFetchProducts(1);
 };
 
 const sortBy = (field) => {
@@ -249,12 +258,12 @@ const sortBy = (field) => {
   }
   const currentPage = pagination.value?.current_page || 1;
   updateQueryParams(currentPage);
-  fetchProducts(currentPage);
+  debouncedFetchProducts(currentPage);
 };
 
 const loadPage = (page) => {
   updateQueryParams(page);
-  fetchProducts(page);
+  debouncedFetchProducts(page);
 };
 
 const handleDelete = async (product) => {

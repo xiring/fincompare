@@ -372,6 +372,9 @@
         </div>
       </footer>
     </div>
+
+    <!-- Performance Monitor (Development Only) -->
+    <PerformanceMonitor />
   </div>
 </template>
 
@@ -404,6 +407,7 @@ import {
   XIcon,
   MenuIcon
 } from '../components/icons';
+import PerformanceMonitor from '../components/PerformanceMonitor.vue';
 
 const route = useRoute();
 const router = useRouter();

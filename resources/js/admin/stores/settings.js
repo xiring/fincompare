@@ -17,7 +17,7 @@ export const useSettingsStore = defineStore('settings', () => {
     error.value = null;
     try {
       const response = await adminApi.settings.show();
-      settings.value = response.data;
+      settings.value = response.data?.data || response.data;
       return settings.value;
     } catch (err) {
       error.value = err;
@@ -32,7 +32,7 @@ export const useSettingsStore = defineStore('settings', () => {
     error.value = null;
     try {
       const response = await adminApi.settings.update(data);
-      settings.value = response.data;
+      settings.value = response.data?.data || response.data;
       return settings.value;
     } catch (err) {
       error.value = err;
@@ -50,4 +50,3 @@ export const useSettingsStore = defineStore('settings', () => {
     updateSettings,
   };
 });
-

@@ -1,9 +1,10 @@
 <template>
   <div>
+    <!-- Header -->
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-charcoal-800">Users</h1>
-        <p class="mt-1 text-sm text-charcoal-600">Manage users</p>
+        <p class="mt-1 text-sm text-charcoal-600">Manage admin users</p>
       </div>
       <router-link
         to="/admin/users/create"
@@ -14,6 +15,7 @@
       </router-link>
     </div>
 
+    <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
         <input
@@ -43,6 +45,7 @@
     <!-- Pagination (Above Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
+    <!-- Users Table -->
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-charcoal-200">
@@ -62,7 +65,7 @@
               </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Email</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Roles</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-charcoal-600">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white">
@@ -80,16 +83,16 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ user.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ user.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ user.email }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 <div class="flex flex-wrap gap-1">
                   <span
-                    v-for="role in user.roles || []"
+                    v-for="role in user.roles"
                     :key="role.id"
                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800"
                   >
                     {{ role.name }}
                   </span>
-                  <span v-if="!user.roles || user.roles.length === 0" class="text-xs text-charcoal-500">No roles</span>
+                  <span v-if="!user.roles || user.roles.length === 0" class="text-charcoal-400">-</span>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -115,111 +118,39 @@
         </table>
       </div>
     </div>
+
+    <!-- Pagination (Below Table) -->
+    <Pagination :pagination="pagination" @page-change="loadPage" />
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useUsersStore } from '../../stores';
+import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 
-const router = useRouter();
 const route = useRoute();
 const usersStore = useUsersStore();
 
-// Reactive state from store
-const users = computed(() => usersStore.items);
-const loading = computed(() => usersStore.loading);
-const pagination = computed(() => usersStore.pagination);
-
-const sortField = reactive({ value: route.query.sort || 'id' });
-const sortDir = reactive({ value: route.query.dir || 'desc' });
-
-// Initialize filters from URL query params
-const filters = reactive({
-  q: route.query.q || '',
-  per_page: parseInt(route.query.per_page) || 5
-});
-
-const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
-});
-
-// Update URL query parameters
-const updateQueryParams = (page = 1) => {
-  const query = {
-    ...route.query,
-    page: page > 1 ? page.toString() : undefined,
-    q: filters.q || undefined,
-    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
-    sort: sortField.value,
-    dir: sortDir.value
-  };
-
-  // Remove undefined values
-  Object.keys(query).forEach(key => {
-    if (query[key] === undefined) {
-      delete query[key];
-    }
-  });
-
-  router.replace({ query });
-};
-
-// Watch for per_page changes and automatically fetch
-watch(() => filters.per_page, () => {
-  updateQueryParams(1);
-  fetchUsers(1);
-});
-
-const fetchUsers = async (page = 1) => {
-  try {
-    const params = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value
-    };
-    await usersStore.fetchItems(params);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-  }
-};
-
-const applyFilters = () => {
-  updateQueryParams(1);
-  fetchUsers(1);
-};
-
-const resetFilters = () => {
-  filters.q = '';
-  filters.per_page = 5;
-  sortField.value = 'id';
-  sortDir.value = 'desc';
-  router.replace({ query: {} });
-  fetchUsers(1);
-};
-
-const sortBy = (field) => {
-  if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortField.value = field;
-    sortDir.value = 'asc';
-  }
-  const currentPage = pagination.value?.current_page || 1;
-  updateQueryParams(currentPage);
-  fetchUsers(currentPage);
-};
-
-const loadPage = (page) => {
-  updateQueryParams(page);
-  fetchUsers(page);
-};
+// Use the composable for common Index page functionality
+const {
+  items: users,
+  loading,
+  pagination,
+  filters,
+  sortField,
+  sortDir,
+  hasFilters,
+  fetchItems,
+  applyFilters,
+  resetFilters,
+  sortBy,
+  loadPage,
+} = useIndexPage(usersStore);
 
 const handleDelete = async (user) => {
   if (!confirm(`Delete user "${user.name}"?`)) return;
@@ -228,7 +159,7 @@ const handleDelete = async (user) => {
     await usersStore.deleteItem(user.id);
     // Store automatically updates the list, but we may need to refresh if pagination changed
     if (users.value.length === 0 && pagination.value.current_page > 1) {
-      fetchUsers(pagination.value.current_page - 1);
+      fetchItems(pagination.value.current_page - 1);
     }
   } catch (error) {
     console.error('Error deleting user:', error);
@@ -237,12 +168,7 @@ const handleDelete = async (user) => {
 };
 
 onMounted(() => {
-  // Initialize from URL query params
   const page = parseInt(route.query.page) || 1;
-  sortField.value = route.query.sort || 'id';
-  sortDir.value = route.query.dir || 'desc';
-
-  fetchUsers(page);
+  fetchItems(page);
 });
 </script>
-

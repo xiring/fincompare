@@ -3,66 +3,11 @@
  * Manages activity log state and operations
  */
 
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { adminApi } from '../services/api';
+import { createBaseStore } from './utils/baseStore';
 
-export const useActivityStore = defineStore('activity', () => {
-  const items = ref([]);
-  const loading = ref(false);
-  const error = ref(null);
-  const pagination = ref({
-    current_page: 1,
-    last_page: 1,
-    per_page: 10,
-    total: 0,
-  });
-
-  const fetchItems = async (params = {}) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await adminApi.activity.index(params);
-      const data = response.data;
-      items.value = data.data || [];
-      // Handle pagination from response.data (Laravel pagination format)
-      if (data.current_page !== undefined) {
-        pagination.value = {
-          current_page: data.current_page || 1,
-          last_page: data.last_page || 1,
-          per_page: data.per_page || 10,
-          total: data.total || 0,
-          from: data.from || 0,
-          to: data.to || 0,
-          prev_page_url: data.prev_page_url || null,
-          next_page_url: data.next_page_url || null,
-        };
-      } else if (data.meta) {
-        // Fallback for meta-based pagination
-        pagination.value = {
-          current_page: data.meta.current_page || 1,
-          last_page: data.meta.last_page || 1,
-          per_page: data.meta.per_page || 10,
-          total: data.meta.total || 0,
-          from: data.meta.from || 0,
-          to: data.meta.to || 0,
-        };
-      }
-      return items.value;
-    } catch (err) {
-      error.value = err;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  return {
-    items,
-    loading,
-    error,
-    pagination,
-    fetchItems,
-  };
+export const useActivityStore = createBaseStore('activity', adminApi.activity, {
+  // Activity is read-only, no CRUD operations
+  extraState: {},
+  extraActions: {},
 });
-

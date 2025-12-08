@@ -19,6 +19,7 @@ import settings from './modules/settings';
 import activity from './modules/activity';
 import profile from './modules/profile';
 import uploads from './modules/uploads';
+import stats from './modules/stats';
 
 // Export the aggregated API object
 export const adminApi = {
@@ -38,6 +39,7 @@ export const adminApi = {
   activity,
   profile,
   uploads,
+  stats,
 };
 
 // Export default for backward compatibility

@@ -122,121 +122,47 @@
         </table>
       </div>
     </div>
+
+    <!-- Pagination (Below Table) -->
+    <Pagination :pagination="pagination" @page-change="loadPage" />
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useFormsStore } from '../../stores';
-import { adminApi } from '../../services/api';
+import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 
-const router = useRouter();
 const route = useRoute();
 const formsStore = useFormsStore();
 
-// Reactive state from store
-const forms = computed(() => formsStore.items);
-const loading = computed(() => formsStore.loading);
-const pagination = computed(() => formsStore.pagination);
-
-const sortField = reactive({ value: route.query.sort || 'id' });
-const sortDir = reactive({ value: route.query.dir || 'desc' });
-
-// Initialize filters from URL query params
-const filters = reactive({
-  q: route.query.q || '',
-  per_page: parseInt(route.query.per_page) || 5
-});
-
-const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
-});
-
-// Update URL query parameters
-const updateQueryParams = (page = 1) => {
-  const query = {
-    ...route.query,
-    page: page > 1 ? page.toString() : undefined,
-    q: filters.q || undefined,
-    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
-    sort: sortField.value,
-    dir: sortDir.value
-  };
-
-  // Remove undefined values
-  Object.keys(query).forEach(key => {
-    if (query[key] === undefined) {
-      delete query[key];
-    }
-  });
-
-  router.replace({ query });
-};
-
-// Watch for per_page changes and automatically fetch
-watch(() => filters.per_page, () => {
-  updateQueryParams(1);
-  fetchForms(1);
-});
-
-const fetchForms = async (page = 1) => {
-  try {
-    const params = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value
-    };
-    await formsStore.fetchItems(params);
-  } catch (error) {
-    console.error('Error fetching forms:', error);
-  }
-};
-
-const applyFilters = () => {
-  updateQueryParams(1);
-  fetchForms(1);
-};
-
-const resetFilters = () => {
-  filters.q = '';
-  filters.per_page = 5;
-  sortField.value = 'id';
-  sortDir.value = 'desc';
-  router.replace({ query: {} });
-  fetchForms(1);
-};
-
-const sortBy = (field) => {
-  if (sortField.value === field) {
-    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortField.value = field;
-    sortDir.value = 'asc';
-  }
-  const currentPage = pagination.value?.current_page || 1;
-  updateQueryParams(currentPage);
-  fetchForms(currentPage);
-};
-
-const loadPage = (page) => {
-  updateQueryParams(page);
-  fetchForms(page);
-};
+// Use the composable for common Index page functionality
+const {
+  items: forms,
+  loading,
+  pagination,
+  filters,
+  sortField,
+  sortDir,
+  hasFilters,
+  fetchItems,
+  applyFilters,
+  resetFilters,
+  sortBy,
+  loadPage,
+} = useIndexPage(formsStore);
 
 const handleDelete = async (form) => {
   if (!confirm(`Delete form "${form.name}"?`)) return;
 
   try {
     await formsStore.deleteItem(form.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (forms.value.length === 0 && pagination.value.current_page > 1) {
-      fetchForms(pagination.value.current_page - 1);
+      fetchItems(pagination.value.current_page - 1);
     }
   } catch (error) {
     console.error('Error deleting form:', error);
@@ -249,8 +175,7 @@ const handleDuplicate = async (form) => {
 
   try {
     await formsStore.duplicateItem(form.id);
-    // Refresh the list after duplication
-    fetchForms(pagination.value?.current_page || 1);
+    fetchItems(pagination.value?.current_page || 1);
   } catch (error) {
     console.error('Error duplicating form:', error);
     alert('Failed to duplicate form');
@@ -259,8 +184,6 @@ const handleDuplicate = async (form) => {
 
 onMounted(() => {
   const page = parseInt(route.query.page) || 1;
-  sortField.value = route.query.sort || 'id';
-  sortDir.value = route.query.dir || 'desc';
-  fetchForms(page);
+  fetchItems(page);
 });
 </script>

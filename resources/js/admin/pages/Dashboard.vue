@@ -180,6 +180,7 @@
               <img
                 :src="`/storage/${product.image}`"
                 :alt="product.name"
+                loading="lazy"
                 class="w-12 h-12 object-cover rounded-lg border border-charcoal-200"
               />
             </div>
@@ -241,6 +242,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useProductsStore, useLeadsStore, usePartnersStore, useUsersStore, useActivityStore } from '../stores';
+import { adminApi } from '../services/api';
 import PageHeader from '../components/PageHeader.vue';
 import FormCard from '../components/FormCard.vue';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
@@ -330,23 +332,32 @@ const getActivityIconClass = (logName) => {
 
 const fetchStats = async () => {
   try {
-    // Fetch counts from stores
-    await Promise.all([
-      productsStore.fetchItems({ per_page: 1 }).then(() => {
-        stats.value.products = productsStore.pagination.total || 0;
-      }),
-      leadsStore.fetchItems({ per_page: 1 }).then(() => {
-        stats.value.leads = leadsStore.pagination.total || 0;
-      }),
-      partnersStore.fetchItems({ per_page: 1 }).then(() => {
-        stats.value.partners = partnersStore.pagination.total || 0;
-      }),
-      usersStore.fetchItems({ per_page: 1 }).then(() => {
-        stats.value.users = usersStore.pagination.total || 0;
-      })
-    ]);
+    // Optimized: Use dedicated stats endpoint for better performance
+    // Single API call instead of 4 separate pagination queries
+    const response = await adminApi.stats.index();
+    const statsData = response.data?.data || response.data;
+
+    stats.value.products = statsData.products || 0;
+    stats.value.leads = statsData.leads || 0;
+    stats.value.partners = statsData.partners || 0;
+    stats.value.users = statsData.users || 0;
   } catch (error) {
     console.error('Error fetching stats:', error);
+    // Fallback to individual store fetches if stats endpoint fails
+    try {
+      await Promise.all([
+        productsStore.fetchItems({ per_page: 1, page: 1 }),
+        leadsStore.fetchItems({ per_page: 1, page: 1 }),
+        partnersStore.fetchItems({ per_page: 1, page: 1 }),
+        usersStore.fetchItems({ per_page: 1, page: 1 })
+      ]);
+      stats.value.products = productsStore.pagination.total || 0;
+      stats.value.leads = leadsStore.pagination.total || 0;
+      stats.value.partners = partnersStore.pagination.total || 0;
+      stats.value.users = usersStore.pagination.total || 0;
+    } catch (fallbackError) {
+      console.error('Error in fallback stats fetch:', fallbackError);
+    }
   }
 };
 

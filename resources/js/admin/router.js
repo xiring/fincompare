@@ -3,13 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Import layouts
 import AdminLayout from './layouts/AdminLayout.vue';
 
-// Import pages
+// Import critical pages (used immediately on load)
 import Login from './pages/auth/Login.vue';
 import Dashboard from './pages/Dashboard.vue';
-import ProductsIndex from './pages/products/Index.vue';
-import ProductsCreate from './pages/products/Create.vue';
-import ProductsEdit from './pages/products/Edit.vue';
-import ProductsImport from './pages/products/Import.vue';
 
 const routes = [
     {
@@ -35,25 +31,25 @@ const routes = [
             {
                 path: 'products',
                 name: 'admin.products.index',
-                component: ProductsIndex,
+                component: () => import('./pages/products/Index.vue'),
                 meta: { title: 'Products' }
             },
             {
                 path: 'products/create',
                 name: 'admin.products.create',
-                component: ProductsCreate,
+                component: () => import('./pages/products/Create.vue'),
                 meta: { title: 'Create Product' }
             },
             {
                 path: 'products/:id/edit',
                 name: 'admin.products.edit',
-                component: ProductsEdit,
+                component: () => import('./pages/products/Edit.vue'),
                 meta: { title: 'Edit Product' }
             },
             {
                 path: 'products/import',
                 name: 'admin.products.import',
-                component: ProductsImport,
+                component: () => import('./pages/products/Import.vue'),
                 meta: { title: 'Import Products' }
             },
             // Placeholder routes for other admin pages
