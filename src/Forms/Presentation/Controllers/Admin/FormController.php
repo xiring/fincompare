@@ -41,11 +41,7 @@ class FormController extends Controller
         ];
         $items = $list->execute($filters, (int) $request->get('per_page', 20));
 
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.forms.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -55,11 +51,8 @@ class FormController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide form payload to store.']);
-        }
-
-        return view('admin.forms.create');
+        
+        return response()->json(['message' => 'Provide form payload to store.']);
     }
 
     /**
@@ -87,11 +80,7 @@ class FormController extends Controller
 
         $form = $create->execute(FormDTO::fromArray($validated), $inputs);
 
-        if ($request->wantsJson()) {
-            return response()->json($form, 201);
-        }
-
-        return redirect()->route('admin.forms.index')->with('status', 'Form created successfully');
+        return response()->json($form, 201);
     }
 
     /**
@@ -103,11 +92,7 @@ class FormController extends Controller
     {
         $form = $show->execute($form->id);
 
-        if (request()->wantsJson()) {
-            return response()->json($form);
-        }
-
-        return view('admin.forms.show', compact('form'));
+        return response()->json($form);
     }
 
     /**
@@ -119,11 +104,7 @@ class FormController extends Controller
     {
         $form = $show->execute($form->id);
 
-        if (request()->wantsJson()) {
-            return response()->json($form);
-        }
-
-        return view('admin.forms.edit', compact('form'));
+        return response()->json($form);
     }
 
     /**
@@ -151,11 +132,7 @@ class FormController extends Controller
 
         $form = $update->execute($form, FormDTO::fromArray($validated), $inputs);
 
-        if ($request->wantsJson()) {
-            return response()->json($form);
-        }
-
-        return redirect()->route('admin.forms.index')->with('status', 'Form updated successfully');
+        return response()->json($form);
     }
 
     /**
@@ -167,11 +144,7 @@ class FormController extends Controller
     {
         $duplicatedForm = $duplicate->execute($form);
 
-        if (request()->wantsJson()) {
-            return response()->json($duplicatedForm, 201);
-        }
-
-        return redirect()->route('admin.forms.index')->with('status', 'Form duplicated successfully');
+        return response()->json($duplicatedForm, 201);
     }
 
     /**
@@ -183,11 +156,7 @@ class FormController extends Controller
     {
         $delete->execute($form);
 
-        if (request()->wantsJson()) {
-            return response()->json(null, 204);
-        }
-
-        return redirect()->route('admin.forms.index')->with('status', 'Form deleted successfully');
+        return response()->json(null, 204);
     }
 }
 

@@ -22,8 +22,6 @@ class SiteSettingController extends Controller
     public function edit(SiteSettingRepositoryInterface $repository)
     {
         $settings = $repository->get();
-
-        return view('admin.settings.edit', compact('settings'));
     }
 
     public function update(UpdateSiteSettingRequest $request, UpdateSiteSettingAction $action): RedirectResponse

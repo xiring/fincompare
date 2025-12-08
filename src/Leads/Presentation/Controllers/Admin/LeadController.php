@@ -31,11 +31,8 @@ class LeadController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.leads.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -46,11 +43,8 @@ class LeadController extends Controller
     public function show(Request $request, Lead $lead, ShowLeadAction $show)
     {
         $lead = $show->execute($lead);
-        if ($request->wantsJson()) {
-            return response()->json($lead);
-        }
 
-        return view('admin.leads.show', compact('lead'));
+        return response()->json($lead);
     }
 
     /**
@@ -61,11 +55,8 @@ class LeadController extends Controller
     public function update(LeadUpdateRequest $request, Lead $lead, UpdateLeadAction $update)
     {
         $lead = $update->execute($lead, LeadDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($lead);
-        }
 
-        return redirect()->route('admin.leads.show', $lead)->with('status', 'Lead updated');
+        return response()->json($lead);
     }
 
     /**

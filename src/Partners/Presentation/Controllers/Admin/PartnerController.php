@@ -39,11 +39,8 @@ class PartnerController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($partners);
-        }
 
-        return view('admin.partners.index', compact('partners'));
+        return response()->json($partners);
     }
 
     /**
@@ -53,11 +50,8 @@ class PartnerController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide partner payload to store.']);
-        }
 
-        return view('admin.partners.create');
+        return response()->json(['message' => 'Provide partner payload to store.']);
     }
 
     /**
@@ -74,11 +68,8 @@ class PartnerController extends Controller
         }
 
         $partner = $create->execute(PartnerDTO::fromArray($data));
-        if ($request->wantsJson()) {
-            return response()->json($partner, 201);
-        }
 
-        return redirect()->route('admin.partners.index')->with('status', 'Partner created');
+        return response()->json($partner, 201);
     }
 
     /**
@@ -89,11 +80,8 @@ class PartnerController extends Controller
     public function show(Request $request, Partner $partner, ShowPartnerAction $show)
     {
         $partner = $show->execute($partner);
-        if ($request->wantsJson()) {
-            return response()->json($partner);
-        }
 
-        return view('admin.partners.edit', compact('partner'));
+        return response()->json($partner);
     }
 
     /**
@@ -104,11 +92,8 @@ class PartnerController extends Controller
     public function edit(Request $request, Partner $partner, ShowPartnerAction $show)
     {
         $partner = $show->execute($partner);
-        if ($request->wantsJson()) {
-            return response()->json($partner);
-        }
 
-        return view('admin.partners.edit', compact('partner'));
+        return response()->json($partner);
     }
 
     /**
@@ -130,11 +115,8 @@ class PartnerController extends Controller
         }
 
         $partner = $update->execute($partner, PartnerDTO::fromArray($data));
-        if ($request->wantsJson()) {
-            return response()->json($partner);
-        }
 
-        return redirect()->route('admin.partners.index')->with('status', 'Partner updated');
+        return response()->json($partner);
     }
 
     /**
@@ -145,10 +127,7 @@ class PartnerController extends Controller
     public function destroy(Request $request, Partner $partner, DeletePartnerAction $delete)
     {
         $delete->execute($partner);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
 
-        return redirect()->route('admin.partners.index')->with('status', 'Partner deleted');
+        return response()->json(null, 204);
     }
 }

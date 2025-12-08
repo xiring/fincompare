@@ -24,7 +24,6 @@ class CmsPageController extends Controller
     public function __construct()
     {
         $this->authorizeResource(CmsPage::class, 'cms_page');
-    }
 
     /**
      * Display a listing of the resource.
@@ -39,12 +38,8 @@ class CmsPageController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.cms_pages.index', compact('items'));
-    }
+        
+        return response()->json($items);
 
     /**
      * Show the form for creating a new resource.
@@ -53,12 +48,8 @@ class CmsPageController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide page payload to store.']);
-        }
-
-        return view('admin.cms_pages.create');
-    }
+        
+        return response()->json(['message' => 'Provide page payload to store.']);
 
     /**
      * Store a newly created resource in storage.
@@ -68,12 +59,8 @@ class CmsPageController extends Controller
     public function store(CmsPageRequest $request, CreateCmsPageAction $create)
     {
         $page = $create->execute(CmsPageDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($page, 201);
-        }
-
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page created');
-    }
+        
+        return response()->json($page, 201);
 
     /**
      * Display the specified resource.
@@ -83,12 +70,8 @@ class CmsPageController extends Controller
     public function show(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
     {
         $cms_page = $show->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json($cms_page);
-        }
-
-        return view('admin.cms_pages.edit', compact('cms_page'));
-    }
+        
+        return response()->json($cms_page);
 
     /**
      * Show the form for editing the specified resource.
@@ -98,12 +81,8 @@ class CmsPageController extends Controller
     public function edit(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
     {
         $cms_page = $show->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json($cms_page);
-        }
-
-        return view('admin.cms_pages.edit', compact('cms_page'));
-    }
+        
+        return response()->json($cms_page);
 
     /**
      * Update the specified resource in storage.
@@ -113,12 +92,8 @@ class CmsPageController extends Controller
     public function update(CmsPageRequest $request, CmsPage $cms_page, UpdateCmsPageAction $update)
     {
         $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($item);
-        }
-
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page updated');
-    }
+        
+        return response()->json($item);
 
     /**
      * Remove the specified resource from storage.
@@ -128,10 +103,7 @@ class CmsPageController extends Controller
     public function destroy(Request $request, CmsPage $cms_page, DeleteCmsPageAction $delete)
     {
         $delete->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
+        
+        return response()->json(null, 204);
 
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page deleted');
-    }
 }

@@ -24,7 +24,6 @@ class FaqController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Faq::class, 'faq');
-    }
 
     /**
      * Display a listing of the resource.
@@ -38,12 +37,8 @@ class FaqController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.faqs.index', compact('items'));
-    }
+        
+        return response()->json($items);
 
     /**
      * Show the form for creating a new resource.
@@ -52,12 +47,8 @@ class FaqController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide FAQ payload to store.']);
-        }
-
-        return view('admin.faqs.create');
-    }
+        
+        return response()->json(['message' => 'Provide FAQ payload to store.']);
 
     /**
      * Store a newly created resource in storage.
@@ -67,12 +58,8 @@ class FaqController extends Controller
     public function store(FaqRequest $request, CreateFaqAction $create)
     {
         $faq = $create->execute(FaqDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($faq, 201);
-        }
-
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ created');
-    }
+        
+        return response()->json($faq, 201);
 
     /**
      * Show the form for editing the specified resource.
@@ -82,12 +69,8 @@ class FaqController extends Controller
     public function edit(Request $request, Faq $faq, ShowFaqAction $show)
     {
         $faq = $show->execute($faq);
-        if ($request->wantsJson()) {
-            return response()->json($faq);
-        }
-
-        return view('admin.faqs.edit', compact('faq'));
-    }
+        
+        return response()->json($faq);
 
     /**
      * Update the specified resource in storage.
@@ -97,12 +80,8 @@ class FaqController extends Controller
     public function update(FaqRequest $request, Faq $faq, UpdateFaqAction $update)
     {
         $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($item);
-        }
-
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ updated');
-    }
+        
+        return response()->json($item);
 
     /**
      * Remove the specified resource from storage.
@@ -112,10 +91,7 @@ class FaqController extends Controller
     public function destroy(Request $request, Faq $faq, DeleteFaqAction $delete)
     {
         $delete->execute($faq);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
+        
+        return response()->json(null, 204);
 
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ deleted');
-    }
 }

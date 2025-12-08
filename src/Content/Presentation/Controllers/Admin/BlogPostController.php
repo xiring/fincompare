@@ -24,7 +24,6 @@ class BlogPostController extends Controller
     public function __construct()
     {
         $this->authorizeResource(BlogPost::class, 'blog');
-    }
 
     /**
      * Display a listing of the resource.
@@ -39,12 +38,8 @@ class BlogPostController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.blogs.index', compact('items'));
-    }
+        
+        return response()->json($items);
 
     /**
      * Show the form for creating a new resource.
@@ -53,12 +48,8 @@ class BlogPostController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide blog post payload to store.']);
-        }
-
-        return view('admin.blogs.create');
-    }
+        
+        return response()->json(['message' => 'Provide blog post payload to store.']);
 
     /**
      * Store a newly created resource in storage.
@@ -68,12 +59,8 @@ class BlogPostController extends Controller
     public function store(BlogPostRequest $request, CreateBlogPostAction $create)
     {
         $post = $create->execute(BlogPostDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($post, 201);
-        }
-
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post created');
-    }
+        
+        return response()->json($post, 201);
 
     /**
      * Display the specified resource.
@@ -83,12 +70,8 @@ class BlogPostController extends Controller
     public function show(Request $request, BlogPost $blog, ShowBlogPostAction $show)
     {
         $blog = $show->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json($blog);
-        }
-
-        return view('admin.blogs.edit', compact('blog'));
-    }
+        
+        return response()->json($blog);
 
     /**
      * Show the form for editing the specified resource.
@@ -98,12 +81,8 @@ class BlogPostController extends Controller
     public function edit(Request $request, BlogPost $blog, ShowBlogPostAction $show)
     {
         $blog = $show->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json($blog);
-        }
-
-        return view('admin.blogs.edit', compact('blog'));
-    }
+        
+        return response()->json($blog);
 
     /**
      * Update the specified resource in storage.
@@ -113,12 +92,8 @@ class BlogPostController extends Controller
     public function update(BlogPostRequest $request, BlogPost $blog, UpdateBlogPostAction $update)
     {
         $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($post);
-        }
-
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post updated');
-    }
+        
+        return response()->json($post);
 
     /**
      * Remove the specified resource from storage.
@@ -128,10 +103,7 @@ class BlogPostController extends Controller
     public function destroy(Request $request, BlogPost $blog, DeleteBlogPostAction $delete)
     {
         $delete->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
+        
+        return response()->json(null, 204);
 
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post deleted');
-    }
 }

@@ -26,7 +26,6 @@ class ProductController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Product::class, 'product');
-    }
 
     /**
      * Display a listing of the resource.
@@ -40,12 +39,7 @@ class ProductController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.products.index', compact('items'));
-    }
+        return response()->json($items);
 
     /**
      * Show the form for creating a new resource.
@@ -54,14 +48,7 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide product payload to store.']);
-        }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.create', compact('partners', 'categories'));
-    }
+        return response()->json(['message' => 'Provide product payload to store.']);
 
     /**
      * Store a newly created resource in storage.
@@ -74,12 +61,10 @@ class ProductController extends Controller
         if (isset($data['attributes']) && is_string($data['attributes'])) {
             $decoded = json_decode($data['attributes'], true);
             $data['attributes'] = is_array($decoded) ? $decoded : [];
-        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products/'.now()->format('Y/m'), 'public');
-        }
 
         $product = $create->execute(
             data: [
@@ -94,12 +79,7 @@ class ProductController extends Controller
             ],
             attributesInput: $data['attributes'] ?? []
         );
-        if ($request->wantsJson()) {
-            return response()->json($product->load(['partner', 'productCategory']), 201);
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product created');
-    }
+        return response()->json($product->load(['partner', 'productCategory']), 201);
 
     /**
      * Display the specified resource.
@@ -109,14 +89,7 @@ class ProductController extends Controller
     public function show(Request $request, Product $product, ShowProductAction $show)
     {
         $product = $show->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json($product);
-        }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.edit', compact('product', 'partners', 'categories'));
-    }
+        return response()->json($product);
 
     /**
      * Show the form for editing the specified resource.
@@ -126,14 +99,7 @@ class ProductController extends Controller
     public function edit(Request $request, Product $product, ShowProductAction $show)
     {
         $product = $show->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json($product);
-        }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.edit', compact('product', 'partners', 'categories'));
-    }
+        return response()->json($product);
 
     /**
      * Update the specified resource in storage.
@@ -146,16 +112,14 @@ class ProductController extends Controller
         if (isset($data['attributes']) && is_string($data['attributes'])) {
             $decoded = json_decode($data['attributes'], true);
             $data['attributes'] = is_array($decoded) ? $decoded : [];
-        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($product->image) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
-            }
+
             $data['image'] = $request->file('image')->store('products/'.now()->format('Y/m'), 'public');
-        }
 
         $product = $update->execute(
             product: $product,
@@ -171,12 +135,7 @@ class ProductController extends Controller
             ],
             attributesInput: $data['attributes'] ?? []
         );
-        if ($request->wantsJson()) {
-            return response()->json($product->load(['partner', 'productCategory', 'attributeValues.attribute']));
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product updated');
-    }
+        return response()->json($product->load(['partner', 'productCategory', 'attributeValues.attribute']));
 
     /**
      * Duplicate the specified resource.
@@ -187,12 +146,7 @@ class ProductController extends Controller
     {
         $duplicatedProduct = $duplicate->execute($product);
 
-        if (request()->wantsJson()) {
-            return response()->json($duplicatedProduct, 201);
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product duplicated successfully');
-    }
+        return response()->json($duplicatedProduct, 201);
 
     /**
      * Remove the specified resource from storage.
@@ -202,10 +156,6 @@ class ProductController extends Controller
     public function destroy(Request $request, Product $product, DeleteProductAction $delete)
     {
         $delete->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
+        return response()->json(null, 204);
 
-        return redirect()->route('admin.products.index')->with('status', 'Product deleted');
-    }
 }

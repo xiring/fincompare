@@ -19,8 +19,6 @@ class ProductImportController extends Controller
      */
     public function create()
     {
-        return view('admin.products.import');
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -35,7 +33,6 @@ class ProductImportController extends Controller
         $delimiter = (string) $request->input('delimiter', ',');
         if ($delimiter === '\\t' || $delimiter === '\t') {
             $delimiter = "\t"; // normalize to actual tab character
-        }
 
         ImportProductsJob::dispatch(
             storage_path('app/'.$path),
@@ -43,6 +40,4 @@ class ProductImportController extends Controller
             (bool) $request->boolean('has_header', true)
         )->onQueue('imports');
 
-        return redirect()->route('admin.products.index')->with('status', 'Product import queued');
-    }
 }
