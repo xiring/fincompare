@@ -69,10 +69,6 @@ const getOptionLabel = (option: Record<string, any> | string | number): string =
   return typeof option === 'object' ? option[props.optionLabel] : String(option);
 };
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string | number | null];
-}>();
-
 const handleChange = (event: Event): void => {
   const target = event.target as HTMLSelectElement;
   const value = target.value;

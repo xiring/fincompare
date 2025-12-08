@@ -18,9 +18,9 @@ interface UseIndexPageOptions {
 }
 
 interface UseIndexPageReturn<T = any> {
-  items: ComputedRef<T[]>;
-  loading: ComputedRef<boolean>;
-  pagination: ComputedRef<PaginationMeta>;
+  items: ComputedRef<T[]> | Ref<T[]>;
+  loading: ComputedRef<boolean> | Ref<boolean>;
+  pagination: ComputedRef<PaginationMeta> | Ref<PaginationMeta>;
   filters: {
     q: string;
     per_page: number;
@@ -58,10 +58,37 @@ export function useIndexPage<T = any>(
   const router: Router = useRouter();
   const route: RouteLocationNormalizedLoaded = useRoute();
 
-  // Reactive state from store
-  const items = computed(() => store.items.value) as ComputedRef<T[]>;
-  const loading = computed(() => store.loading.value);
-  const pagination = computed(() => store.pagination.value);
+  // Access store properties - they are already reactive refs from Pinia
+  // Return them directly (wrapped in computed for safety) so Vue can track them
+  const storeAny = store as any;
+
+  // Get the refs from the store - these are already reactive
+  const itemsRef = storeAny.items as Ref<T[]> | undefined;
+  const loadingRef = storeAny.loading as Ref<boolean> | undefined;
+  const paginationRef = storeAny.pagination as Ref<PaginationMeta> | undefined;
+
+  // Create computed that tracks the refs - this ensures reactivity
+  // We access .value inside computed so Vue tracks the ref as a dependency
+  const items = computed(() => {
+    return (itemsRef?.value || []) as T[];
+  }) as ComputedRef<T[]>;
+
+  const loading = computed(() => {
+    return loadingRef?.value || false;
+  });
+
+  const pagination = computed(() => {
+    return paginationRef?.value || {
+      current_page: 1,
+      last_page: 1,
+      per_page: 10,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    } as PaginationMeta;
+  });
 
   const sortField = reactive<{ value: string }>({
     value: (route.query.sort as string) || defaultSort,

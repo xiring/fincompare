@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Attribute, Partner } from '../../types/index';
+import type { Attribute, Partner } from '../types/index';
 
 interface Props {
   attr: Attribute;

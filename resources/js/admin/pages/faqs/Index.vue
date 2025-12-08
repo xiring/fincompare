@@ -107,41 +107,133 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useFaqsStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 import type { Faq } from '../../types/index';
 
+const router = useRouter();
 const route = useRoute();
 const faqsStore = useFaqsStore();
 
-// Use the composable for common Index page functionality
-const {
-  items: faqs,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage<Faq>(faqsStore);
+// Reactive state from store
+const faqs = computed(() => faqsStore.items);
+const loading = computed(() => faqsStore.loading);
+const pagination = computed(() => faqsStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+});
+
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchFaqs = debounce((page: number) => {
+  fetchFaqs(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchFaqs(1);
+  }
+);
+
+const fetchFaqs = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await faqsStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching FAQs:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchFaqs(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchFaqs(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchFaqs(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchFaqs(page);
+};
 
 const handleDelete = async (faq: Faq): Promise<void> => {
   if (!confirm(`Delete FAQ "${faq.question}"?`)) return;
 
   try {
     await faqsStore.deleteItem(faq.id);
+    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (faqs.value.length === 0 && pagination.value.current_page > 1) {
-      fetchItems(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchFaqs(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting FAQ:', error);
@@ -150,7 +242,11 @@ const handleDelete = async (faq: Faq): Promise<void> => {
 };
 
 onMounted(() => {
+  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
-  fetchItems(page);
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchFaqs(page);
 });
 </script>

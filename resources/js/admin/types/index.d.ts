@@ -73,6 +73,7 @@ export interface Attribute extends BaseEntity {
   is_filterable?: boolean;
   is_active?: boolean;
   is_required?: boolean;
+  unit?: string;
 }
 
 // Partner types

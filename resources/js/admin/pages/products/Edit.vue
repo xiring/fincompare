@@ -1,228 +1,153 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-charcoal-800">Edit Product</h1>
-      <p class="mt-1 text-sm text-charcoal-600">Update product information</p>
-    </div>
+    <PageHeader title="Edit Product" description="Update product information" />
 
-    <!-- Loading State -->
     <LoadingSpinner v-if="loading && !productsStore.currentItem" text="Loading product..." />
-
-    <!-- Error Message -->
     <ErrorMessage v-else-if="errorMessage" :message="errorMessage" class="mb-6" />
-
-    <!-- Success Message -->
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
-    <!-- Form -->
     <FormCard v-if="productsStore.currentItem">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left Column: Basic Product Information -->
           <div class="space-y-6">
-            <div>
-              <h3 class="text-lg font-semibold text-charcoal-800">Product Information</h3>
-            </div>
-
-            <!-- Name -->
-            <div>
-              <label for="name" class="block text-sm font-medium text-charcoal-700">
-                Name <span class="text-red-500">*</span>
-              </label>
-              <input
+            <FormSection title="Product Information">
+              <FormInput
                 id="name"
                 v-model="form.name"
+                label="Name"
                 type="text"
                 required
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                :class="{ 'border-red-300': errors.name }"
+                :error="getError('name')"
               />
-              <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-            </div>
 
-            <!-- Slug -->
-            <div>
-              <label for="slug" class="block text-sm font-medium text-charcoal-700">
-                Slug (optional)
-              </label>
-              <input
+              <FormInput
                 id="slug"
                 v-model="form.slug"
-                type="text"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                :class="{ 'border-red-300': errors.slug }"
+                label="Slug"
+                hint="Leave empty to auto-generate from name"
+                :error="getError('slug')"
               />
-              <p v-if="errors.slug" class="mt-1 text-sm text-red-600">{{ errors.slug }}</p>
-            </div>
 
-            <!-- Partner & Category -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="partner_id" class="block text-sm font-medium text-charcoal-700">
-                  Partner <span class="text-red-500">*</span>
-                </label>
-                <select
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormSelect
                   id="partner_id"
                   v-model="form.partner_id"
+                  label="Partner"
+                  :options="partners"
                   required
-                  class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                  :class="{ 'border-red-300': errors.partner_id }"
-                >
-                  <option value="">-- Select Partner --</option>
-                  <option v-for="partner in partners" :key="partner.id" :value="partner.id">
-                    {{ partner.name }}
-                  </option>
-                </select>
-                <p v-if="errors.partner_id" class="mt-1 text-sm text-red-600">{{ errors.partner_id }}</p>
-              </div>
-              <div>
-                <label for="product_category_id" class="block text-sm font-medium text-charcoal-700">
-                  Category <span class="text-red-500">*</span>
-                </label>
-                <select
+                  :error="getError('partner_id')"
+                />
+
+                <FormSelect
                   id="product_category_id"
                   v-model="form.product_category_id"
+                  label="Category"
+                  :options="categories"
                   required
-                  @change="loadAttributes"
-                  class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                  :class="{ 'border-red-300': errors.product_category_id }"
-                >
-                  <option value="">-- Select Category --</option>
-                  <option v-for="category in categories" :key="category.id" :value="category.id">
-                    {{ category.name }}
-                  </option>
-                </select>
-                <p v-if="errors.product_category_id" class="mt-1 text-sm text-red-600">{{ errors.product_category_id }}</p>
+                  :error="getError('product_category_id')"
+                />
               </div>
-            </div>
 
-            <!-- Description -->
-            <div>
-              <label for="description" class="block text-sm font-medium text-charcoal-700">
-                Description
-              </label>
-              <textarea
+              <FormTextarea
                 id="description"
                 v-model="form.description"
-                rows="4"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              ></textarea>
-            </div>
-
-            <!-- Image -->
-            <div>
-              <label for="image" class="block text-sm font-medium text-charcoal-700">
-                Product Image
-              </label>
-              <div v-if="product.image && !imagePreview" class="mt-2 mb-2">
-                <img :src="`/storage/${product.image}`" alt="Current image" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
-                <p class="mt-1 text-xs text-charcoal-500">Current image</p>
-              </div>
-              <input
-                id="image"
-                type="file"
-                accept="image/*"
-                @change="handleImageChange"
-                class="block w-full text-sm text-charcoal-500"
+                label="Description"
+                :rows="4"
+                :error="getError('description')"
               />
-              <p class="mt-1 text-xs text-charcoal-500">JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image.</p>
-              <div v-if="imagePreview" class="mt-2">
-                <p class="text-xs text-charcoal-500">New image preview:</p>
-                <img :src="imagePreview" alt="Preview" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
+
+              <!-- Image with existing image display -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-charcoal-700 mb-2">
+                  Product Image
+                </label>
+                <div v-if="product && product.image && !imagePreview" class="mt-2 mb-2">
+                  <img :src="`/storage/${product.image}`" alt="Current image" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
+                  <p class="mt-1 text-xs text-charcoal-500">Current image</p>
+                </div>
+                <FormFileInput
+                  id="image"
+                  v-model="form.image"
+                  accept="image/*"
+                  hint="JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image."
+                  :preview="true"
+                  :error="getError('image')"
+                />
+                <div v-if="imagePreview" class="mt-2">
+                  <p class="text-xs text-charcoal-500">New image preview:</p>
+                  <img :src="imagePreview" alt="Preview" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
+                </div>
               </div>
-              <p v-if="errors.image" class="mt-1 text-sm text-red-600">{{ errors.image }}</p>
-            </div>
 
-            <!-- Featured -->
-            <div class="flex items-center gap-3">
-              <input
-                id="is_featured"
-                v-model="form.is_featured"
-                type="checkbox"
-                class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
-              />
-              <label for="is_featured" class="block text-sm font-medium text-charcoal-700">
-                Featured
-              </label>
-            </div>
+              <div class="mb-6">
+                <div class="flex items-center gap-3">
+                  <input
+                    id="is_featured"
+                    v-model="form.is_featured"
+                    type="checkbox"
+                    class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
+                  />
+                  <label for="is_featured" class="block text-sm font-medium text-charcoal-700">
+                    Featured
+                  </label>
+                </div>
+              </div>
 
-            <!-- Status -->
-            <div>
-              <label for="status" class="block text-sm font-medium text-charcoal-700">
-                Status <span class="text-red-500">*</span>
-              </label>
-              <select
+              <FormSelect
                 id="status"
                 v-model="form.status"
+                label="Status"
+                :options="statusOptions"
                 required
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                :class="{ 'border-red-300': errors.status }"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <p v-if="errors.status" class="mt-1 text-sm text-red-600">{{ errors.status }}</p>
-            </div>
+                :error="getError('status')"
+              />
+            </FormSection>
           </div>
 
           <!-- Right Column: Product Attributes -->
           <div class="space-y-6">
-            <div>
-              <h3 class="text-lg font-semibold text-charcoal-800">Product Attributes</h3>
-              <p class="text-sm text-charcoal-600">Add attribute values for this product</p>
-            </div>
-
-            <LoadingSpinner v-if="loadingAttributes" text="Loading attributes..." />
-            <div v-else-if="attributes.length === 0" class="text-sm text-charcoal-500">
-              Select a category to see available attributes
-            </div>
-            <div v-else class="space-y-4">
-              <div
-                v-for="attr in attributes"
-                :key="attr.id"
-                class="bg-charcoal-50"
-              >
-                <label class="block text-sm font-medium text-charcoal-700">
-                  {{ attr.name }}
-                  <span v-if="attr.is_required" class="text-red-500">*</span>
-                  <span v-if="attr.unit" class="text-charcoal-500">({{ attr.unit }})</span>
-                </label>
-                <AttributeInput
-                  :attr="attr"
-                  :model-value="form.attributes[attr.id]"
-                  :partners="partners"
-                  @update:model-value="form.attributes[attr.id] = $event"
-                />
+            <FormSection title="Product Attributes" description="Add attribute values for this product">
+              <LoadingSpinner v-if="loadingAttributes" text="Loading attributes..." />
+              <div v-else-if="attributes.length === 0" class="text-sm text-charcoal-500">
+                Select a category to see available attributes
               </div>
-            </div>
+              <div v-else class="space-y-4">
+                <div
+                  v-for="attr in attributes"
+                  :key="attr.id"
+                  class="bg-charcoal-50 p-4 rounded-lg"
+                >
+                  <label class="block text-sm font-medium text-charcoal-700 mb-2">
+                    {{ attr.name }}
+                    <span v-if="attr.is_required" class="text-red-500">*</span>
+                    <span v-if="attr.unit" class="text-charcoal-500">({{ attr.unit }})</span>
+                  </label>
+                  <AttributeInput
+                    :attr="attr"
+                    :model-value="form.attributes[attr.id]"
+                    :partners="partners"
+                    @update:model-value="form.attributes[attr.id] = $event"
+                  />
+                </div>
+              </div>
+            </FormSection>
           </div>
         </div>
 
-        <!-- Form Actions -->
-        <div class="flex items-center gap-3 pt-4 border-t border-charcoal-200">
-          <router-link
-            to="/admin/products"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-white"
-          >
-            Cancel
-          </router-link>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
-            <span>{{ loading ? 'Updating...' : 'Update Product' }}</span>
-          </button>
-        </div>
+        <FormActions
+          :loading="loading"
+          submit-text="Update Product"
+          loading-text="Updating..."
+          cancel-route="/admin/products"
+        />
       </form>
     </FormCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
 import { usePartnersStore } from '../../stores';
@@ -232,8 +157,15 @@ import { extractValidationErrors } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
-import AttributeInput from '../../components/AttributeInput.vue';
+import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
+import FormSection from '../../components/FormSection.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormTextarea from '../../components/FormTextarea.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import FormFileInput from '../../components/FormFileInput.vue';
+import FormActions from '../../components/FormActions.vue';
+import AttributeInput from '../../components/AttributeInput.vue';
 import type { Attribute, Partner, ProductCategory, FormErrors } from '../../types/index';
 
 const route = useRoute();
@@ -281,21 +213,30 @@ const successMessage = ref<string>('');
 const loadingAttributes = ref<boolean>(false);
 const imagePreview = ref<string | null>(null);
 
-const handleImageChange = (event: Event): void => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (file) {
-    form.image = file;
+const statusOptions = [
+  { id: 'active', name: 'Active' },
+  { id: 'inactive', name: 'Inactive' },
+];
+
+// Helper to get first error string from errors object
+const getError = (field: string): string | undefined => {
+  const error = errors.value[field];
+  if (!error) return undefined;
+  return Array.isArray(error) ? error[0] : error;
+};
+
+// Watch for image changes to show preview
+watch(() => form.image, (newFile) => {
+  if (newFile) {
     const reader = new FileReader();
     reader.onload = (e) => {
       imagePreview.value = e.target?.result as string;
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(newFile);
   } else {
-    form.image = null;
     imagePreview.value = null;
   }
-};
+});
 
 interface AttributeValue {
   attribute_id: number;
@@ -333,15 +274,17 @@ const getScalarValue = (attributeValue: AttributeValue | null | undefined): any 
 };
 
 const loadAttributes = async (): Promise<void> => {
-  if (!form.product_category_id) {
+  const categoryId = form.product_category_id;
+  if (!categoryId) {
     attributes.value = [];
     return;
   }
 
   loadingAttributes.value = true;
   try {
-    const response = await adminApi.attributes.byCategory(form.product_category_id);
-    attributes.value = response.data || [];
+    const categoryIdStr = String(categoryId);
+    const response = await adminApi.attributes.byCategory(categoryIdStr);
+    attributes.value = (Array.isArray(response.data) ? response.data : response.data?.data || []) as Attribute[];
 
     // Initialize attribute values from existing product or empty
     const currentItem = productsStore.currentItem as any;
@@ -366,6 +309,11 @@ const loadAttributes = async (): Promise<void> => {
     loadingAttributes.value = false;
   }
 };
+
+// Watch for category changes to load attributes
+watch(() => form.product_category_id, () => {
+  loadAttributes();
+});
 
 const loadProduct = async (): Promise<void> => {
   try {
@@ -412,13 +360,21 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    const data = {
-      ...form,
-      partner_id: parseInt(form.partner_id),
-      product_category_id: parseInt(form.product_category_id),
+    const data: any = {
+      name: form.name,
+      slug: form.slug,
+      partner_id: typeof form.partner_id === 'string' ? parseInt(form.partner_id) : form.partner_id,
+      product_category_id: typeof form.product_category_id === 'string' ? parseInt(form.product_category_id) : form.product_category_id,
+      description: form.description,
       is_featured: form.is_featured ? 1 : 0,
+      status: form.status,
       attributes: form.attributes,
     };
+
+    // Only include image if a new file was selected
+    if (form.image) {
+      data.image = form.image;
+    }
 
     await productsStore.updateItem(productId, data);
     successMessage.value = 'Product updated successfully!';

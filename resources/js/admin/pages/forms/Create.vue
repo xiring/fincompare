@@ -10,17 +10,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left Column: Basic Form Information -->
           <div class="space-y-6">
-            <div>
-              <h3 class="text-lg font-semibold text-charcoal-800">Form Information</h3>
-            </div>
-
+            <FormSection title="Form Information">
             <FormInput
               id="name"
               v-model="form.name"
               label="Name"
               type="text"
               required
-              :error="errors.name"
+              :error="getError('name')"
             />
 
             <FormInput
@@ -28,7 +25,7 @@
               v-model="form.slug"
               label="Slug"
               hint="Leave empty to auto-generate from name"
-              :error="errors.slug"
+              :error="getError('slug')"
             />
 
             <FormTextarea
@@ -36,7 +33,7 @@
               v-model="form.description"
               label="Description"
               :rows="3"
-              :error="errors.description"
+              :error="getError('description')"
             />
 
             <FormSelect
@@ -45,7 +42,7 @@
               label="Type"
               :options="typeOptions"
               required
-              :error="errors.type"
+              :error="getError('type')"
             />
 
             <FormSelect
@@ -54,17 +51,15 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="errors.status"
+              :error="getError('status')"
             />
+            </FormSection>
           </div>
 
           <!-- Right Column: Form Inputs Section -->
           <div class="space-y-6">
+          <FormSection title="Form Inputs" description="Add fields to your form">
           <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-lg font-semibold text-charcoal-800">Form Inputs</h3>
-              <p class="text-sm text-charcoal-600">Add fields to your form</p>
-            </div>
             <button
               type="button"
               @click="addInput"
@@ -132,7 +127,7 @@
                   label="Label"
                   type="text"
                   required
-                  :error="errors[`inputs.${index}.label`]"
+                  :error="getError(`inputs.${index}.label`)"
                 />
 
                 <FormInput
@@ -142,7 +137,7 @@
                   type="text"
                   required
                   hint="Lowercase letters, numbers, and underscores only"
-                  :error="errors[`inputs.${index}.name`]"
+                  :error="getError(`inputs.${index}.name`)"
                 />
 
                 <FormSelect
@@ -151,7 +146,7 @@
                   label="Type"
                   :options="inputTypeOptions"
                   required
-                  :error="errors[`inputs.${index}.type`]"
+                  :error="getError(`inputs.${index}.type`)"
                 />
 
                 <div class="flex items-center pt-6">
@@ -171,7 +166,7 @@
                   v-model="input.placeholder"
                   label="Placeholder"
                   type="text"
-                  :error="errors[`inputs.${index}.placeholder`]"
+                  :error="getError(`inputs.${index}.placeholder`)"
                 />
 
                 <FormInput
@@ -179,7 +174,7 @@
                   v-model="input.help_text"
                   label="Help Text"
                   type="text"
-                  :error="errors[`inputs.${index}.help_text`]"
+                  :error="getError(`inputs.${index}.help_text`)"
                 />
 
                 <FormInput
@@ -188,26 +183,25 @@
                   label="Validation Rules"
                   type="text"
                   hint="e.g., email|max:255"
-                  :error="errors[`inputs.${index}.validation_rules`]"
+                  :error="getError(`inputs.${index}.validation_rules`)"
                 />
               </div>
 
               <!-- Options for dropdown type -->
               <div v-if="input.type === 'dropdown'" class="mt-4">
-                <label :for="`input-options-${index}`" class="block text-sm font-medium text-charcoal-700 mb-2">
-                  Options (one per line)
-                </label>
-                <textarea
+                <FormTextarea
                   :id="`input-options-${index}`"
                   v-model="input.options_text"
-                  rows="4"
-                  class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                  label="Options (one per line)"
+                  :rows="4"
                   placeholder="Option 1&#10;Option 2&#10;Option 3"
-                ></textarea>
-                <p class="mt-1 text-xs text-charcoal-500">Enter each option on a new line</p>
+                  hint="Enter each option on a new line"
+                  :error="getError(`inputs.${index}.options`)"
+                />
               </div>
             </div>
           </div>
+          </FormSection>
           </div>
         </div>
 
@@ -232,6 +226,7 @@ import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import FormSection from '../../components/FormSection.vue';
 import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
@@ -319,20 +314,26 @@ const removeInput = (index: number): void => {
 const moveInput = (index: number, direction: 'up' | 'down'): void => {
   if (direction === 'up' && index > 0) {
     const temp = form.inputs[index];
-    form.inputs[index] = form.inputs[index - 1];
-    form.inputs[index - 1] = temp;
-    // Update sort_order
-    form.inputs.forEach((input, idx) => {
-      input.sort_order = idx;
-    });
+    const prev = form.inputs[index - 1];
+    if (temp && prev) {
+      form.inputs[index] = prev;
+      form.inputs[index - 1] = temp;
+      // Update sort_order
+      form.inputs.forEach((input, idx) => {
+        input.sort_order = idx;
+      });
+    }
   } else if (direction === 'down' && index < form.inputs.length - 1) {
     const temp = form.inputs[index];
-    form.inputs[index] = form.inputs[index + 1];
-    form.inputs[index + 1] = temp;
-    // Update sort_order
-    form.inputs.forEach((input, idx) => {
-      input.sort_order = idx;
-    });
+    const next = form.inputs[index + 1];
+    if (temp && next) {
+      form.inputs[index] = next;
+      form.inputs[index + 1] = temp;
+      // Update sort_order
+      form.inputs.forEach((input, idx) => {
+        input.sort_order = idx;
+      });
+    }
   }
 };
 
@@ -340,6 +341,13 @@ const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
 const loading = computed(() => formsStore.loading);
+
+// Helper to get first error string from errors object
+const getError = (field: string): string | undefined => {
+  const error = errors.value[field];
+  if (!error) return undefined;
+  return Array.isArray(error) ? error[0] : error;
+};
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};

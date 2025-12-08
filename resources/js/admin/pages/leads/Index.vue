@@ -90,15 +90,14 @@
             </tr>
             <tr v-else v-for="lead in leads" :key="lead.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ lead.id }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ lead.full_name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ lead?.full_name || lead?.name || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                <div v-if="lead.email" class="text-primary-500">{{ lead.email }}</div>
-                <div v-if="lead.mobile_number" class="text-charcoal-500">{{ lead.mobile_number }}</div>
-                <span v-if="!lead.email && !lead.mobile_number" class="text-charcoal-400">-</span>
+                <div v-if="lead?.email" class="text-primary-500">{{ lead.email }}</div>
+                <div v-if="lead?.mobile_number" class="text-charcoal-500">{{ lead.mobile_number }}</div>
+                <span v-if="!lead?.email && !lead.data?.mobile_number" class="text-charcoal-400">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 <div v-if="lead.product">{{ lead.product.name }}</div>
-                <div v-else-if="lead.product_category">{{ lead.product_category.name }}</div>
                 <span v-else class="text-charcoal-400">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -117,7 +116,7 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                {{ new Date(lead.created_at).toLocaleDateString() }}
+                {{ lead.created_at ? new Date(lead.created_at).toLocaleDateString() : '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
@@ -145,41 +144,129 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useLeadsStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
-import type { Lead } from '../../types/index';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 
+const router = useRouter();
 const route = useRoute();
 const leadsStore = useLeadsStore();
 
-// Use the composable with extra filters
-const {
-  items: leads,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage<Lead>(leadsStore, {
-  extraFilters: {
-    status: '',
-  },
+// Reactive state from store
+const leads = computed(() => leadsStore.items);
+const loading = computed(() => leadsStore.loading);
+const pagination = computed(() => leadsStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number; status: string }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+  status: (route.query.status as string) || '',
 });
+
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    status: filters.status || undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchLeads = debounce((page: number) => {
+  fetchLeads(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchLeads(1);
+  }
+);
+
+const fetchLeads = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      status: filters.status,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await leadsStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching leads:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchLeads(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  filters.status = '';
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchLeads(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchLeads(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchLeads(page);
+};
 
 const exportLeads = async (): Promise<void> => {
   try {
-    await leadsStore.exportLeads();
+    await (leadsStore as any).exportLeads();
   } catch (error: any) {
     console.error('Error exporting leads:', error);
     alert('Failed to export leads');
@@ -187,7 +274,11 @@ const exportLeads = async (): Promise<void> => {
 };
 
 onMounted(() => {
+  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
-  fetchItems(page);
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchLeads(page);
 });
 </script>

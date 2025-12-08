@@ -150,45 +150,137 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useBlogsStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 import type { BlogPost } from '../../types/index';
 
+const router = useRouter();
 const route = useRoute();
 const blogsStore = useBlogsStore();
 
-// Use the composable with extra filters
-const {
-  items: blogs,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage<BlogPost>(blogsStore, {
-  extraFilters: {
-    status: '',
-  },
+// Reactive state from store
+const blogs = computed(() => blogsStore.items);
+const loading = computed(() => blogsStore.loading);
+const pagination = computed(() => blogsStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number; status: string }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+  status: (route.query.status as string) || '',
 });
+
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    status: filters.status || undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchBlogs = debounce((page: number) => {
+  fetchBlogs(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchBlogs(1);
+  }
+);
+
+const fetchBlogs = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      status: filters.status,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await blogsStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching blogs:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchBlogs(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  filters.status = '';
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchBlogs(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchBlogs(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchBlogs(page);
+};
 
 const handleDelete = async (blog: BlogPost): Promise<void> => {
   if (!confirm(`Delete blog post "${blog.title}"?`)) return;
 
   try {
     await blogsStore.deleteItem(blog.id);
+    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (blogs.value.length === 0 && pagination.value.current_page > 1) {
-      fetchItems(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchBlogs(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting blog:', error);
@@ -197,7 +289,11 @@ const handleDelete = async (blog: BlogPost): Promise<void> => {
 };
 
 onMounted(() => {
+  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
-  fetchItems(page);
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchBlogs(page);
 });
 </script>

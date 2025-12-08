@@ -79,7 +79,7 @@
             <tr v-else v-for="activity in activities" :key="activity.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ activity.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                {{ new Date(activity.created_at).toLocaleString() }}
+                {{ activity.created_at ? new Date(activity.created_at).toLocaleString() : '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
@@ -105,40 +105,132 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useActivityStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
-import type { ActivityLog } from '../../types/index';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 
+const router = useRouter();
 const route = useRoute();
 const activityStore = useActivityStore();
 
-// Use the composable with extra filters
-const {
-  items: activities,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage<ActivityLog>(activityStore, {
-  extraFilters: {
-    log_name: '',
-  },
+// Reactive state from store
+const activities = computed(() => activityStore.items);
+const loading = computed(() => activityStore.loading);
+const pagination = computed(() => activityStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number; log_name: string }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+  log_name: (route.query.log_name as string) || '',
 });
 
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || filters.log_name || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    log_name: filters.log_name || undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchActivities = debounce((page: number) => {
+  fetchActivities(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchActivities(1);
+  }
+);
+
+const fetchActivities = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      log_name: filters.log_name,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await activityStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching activities:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchActivities(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  filters.log_name = '';
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchActivities(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchActivities(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchActivities(page);
+};
+
 onMounted(() => {
+  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
-  fetchItems(page);
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchActivities(page);
 });
 </script>

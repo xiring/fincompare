@@ -152,34 +152,122 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { usePartnersStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
 import type { Partner } from '../../types/index';
 
+const router = useRouter();
 const route = useRoute();
-
 const partnersStore = usePartnersStore();
 
-// Use the composable for common Index page functionality
-const {
-  items: partners,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage<Partner>(partnersStore);
+// Reactive state from store
+const partners = computed(() => partnersStore.items);
+const loading = computed(() => partnersStore.loading);
+const pagination = computed(() => partnersStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+});
+
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchPartners = debounce((page: number) => {
+  fetchPartners(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchPartners(1);
+  }
+);
+
+const fetchPartners = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await partnersStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching partners:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchPartners(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchPartners(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchPartners(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchPartners(page);
+};
 
 const handleDelete = async (partner: Partner): Promise<void> => {
   if (!confirm(`Delete partner "${partner.name}"?`)) return;
@@ -188,7 +276,9 @@ const handleDelete = async (partner: Partner): Promise<void> => {
     await partnersStore.deleteItem(partner.id);
     // Store automatically updates the list, but we may need to refresh if pagination changed
     if (partners.value.length === 0 && pagination.value.current_page > 1) {
-      fetchItems(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchPartners(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting partner:', error);
@@ -197,7 +287,11 @@ const handleDelete = async (partner: Partner): Promise<void> => {
 };
 
 onMounted(() => {
+  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
-  fetchItems(page);
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchPartners(page);
 });
 </script>
