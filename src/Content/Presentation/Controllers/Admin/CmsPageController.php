@@ -12,6 +12,7 @@ use Src\Content\Application\Actions\ShowCmsPageAction;
 use Src\Content\Application\Actions\UpdateCmsPageAction;
 use Src\Content\Application\DTOs\CmsPageDTO;
 use Src\Content\Domain\Entities\CmsPage;
+use Src\Content\Domain\Repositories\CmsPageRepositoryInterface;
 use Src\Content\Presentation\Requests\CmsPageRequest;
 
 /**
@@ -39,11 +40,8 @@ class CmsPageController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.cms_pages.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -53,11 +51,7 @@ class CmsPageController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide page payload to store.']);
-        }
-
-        return view('admin.cms_pages.create');
+        return response()->json(['message' => 'Provide page payload to store.']);
     }
 
     /**
@@ -68,11 +62,8 @@ class CmsPageController extends Controller
     public function store(CmsPageRequest $request, CreateCmsPageAction $create)
     {
         $page = $create->execute(CmsPageDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($page, 201);
-        }
 
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page created');
+        return response()->json($page, 201);
     }
 
     /**
@@ -80,14 +71,16 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
+    public function show(Request $request, int $id, ShowCmsPageAction $show, CmsPageRepositoryInterface $repository)
     {
-        $cms_page = $show->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json($cms_page);
+        $cms_page = $repository->find($id);
+        if (!$cms_page) {
+            abort(404);
         }
+        $this->authorize('view', $cms_page);
+        $cms_page = $show->execute($cms_page);
 
-        return view('admin.cms_pages.edit', compact('cms_page'));
+        return response()->json($cms_page);
     }
 
     /**
@@ -95,14 +88,16 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
+    public function edit(Request $request, int $id, ShowCmsPageAction $show, CmsPageRepositoryInterface $repository)
     {
-        $cms_page = $show->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json($cms_page);
+        $cms_page = $repository->find($id);
+        if (!$cms_page) {
+            abort(404);
         }
+        $this->authorize('update', $cms_page);
+        $cms_page = $show->execute($cms_page);
 
-        return view('admin.cms_pages.edit', compact('cms_page'));
+        return response()->json($cms_page);
     }
 
     /**
@@ -110,14 +105,16 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(CmsPageRequest $request, CmsPage $cms_page, UpdateCmsPageAction $update)
+    public function update(CmsPageRequest $request, int $id, UpdateCmsPageAction $update, CmsPageRepositoryInterface $repository)
     {
-        $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($item);
+        $cms_page = $repository->find($id);
+        if (!$cms_page) {
+            abort(404);
         }
+        $this->authorize('update', $cms_page);
+        $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
 
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page updated');
+        return response()->json($item);
     }
 
     /**
@@ -125,13 +122,15 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, CmsPage $cms_page, DeleteCmsPageAction $delete)
+    public function destroy(Request $request, int $id, DeleteCmsPageAction $delete, CmsPageRepositoryInterface $repository)
     {
-        $delete->execute($cms_page);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
+        $cms_page = $repository->find($id);
+        if (!$cms_page) {
+            abort(404);
         }
+        $this->authorize('delete', $cms_page);
+        $delete->execute($cms_page);
 
-        return redirect()->route('admin.cms-pages.index')->with('status', 'Page deleted');
+        return response()->json(null, 204);
     }
 }

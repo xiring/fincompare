@@ -12,6 +12,7 @@ use Src\Content\Application\Actions\ShowFaqAction;
 use Src\Content\Application\Actions\UpdateFaqAction;
 use Src\Content\Application\DTOs\FaqDTO;
 use Src\Content\Domain\Entities\Faq;
+use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 use Src\Content\Presentation\Requests\FaqRequest;
 
 /**
@@ -38,11 +39,8 @@ class FaqController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.faqs.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -52,11 +50,7 @@ class FaqController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide FAQ payload to store.']);
-        }
-
-        return view('admin.faqs.create');
+        return response()->json(['message' => 'Provide FAQ payload to store.']);
     }
 
     /**
@@ -67,11 +61,25 @@ class FaqController extends Controller
     public function store(FaqRequest $request, CreateFaqAction $create)
     {
         $faq = $create->execute(FaqDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($faq, 201);
-        }
 
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ created');
+        return response()->json($faq, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id, ShowFaqAction $show, FaqRepositoryInterface $repository)
+    {
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
+        }
+        $this->authorize('view', $faq);
+        $faq = $show->execute($faq);
+
+        return response()->json($faq);
     }
 
     /**
@@ -79,14 +87,16 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Faq $faq, ShowFaqAction $show)
+    public function edit(Request $request, int $id, ShowFaqAction $show, FaqRepositoryInterface $repository)
     {
-        $faq = $show->execute($faq);
-        if ($request->wantsJson()) {
-            return response()->json($faq);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
         }
+        $this->authorize('update', $faq);
+        $faq = $show->execute($faq);
 
-        return view('admin.faqs.edit', compact('faq'));
+        return response()->json($faq);
     }
 
     /**
@@ -94,14 +104,16 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(FaqRequest $request, Faq $faq, UpdateFaqAction $update)
+    public function update(FaqRequest $request, int $id, UpdateFaqAction $update, FaqRepositoryInterface $repository)
     {
-        $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($item);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
         }
+        $this->authorize('update', $faq);
+        $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
 
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ updated');
+        return response()->json($item);
     }
 
     /**
@@ -109,13 +121,15 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Faq $faq, DeleteFaqAction $delete)
+    public function destroy(Request $request, int $id, DeleteFaqAction $delete, FaqRepositoryInterface $repository)
     {
-        $delete->execute($faq);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
         }
+        $this->authorize('delete', $faq);
+        $delete->execute($faq);
 
-        return redirect()->route('admin.faqs.index')->with('status', 'FAQ deleted');
+        return response()->json(null, 204);
     }
 }

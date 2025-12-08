@@ -12,6 +12,7 @@ use Src\Content\Application\Actions\ShowBlogPostAction;
 use Src\Content\Application\Actions\UpdateBlogPostAction;
 use Src\Content\Application\DTOs\BlogPostDTO;
 use Src\Content\Domain\Entities\BlogPost;
+use Src\Content\Domain\Repositories\BlogPostRepositoryInterface;
 use Src\Content\Presentation\Requests\BlogPostRequest;
 
 /**
@@ -39,11 +40,8 @@ class BlogPostController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.blogs.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -53,11 +51,7 @@ class BlogPostController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide blog post payload to store.']);
-        }
-
-        return view('admin.blogs.create');
+        return response()->json(['message' => 'Provide blog post payload to store.']);
     }
 
     /**
@@ -68,11 +62,8 @@ class BlogPostController extends Controller
     public function store(BlogPostRequest $request, CreateBlogPostAction $create)
     {
         $post = $create->execute(BlogPostDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($post, 201);
-        }
 
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post created');
+        return response()->json($post, 201);
     }
 
     /**
@@ -80,14 +71,16 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, BlogPost $blog, ShowBlogPostAction $show)
+    public function show(Request $request, int $id, ShowBlogPostAction $show, BlogPostRepositoryInterface $repository)
     {
-        $blog = $show->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json($blog);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
         }
+        $this->authorize('view', $blog);
+        $blog = $show->execute($blog);
 
-        return view('admin.blogs.edit', compact('blog'));
+        return response()->json($blog);
     }
 
     /**
@@ -95,14 +88,16 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, BlogPost $blog, ShowBlogPostAction $show)
+    public function edit(Request $request, int $id, ShowBlogPostAction $show, BlogPostRepositoryInterface $repository)
     {
-        $blog = $show->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json($blog);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
         }
+        $this->authorize('update', $blog);
+        $blog = $show->execute($blog);
 
-        return view('admin.blogs.edit', compact('blog'));
+        return response()->json($blog);
     }
 
     /**
@@ -110,14 +105,16 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(BlogPostRequest $request, BlogPost $blog, UpdateBlogPostAction $update)
+    public function update(BlogPostRequest $request, int $id, UpdateBlogPostAction $update, BlogPostRepositoryInterface $repository)
     {
-        $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($post);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
         }
+        $this->authorize('update', $blog);
+        $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
 
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post updated');
+        return response()->json($post);
     }
 
     /**
@@ -125,13 +122,15 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, BlogPost $blog, DeleteBlogPostAction $delete)
+    public function destroy(Request $request, int $id, DeleteBlogPostAction $delete, BlogPostRepositoryInterface $repository)
     {
-        $delete->execute($blog);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
         }
+        $this->authorize('delete', $blog);
+        $delete->execute($blog);
 
-        return redirect()->route('admin.blogs.index')->with('status', 'Blog post deleted');
+        return response()->json(null, 204);
     }
 }

@@ -12,9 +12,8 @@ use Src\Catalog\Application\Actions\ListProductsAction;
 use Src\Catalog\Application\Actions\ShowProductAction;
 use Src\Catalog\Application\Actions\UpdateProductAction;
 use Src\Catalog\Domain\Entities\Product;
-use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 use Src\Catalog\Presentation\Requests\ProductRequest;
-use Src\Partners\Domain\Entities\Partner;
 
 /**
  * ProductController controller.
@@ -40,11 +39,7 @@ class ProductController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-
-        return view('admin.products.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -54,13 +49,7 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide product payload to store.']);
-        }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.create', compact('partners', 'categories'));
+        return response()->json(['message' => 'Provide product payload to store.']);
     }
 
     /**
@@ -91,14 +80,11 @@ class ProductController extends Controller
                 'image' => $data['image'] ?? null,
                 'is_featured' => (bool) ($data['is_featured'] ?? false),
                 'status' => $data['status'],
+                'attributes' => $data['attributes'] ?? [],
             ],
             attributesInput: $data['attributes'] ?? []
         );
-        if ($request->wantsJson()) {
-            return response()->json($product->load(['partner', 'productCategory']), 201);
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product created');
+        return response()->json($product->load(['partner', 'productCategory']), 201);
     }
 
     /**
@@ -106,16 +92,15 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, Product $product, ShowProductAction $show)
+    public function show(Request $request, int $id, ShowProductAction $show, AdminProductRepositoryInterface $repository)
     {
-        $product = $show->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json($product);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
         }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.edit', compact('product', 'partners', 'categories'));
+        $this->authorize('view', $product);
+        $product = $show->execute($product);
+        return response()->json($product);
     }
 
     /**
@@ -123,16 +108,15 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Product $product, ShowProductAction $show)
+    public function edit(Request $request, int $id, ShowProductAction $show, AdminProductRepositoryInterface $repository)
     {
-        $product = $show->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json($product);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
         }
-        $partners = Partner::orderBy('name')->get(['id', 'name']);
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.products.edit', compact('product', 'partners', 'categories'));
+        $this->authorize('update', $product);
+        $product = $show->execute($product);
+        return response()->json($product);
     }
 
     /**
@@ -140,8 +124,14 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductRequest $request, Product $product, UpdateProductAction $update)
+    public function update(ProductRequest $request, int $id, UpdateProductAction $update, AdminProductRepositoryInterface $repository)
     {
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
+        $this->authorize('update', $product);
+
         $data = $request->validated();
         if (isset($data['attributes']) && is_string($data['attributes'])) {
             $decoded = json_decode($data['attributes'], true);
@@ -171,11 +161,7 @@ class ProductController extends Controller
             ],
             attributesInput: $data['attributes'] ?? []
         );
-        if ($request->wantsJson()) {
-            return response()->json($product->load(['partner', 'productCategory', 'attributeValues.attribute']));
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product updated');
+        return response()->json($product->load(['partner', 'productCategory', 'attributeValues.attribute']));
     }
 
     /**
@@ -183,15 +169,16 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function duplicate(Product $product, DuplicateProductAction $duplicate)
+    public function duplicate(int $id, DuplicateProductAction $duplicate, AdminProductRepositoryInterface $repository)
     {
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
+        $this->authorize('create', Product::class);
         $duplicatedProduct = $duplicate->execute($product);
 
-        if (request()->wantsJson()) {
-            return response()->json($duplicatedProduct, 201);
-        }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product duplicated successfully');
+        return response()->json($duplicatedProduct, 201);
     }
 
     /**
@@ -199,13 +186,15 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Product $product, DeleteProductAction $delete)
+    public function destroy(Request $request, int $id, DeleteProductAction $delete, AdminProductRepositoryInterface $repository)
     {
-        $delete->execute($product);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
         }
-
-        return redirect()->route('admin.products.index')->with('status', 'Product deleted');
+        $this->authorize('delete', $product);
+        $delete->execute($product);
+        return response()->json(null, 204);
     }
+
 }

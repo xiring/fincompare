@@ -15,6 +15,10 @@ interface AdminProductRepositoryInterface
 
     public function find(int $id): ?Product;
 
+    public function findBySlug(string $slug): ?Product;
+
+    public function slugExists(string $slug, ?int $excludeId = null): bool;
+
     public function create(ProductDTO $dto): Product;
 
     public function update(Product $product, ProductDTO $dto): Product;

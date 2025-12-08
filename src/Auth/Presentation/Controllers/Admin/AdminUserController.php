@@ -37,11 +37,8 @@ class AdminUserController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.users.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -51,12 +48,7 @@ class AdminUserController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide user payload to store.']);
-        }
-        $roles = Role::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.users.create', compact('roles'));
+        return response()->json(['message' => 'Provide user payload to store.']);
     }
 
     /**
@@ -67,11 +59,20 @@ class AdminUserController extends Controller
     public function store(\Src\Auth\Presentation\Requests\AdminUserStoreRequest $request, CreateAdminUserAction $create)
     {
         $user = $create->execute(AdminUserDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($user->load('roles'), 201);
-        }
 
-        return redirect()->route('admin.users.index')->with('status', 'User created');
+        return response()->json($user->load('roles'), 201);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $user = User::findOrFail($id);
+        $this->authorize('view', $user);
+        return response()->json($user->load('roles'));
     }
 
     /**
@@ -79,14 +80,11 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, User $user)
+    public function edit(Request $request, int $id)
     {
-        if ($request->wantsJson()) {
-            return response()->json($user->load('roles'));
-        }
-        $roles = Role::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.users.edit', compact('user', 'roles'));
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
+        return response()->json($user->load('roles'));
     }
 
     /**
@@ -94,14 +92,13 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, User $user, UpdateAdminUserAction $update)
+    public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, int $id, UpdateAdminUserAction $update)
     {
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         $user = $update->execute($user, AdminUserDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($user->load('roles'));
-        }
 
-        return redirect()->route('admin.users.index')->with('status', 'User updated');
+        return response()->json($user->load('roles'));
     }
 
     /**
@@ -109,13 +106,12 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, User $user, DeleteAdminUserAction $delete)
+    public function destroy(Request $request, int $id, DeleteAdminUserAction $delete)
     {
+        $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
         $delete->execute($user);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
 
-        return back()->with('status', 'User deleted');
+        return response()->json(null, 204);
     }
 }

@@ -40,11 +40,8 @@ class ProductCategoryController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.product_categories.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -54,9 +51,7 @@ class ProductCategoryController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide product category payload to store.']);
-        }
+        return response()->json(['message' => 'Provide product category payload to store.']);
 
         // Get all pre_forms that are not already assigned to any category
         $assignedPreFormIds = \Src\Catalog\Domain\Entities\ProductCategory::whereNotNull('pre_form_id')
@@ -75,8 +70,6 @@ class ProductCategoryController extends Controller
             ->whereNotIn('id', $assignedPostFormIds)
             ->orderBy('name')
             ->get(['id', 'name']);
-
-        return view('admin.product_categories.create', compact('preForms', 'postForms'));
     }
 
     /**
@@ -94,11 +87,8 @@ class ProductCategoryController extends Controller
         }
 
         $item = $create->execute(ProductCategoryDTO::fromArray($data));
-        if ($request->wantsJson()) {
-            return response()->json($item, 201);
-        }
 
-        return redirect()->route('admin.product-categories.index')->with('status', 'Category created');
+        return response()->json($item, 201);
     }
 
     /**
@@ -106,14 +96,13 @@ class ProductCategoryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
+    public function show(Request $request, int $id, ShowProductCategoryAction $show)
     {
+        $product_category = ProductCategory::findOrFail($id);
+        $this->authorize('view', $product_category);
         $product_category = $show->execute($product_category);
-        if ($request->wantsJson()) {
-            return response()->json($product_category);
-        }
 
-        return view('admin.product_categories.edit', compact('product_category'));
+        return response()->json($product_category);
     }
 
     /**
@@ -121,44 +110,13 @@ class ProductCategoryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
+    public function edit(Request $request, int $id, ShowProductCategoryAction $show)
     {
+        $product_category = ProductCategory::findOrFail($id);
+        $this->authorize('update', $product_category);
         $product_category = $show->execute($product_category);
-        if ($request->wantsJson()) {
-            return response()->json($product_category);
-        }
 
-        // Get all pre_forms (including the one already assigned to this category)
-        $assignedPreFormIds = \Src\Catalog\Domain\Entities\ProductCategory::whereNotNull('pre_form_id')
-            ->where('id', '!=', $product_category->id)
-            ->pluck('pre_form_id')
-            ->toArray();
-        $preForms = Form::where('type', 'pre_form')
-            ->where(function($q) use ($product_category, $assignedPreFormIds) {
-                $q->whereNotIn('id', $assignedPreFormIds);
-                if ($product_category->pre_form_id) {
-                    $q->orWhere('id', $product_category->pre_form_id);
-                }
-            })
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        // Get all post_forms (including the one already assigned to this category)
-        $assignedPostFormIds = \Src\Catalog\Domain\Entities\ProductCategory::whereNotNull('post_form_id')
-            ->where('id', '!=', $product_category->id)
-            ->pluck('post_form_id')
-            ->toArray();
-        $postForms = Form::where('type', 'post_form')
-            ->where(function($q) use ($product_category, $assignedPostFormIds) {
-                $q->whereNotIn('id', $assignedPostFormIds);
-                if ($product_category->post_form_id) {
-                    $q->orWhere('id', $product_category->post_form_id);
-                }
-            })
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        return view('admin.product_categories.edit', compact('product_category', 'preForms', 'postForms'));
+        return response()->json($product_category);
     }
 
     /**
@@ -166,8 +124,11 @@ class ProductCategoryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductCategoryRequest $request, ProductCategory $product_category, UpdateProductCategoryAction $update)
+    public function update(ProductCategoryRequest $request, int $id, UpdateProductCategoryAction $update)
     {
+        $product_category = ProductCategory::findOrFail($id);
+        $this->authorize('update', $product_category);
+
         $data = $request->validated();
 
         // Handle image upload
@@ -176,6 +137,7 @@ class ProductCategoryController extends Controller
             if ($product_category->image && Storage::disk('public')->exists($product_category->image)) {
                 Storage::disk('public')->delete($product_category->image);
             }
+
             $data['image'] = $request->file('image')->store('categories/'.now()->format('Y/m'), 'public');
         } else {
             // Keep existing image if not updated
@@ -183,11 +145,8 @@ class ProductCategoryController extends Controller
         }
 
         $item = $update->execute($product_category, ProductCategoryDTO::fromArray($data));
-        if ($request->wantsJson()) {
-            return response()->json($item);
-        }
 
-        return redirect()->route('admin.product-categories.index')->with('status', 'Category updated');
+        return response()->json($item);
     }
 
     /**
@@ -195,13 +154,12 @@ class ProductCategoryController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, ProductCategory $product_category, DeleteProductCategoryAction $delete)
+    public function destroy(Request $request, int $id, DeleteProductCategoryAction $delete)
     {
+        $product_category = ProductCategory::findOrFail($id);
+        $this->authorize('delete', $product_category);
         $delete->execute($product_category);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
 
-        return redirect()->route('admin.product-categories.index')->with('status', 'Category deleted');
+        return response()->json(null, 204);
     }
 }

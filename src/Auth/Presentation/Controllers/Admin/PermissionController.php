@@ -36,11 +36,8 @@ class PermissionController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.permissions.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -50,11 +47,7 @@ class PermissionController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide permission payload to store.']);
-        }
-
-        return view('admin.permissions.create');
+        return response()->json(['message' => 'Provide permission payload to store.']);
     }
 
     /**
@@ -65,11 +58,20 @@ class PermissionController extends Controller
     public function store(\Src\Auth\Presentation\Requests\PermissionRequest $request, CreatePermissionAction $create)
     {
         $perm = $create->execute(PermissionDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($perm, 201);
-        }
 
-        return redirect()->route('admin.permissions.index')->with('status', 'Permission created');
+        return response()->json($perm, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('view', $permission);
+        return response()->json($permission);
     }
 
     /**
@@ -77,13 +79,11 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Permission $permission)
+    public function edit(Request $request, int $id)
     {
-        if ($request->wantsJson()) {
-            return response()->json($permission);
-        }
-
-        return view('admin.permissions.edit', compact('permission'));
+        $permission = Permission::findOrFail($id);
+        $this->authorize('update', $permission);
+        return response()->json($permission);
     }
 
     /**
@@ -91,14 +91,13 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, Permission $permission, UpdatePermissionAction $update)
+    public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, int $id, UpdatePermissionAction $update)
     {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('update', $permission);
         $permission = $update->execute($permission, PermissionDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($permission);
-        }
 
-        return redirect()->route('admin.permissions.index')->with('status', 'Permission updated');
+        return response()->json($permission);
     }
 
     /**
@@ -106,13 +105,12 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Permission $permission, DeletePermissionAction $delete)
+    public function destroy(Request $request, int $id, DeletePermissionAction $delete)
     {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('delete', $permission);
         $delete->execute($permission);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
 
-        return back()->with('status', 'Permission deleted');
+        return response()->json(null, 204);
     }
 }

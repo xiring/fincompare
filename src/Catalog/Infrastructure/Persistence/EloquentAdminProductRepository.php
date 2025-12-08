@@ -29,6 +29,20 @@ class EloquentAdminProductRepository implements AdminProductRepositoryInterface
         return Product::with(['partner', 'productCategory', 'attributeValues.attribute'])->find($id);
     }
 
+    public function findBySlug(string $slug): ?Product
+    {
+        return Product::where('slug', $slug)->first();
+    }
+
+    public function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $query = Product::where('slug', $slug);
+        if ($excludeId !== null) {
+            $query->where('id', '!=', $excludeId);
+        }
+        return $query->exists();
+    }
+
     public function create(ProductDTO $dto): Product
     {
         $data = $dto->toArray();

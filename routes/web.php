@@ -28,22 +28,28 @@ Route::post('/compare/toggle', [ProductController::class, 'toggleCompare'])->nam
 
 // Authenticated routes (must be before catch-all)
 Route::get('/dashboard', static function () {
-    return view('dashboard');
+    return redirect('/admin');
 })->middleware(['auth', 'verified', 'role:admin|editor|viewer'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin|editor|viewer'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
-});
+// Profile routes are now in API routes (/api/profile)
 
 require __DIR__.'/auth.php';
 
-require __DIR__.'/admin.php';
+// Admin Vue SPA route - catch all admin GET routes (including /admin/profile)
+// Note: Admin API routes are now in routes/api.php under /api/admin
+// Profile API routes are in routes/api.php under /api/profile
+// This route serves the Vue app for all /admin/* paths
+// Note: $siteSettings is automatically provided by SiteSettingComposer
+Route::middleware(['auth', 'role:admin|editor|viewer'])->group(function () {
+    Route::get('/admin/{path?}', function () {
+        return view('admin.app');
+    })->where('path', '^(?!api).*')
+      ->name('admin.spa');
+});
 
 // Vue SPA catch-all route - must be last to catch all remaining public GET requests
 // Vue Router handles client-side routing for all these paths
 Route::get('/{path?}', function () {
     return view('public.app');
-})->where('path', '^(?!api|admin|dashboard|profile|horizon|telescope).*')
+})->where('path', '^(?!api|admin|dashboard|profile|horizon|telescope|login).*')
   ->name('spa');

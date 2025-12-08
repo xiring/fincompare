@@ -37,11 +37,8 @@ class RoleController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
 
-        return view('admin.roles.index', compact('items'));
+        return response()->json($items);
     }
 
     /**
@@ -51,12 +48,7 @@ class RoleController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide role payload to store.']);
-        }
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.roles.create', compact('permissions'));
+        return response()->json(['message' => 'Provide role payload to store.']);
     }
 
     /**
@@ -67,11 +59,20 @@ class RoleController extends Controller
     public function store(\Src\Auth\Presentation\Requests\RoleRequest $request, CreateRoleAction $create)
     {
         $role = $create->execute(RoleDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($role->load('permissions'), 201);
-        }
 
-        return redirect()->route('admin.roles.index')->with('status', 'Role created');
+        return response()->json($role->load('permissions'), 201);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $role = Role::findOrFail($id);
+        $this->authorize('view', $role);
+        return response()->json($role->load('permissions'));
     }
 
     /**
@@ -79,14 +80,11 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Role $role)
+    public function edit(Request $request, int $id)
     {
-        if ($request->wantsJson()) {
-            return response()->json($role->load('permissions'));
-        }
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.roles.edit', compact('role', 'permissions'));
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
+        return response()->json($role->load('permissions'));
     }
 
     /**
@@ -94,14 +92,13 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\RoleRequest $request, Role $role, UpdateRoleAction $update)
+    public function update(\Src\Auth\Presentation\Requests\RoleRequest $request, int $id, UpdateRoleAction $update)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
         $role = $update->execute($role, RoleDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($role->load('permissions'));
-        }
 
-        return redirect()->route('admin.roles.index')->with('status', 'Role updated');
+        return response()->json($role->load('permissions'));
     }
 
     /**
@@ -109,13 +106,12 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Role $role, DeleteRoleAction $delete)
+    public function destroy(Request $request, int $id, DeleteRoleAction $delete)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('delete', $role);
         $delete->execute($role);
-        if ($request->wantsJson()) {
-            return response()->json(null, 204);
-        }
 
-        return back()->with('status', 'Role deleted');
+        return response()->json(null, 204);
     }
 }

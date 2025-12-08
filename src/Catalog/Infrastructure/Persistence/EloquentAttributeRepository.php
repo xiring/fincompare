@@ -16,12 +16,16 @@ class EloquentAttributeRepository implements AttributeRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
+        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'sort_order', 'product_category_id']) ? $filters['sort'] : 'id';
+        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
         return Attribute::query()
+            ->with('productCategory')
             ->when(($filters['product_category_id'] ?? null), fn ($q, $cid) => $q->where('product_category_id', $cid))
             ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->paginate($perPage);
+            ->when($sort === 'product_category_id', fn ($q) => $q->orderBy('product_category_id', $dir)->orderBy('sort_order'))
+            ->when($sort !== 'product_category_id', fn ($q) => $q->orderBy($sort, $dir))
+            ->paginate($perPage)->withQueryString();
     }
 
     public function find(int $id): ?Attribute

@@ -15,13 +15,16 @@ class EloquentFormRepository implements FormRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
+        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'status', 'created_at']) ? $filters['sort'] : 'id';
+        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
         return Form::query()
             ->with(['inputs'])
             ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->when(($filters['status'] ?? null), fn ($q, $status) => $q->where('status', $status))
             ->when(($filters['type'] ?? null), fn ($q, $type) => $q->where('type', $type))
-            ->orderBy('name')
-            ->paginate($perPage);
+            ->orderBy($sort, $dir)
+            ->paginate($perPage)->withQueryString();
     }
 
     public function find(int $id): ?Form

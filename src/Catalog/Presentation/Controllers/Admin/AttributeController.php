@@ -8,10 +8,11 @@ use Illuminate\Routing\Controller;
 use Src\Catalog\Application\Actions\CreateAttributeAction;
 use Src\Catalog\Application\Actions\DeleteAttributeAction;
 use Src\Catalog\Application\Actions\GetAttributesByCategoryAction;
+use Src\Catalog\Application\Actions\ListAttributesAction;
 use Src\Catalog\Application\Actions\UpdateAttributeAction;
 use Src\Catalog\Application\DTOs\AttributeDTO;
 use Src\Catalog\Domain\Entities\Attribute;
-use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 use Src\Catalog\Presentation\Requests\AttributeRequest;
 
 /**
@@ -31,19 +32,16 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request, ListAttributesAction $list)
     {
-        $query = Attribute::query()->with('productCategory')
-            ->when($request->get('product_category_id'), fn ($q, $cid) => $q->where('product_category_id', $cid))
-            ->when($request->get('q'), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
-            ->orderBy('product_category_id')->orderBy('sort_order');
-        $items = $query->paginate(20);
-        if ($request->wantsJson()) {
-            return response()->json($items);
-        }
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
+        $items = $list->execute([
+            'q' => $request->get('q'),
+            'product_category_id' => $request->get('product_category_id'),
+            'sort' => $request->get('sort'),
+            'dir' => $request->get('dir'),
+        ], (int) $request->get('per_page', 20));
 
-        return view('admin.attributes.index', compact('items', 'categories'));
+        return response()->json($items);
     }
 
     /**
@@ -53,12 +51,7 @@ class AttributeController extends Controller
      */
     public function create(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Provide attribute payload to store.']);
-        }
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
-
-        return view('admin.attributes.create', compact('categories'));
+        return response()->json(['message' => 'Provide attribute payload to store.']);
     }
 
     /**
@@ -69,11 +62,8 @@ class AttributeController extends Controller
     public function store(AttributeRequest $request, CreateAttributeAction $create)
     {
         $attr = $create->execute(AttributeDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($attr, 201);
-        }
 
-        return redirect()->route('admin.product-categories.edit', $attr->product_category_id)->with('status', 'Attribute created');
+        return response()->json($attr, 201);
     }
 
     /**
@@ -81,13 +71,14 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Attribute $attribute)
+    public function edit(int $id, AttributeRepositoryInterface $repository)
     {
-        if (request()->wantsJson()) {
-            return response()->json($attribute);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
         }
-
-        return view('admin.attributes.edit', compact('attribute'));
+        $this->authorize('update', $attribute);
+        return response()->json($attribute->load('productCategory'));
     }
 
     /**
@@ -95,14 +86,16 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(AttributeRequest $request, Attribute $attribute, UpdateAttributeAction $update)
+    public function update(AttributeRequest $request, int $id, UpdateAttributeAction $update, AttributeRepositoryInterface $repository)
     {
-        $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
-        if ($request->wantsJson()) {
-            return response()->json($attr);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
         }
+        $this->authorize('update', $attribute);
+        $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
 
-        return redirect()->route('admin.product-categories.edit', $attr->product_category_id)->with('status', 'Attribute updated');
+        return response()->json($attr);
     }
 
     /**
@@ -110,14 +103,16 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Attribute $attribute, DeleteAttributeAction $delete)
+    public function destroy(int $id, DeleteAttributeAction $delete, AttributeRepositoryInterface $repository)
     {
-        $delete->execute($attribute);
-        if (request()->wantsJson()) {
-            return response()->json(null, 204);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
         }
+        $this->authorize('delete', $attribute);
+        $delete->execute($attribute);
 
-        return back()->with('status', 'Attribute deleted');
+        return response()->json(null, 204);
     }
 
     /**
@@ -125,8 +120,8 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function byCategory(ProductCategory $product_category, GetAttributesByCategoryAction $byCategory)
+    public function byCategory(int $id, GetAttributesByCategoryAction $byCategory)
     {
-        return response()->json($byCategory->execute($product_category->id));
+        return response()->json($byCategory->execute($id));
     }
 }

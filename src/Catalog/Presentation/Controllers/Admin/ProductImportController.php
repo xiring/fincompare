@@ -15,17 +15,17 @@ class ProductImportController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function create()
     {
-        return view('admin.products.import');
+        return response()->json(['message' => 'Use POST to upload CSV file for import.']);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(ProductImportRequest $request)
     {
@@ -43,6 +43,9 @@ class ProductImportController extends Controller
             (bool) $request->boolean('has_header', true)
         )->onQueue('imports');
 
-        return redirect()->route('admin.products.index')->with('status', 'Product import queued');
+        return response()->json([
+            'message' => 'Import started successfully. Products will be imported in the background.',
+            'file' => $file->getClientOriginalName()
+        ], 202);
     }
 }

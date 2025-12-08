@@ -16,26 +16,26 @@ use Src\Auth\Presentation\Requests\UpdateProfileRequest;
 class ProfileController extends Controller
 {
     /**
-     * Show the form for editing the specified resource.
+     * Show the current user profile.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request)
+    public function show(Request $request)
     {
-        return view('profile.edit', ['user' => $request->user()]);
+        return response()->json($request->user());
     }
 
-    public function update(UpdateProfileRequest $request, UpdateUserProfileAction $action): RedirectResponse
+    public function update(UpdateProfileRequest $request, UpdateUserProfileAction $action)
     {
-        $action->execute($request->user(), $request->validated());
+        $user = $action->execute($request->user(), $request->validated());
 
-        return back()->with('status', 'profile-updated');
+        return response()->json($user);
     }
 
-    public function updatePassword(UpdatePasswordRequest $request, UpdateUserPasswordAction $action): RedirectResponse
+    public function updatePassword(UpdatePasswordRequest $request, UpdateUserPasswordAction $action)
     {
         $action->execute($request->user(), $request->validated()['current_password'], $request->validated()['password']);
 
-        return back()->with('status', 'password-updated');
+        return response()->json(['message' => 'Password updated successfully']);
     }
 }

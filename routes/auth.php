@@ -5,8 +5,9 @@ use Src\Auth\Presentation\Controllers\LoginController;
 use Src\Auth\Presentation\Controllers\SocialLoginController;
 
 Route::middleware('guest')->group(function () {
-    Route::get('login', [LoginController::class, 'create'])
-        ->name('login');
+    Route::get('login', function () {
+        return view('admin.app');
+    })->name('login');
 
     Route::post('login', [LoginController::class, 'store']);
 

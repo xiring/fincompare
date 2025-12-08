@@ -14,7 +14,11 @@ class ShowFormAction
 
     public function execute(int $id): ?Form
     {
-        return $this->repo->find($id);
+        $form = $this->repo->find($id);
+        if ($form) {
+            $form->load('inputs');
+        }
+        return $form;
     }
 }
 
