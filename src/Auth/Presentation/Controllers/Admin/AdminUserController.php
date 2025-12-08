@@ -64,12 +64,26 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $user = User::findOrFail($id);
+        $this->authorize('view', $user);
+        return response()->json($user->load('roles'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, User $user)
+    public function edit(Request $request, int $id)
     {
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         return response()->json($user->load('roles'));
     }
 
@@ -78,8 +92,10 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, User $user, UpdateAdminUserAction $update)
+    public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, int $id, UpdateAdminUserAction $update)
     {
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         $user = $update->execute($user, AdminUserDTO::fromArray($request->validated()));
 
         return response()->json($user->load('roles'));
@@ -90,8 +106,10 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, User $user, DeleteAdminUserAction $delete)
+    public function destroy(Request $request, int $id, DeleteAdminUserAction $delete)
     {
+        $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
         $delete->execute($user);
 
         return response()->json(null, 204);

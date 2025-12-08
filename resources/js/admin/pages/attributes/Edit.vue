@@ -18,12 +18,12 @@
         />
 
         <FormSelect
-          id="type"
-          v-model="form.type"
-          label="Type"
+          id="data_type"
+          v-model="form.data_type"
+          label="Data Type"
           :options="typeOptions"
           required
-          :error="errors.type"
+          :error="errors.data_type"
         />
 
         <FormSelect
@@ -70,13 +70,14 @@ const attribute = computed(() => attributesStore.currentItem);
 
 const form = reactive({
   name: '',
-  type: 'string',
+  data_type: 'text',
   product_category_id: null
 });
 
 const typeOptions = [
-  { id: 'string', name: 'String' },
+  { id: 'text', name: 'Text' },
   { id: 'number', name: 'Number' },
+  { id: 'percentage', name: 'Percentage' },
   { id: 'boolean', name: 'Boolean' },
   { id: 'json', name: 'JSON' }
 ];
@@ -96,7 +97,7 @@ const loadAttribute = async () => {
     await attributesStore.fetchItem(attributeId);
     if (attribute.value) {
       form.name = attribute.value.name || '';
-      form.type = attribute.value.type || 'string';
+      form.data_type = attribute.value.data_type || 'text';
       form.product_category_id = attribute.value.product_category_id || null;
     }
   } catch (error) {

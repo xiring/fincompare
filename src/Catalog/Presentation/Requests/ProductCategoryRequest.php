@@ -3,6 +3,7 @@
 namespace Src\Catalog\Presentation\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * ProductCategoryRequest form request.
@@ -16,11 +17,12 @@ class ProductCategoryRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('product_category')?->id ?? null;
+        // Get the category ID from route parameter (can be 'id' or 'product_category' depending on route)
+        $id = $this->route('id') ?? $this->route('product_category')?->id ?? null;
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:product_categories,slug'.($id ? ','.$id : '')],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('product_categories', 'slug')->ignore($id)],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],

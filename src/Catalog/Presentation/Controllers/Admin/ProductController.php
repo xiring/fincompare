@@ -92,8 +92,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, Product $product, ShowProductAction $show)
+    public function show(Request $request, int $id, ShowProductAction $show)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('view', $product);
         $product = $show->execute($product);
         return response()->json($product);
     }
@@ -103,8 +105,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Product $product, ShowProductAction $show)
+    public function edit(Request $request, int $id, ShowProductAction $show)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('update', $product);
         $product = $show->execute($product);
         return response()->json($product);
     }
@@ -114,8 +118,11 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductRequest $request, Product $product, UpdateProductAction $update)
+    public function update(ProductRequest $request, int $id, UpdateProductAction $update)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('update', $product);
+
         $data = $request->validated();
         if (isset($data['attributes']) && is_string($data['attributes'])) {
             $decoded = json_decode($data['attributes'], true);
@@ -153,8 +160,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function duplicate(Product $product, DuplicateProductAction $duplicate)
+    public function duplicate(int $id, DuplicateProductAction $duplicate)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('create', Product::class);
         $duplicatedProduct = $duplicate->execute($product);
 
         return response()->json($duplicatedProduct, 201);
@@ -165,8 +174,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Product $product, DeleteProductAction $delete)
+    public function destroy(Request $request, int $id, DeleteProductAction $delete)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('delete', $product);
         $delete->execute($product);
         return response()->json(null, 204);
     }

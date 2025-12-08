@@ -48,6 +48,21 @@ export const useAttributesStore = defineStore('attributes', () => {
     }
   };
 
+  const fetchItem = async (id) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await adminApi.attributes.edit(id);
+      currentItem.value = response.data;
+      return currentItem.value;
+    } catch (err) {
+      error.value = err;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const fetchByCategory = async (categoryId) => {
     loading.value = true;
     error.value = null;
@@ -126,6 +141,7 @@ export const useAttributesStore = defineStore('attributes', () => {
     error,
     pagination,
     fetchItems,
+    fetchItem,
     fetchByCategory,
     createItem,
     updateItem,

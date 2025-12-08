@@ -283,6 +283,33 @@ const handleImageChange = (event) => {
   }
 };
 
+// Helper function to extract scalar value from attribute value object
+const getScalarValue = (attributeValue) => {
+  if (!attributeValue) return null;
+
+  // Check value_number first (most common for numeric attributes)
+  if (attributeValue.value_number !== null && attributeValue.value_number !== undefined) {
+    return attributeValue.value_number;
+  }
+
+  // Check value_boolean
+  if (attributeValue.value_boolean !== null && attributeValue.value_boolean !== undefined) {
+    return attributeValue.value_boolean;
+  }
+
+  // Check value_text
+  if (attributeValue.value_text !== null && attributeValue.value_text !== undefined) {
+    return attributeValue.value_text;
+  }
+
+  // Check value_json
+  if (attributeValue.value_json !== null && attributeValue.value_json !== undefined) {
+    return attributeValue.value_json;
+  }
+
+  return null;
+};
+
 const loadAttributes = async () => {
   if (!form.product_category_id) {
     attributes.value = [];
@@ -298,9 +325,13 @@ const loadAttributes = async () => {
     attributes.value.forEach(attr => {
       if (!(attr.id in form.attributes)) {
         // Try to get existing value from product
-        const existingValue = productsStore.currentItem?.attribute_values?.find(av => av.attribute_id === attr.id);
+        // Laravel returns relationships in camelCase, so use attributeValues not attribute_values
+        const attributeValues = productsStore.currentItem?.attributeValues || productsStore.currentItem?.attribute_values || [];
+        const existingValue = attributeValues.find(av => av.attribute_id === attr.id);
+
         if (existingValue) {
-          form.attributes[attr.id] = existingValue.value || existingValue.getScalarValue?.() || '';
+          const scalarValue = getScalarValue(existingValue);
+          form.attributes[attr.id] = scalarValue !== null && scalarValue !== undefined ? scalarValue : '';
         } else {
           form.attributes[attr.id] = '';
         }
@@ -327,7 +358,18 @@ const loadProduct = async () => {
     form.is_featured = productsStore.currentItem?.is_featured || false;
     form.status = productsStore.currentItem?.status || 'active';
 
-    // Load attributes if category is set
+    // Initialize attribute values from existing product data
+    const attributeValues = productsStore.currentItem?.attributeValues || productsStore.currentItem?.attribute_values || [];
+    if (attributeValues.length > 0) {
+      attributeValues.forEach(av => {
+        const scalarValue = getScalarValue(av);
+        if (scalarValue !== null && scalarValue !== undefined) {
+          form.attributes[av.attribute_id] = scalarValue;
+        }
+      });
+    }
+
+    // Load attributes if category is set (this will also populate any missing attribute values)
     if (form.product_category_id) {
       await loadAttributes();
     }

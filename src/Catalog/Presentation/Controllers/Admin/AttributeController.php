@@ -69,8 +69,10 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Attribute $attribute)
+    public function edit(int $id)
     {
+        $attribute = Attribute::findOrFail($id);
+        $this->authorize('update', $attribute);
         return response()->json($attribute);
     }
 
@@ -79,8 +81,10 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(AttributeRequest $request, Attribute $attribute, UpdateAttributeAction $update)
+    public function update(AttributeRequest $request, int $id, UpdateAttributeAction $update)
     {
+        $attribute = Attribute::findOrFail($id);
+        $this->authorize('update', $attribute);
         $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
 
         return response()->json($attr);
@@ -91,8 +95,10 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Attribute $attribute, DeleteAttributeAction $delete)
+    public function destroy(int $id, DeleteAttributeAction $delete)
     {
+        $attribute = Attribute::findOrFail($id);
+        $this->authorize('delete', $attribute);
         $delete->execute($attribute);
 
         return response()->json(null, 204);

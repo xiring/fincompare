@@ -17,7 +17,8 @@ class CmsPageRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = optional($this->route('cms_page'))->id ?? null;
+        // Get the CMS page ID from route parameter (can be 'id' or 'cms_page' depending on route)
+        $id = $this->route('id') ?? $this->route('cms_page')?->id ?? null;
 
         return [
             'title' => ['required', 'string', 'max:255'],

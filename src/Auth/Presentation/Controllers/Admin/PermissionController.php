@@ -63,12 +63,26 @@ class PermissionController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('view', $permission);
+        return response()->json($permission);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Permission $permission)
+    public function edit(Request $request, int $id)
     {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('update', $permission);
         return response()->json($permission);
     }
 
@@ -77,8 +91,10 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, Permission $permission, UpdatePermissionAction $update)
+    public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, int $id, UpdatePermissionAction $update)
     {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('update', $permission);
         $permission = $update->execute($permission, PermissionDTO::fromArray($request->validated()));
 
         return response()->json($permission);
@@ -89,8 +105,10 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Permission $permission, DeletePermissionAction $delete)
+    public function destroy(Request $request, int $id, DeletePermissionAction $delete)
     {
+        $permission = Permission::findOrFail($id);
+        $this->authorize('delete', $permission);
         $delete->execute($permission);
 
         return response()->json(null, 204);

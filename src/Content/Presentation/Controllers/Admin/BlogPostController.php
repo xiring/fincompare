@@ -70,8 +70,10 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, BlogPost $blog, ShowBlogPostAction $show)
+    public function show(Request $request, int $id, ShowBlogPostAction $show)
     {
+        $blog = BlogPost::findOrFail($id);
+        $this->authorize('view', $blog);
         $blog = $show->execute($blog);
 
         return response()->json($blog);
@@ -82,8 +84,10 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, BlogPost $blog, ShowBlogPostAction $show)
+    public function edit(Request $request, int $id, ShowBlogPostAction $show)
     {
+        $blog = BlogPost::findOrFail($id);
+        $this->authorize('update', $blog);
         $blog = $show->execute($blog);
 
         return response()->json($blog);
@@ -94,8 +98,10 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(BlogPostRequest $request, BlogPost $blog, UpdateBlogPostAction $update)
+    public function update(BlogPostRequest $request, int $id, UpdateBlogPostAction $update)
     {
+        $blog = BlogPost::findOrFail($id);
+        $this->authorize('update', $blog);
         $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
 
         return response()->json($post);
@@ -106,8 +112,10 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, BlogPost $blog, DeleteBlogPostAction $delete)
+    public function destroy(Request $request, int $id, DeleteBlogPostAction $delete)
     {
+        $blog = BlogPost::findOrFail($id);
+        $this->authorize('delete', $blog);
         $delete->execute($blog);
 
         return response()->json(null, 204);

@@ -17,7 +17,8 @@ class BlogPostRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = optional($this->route('blog'))->id ?? null;
+        // Get the blog post ID from route parameter (can be 'id' or 'blog' depending on route)
+        $id = $this->route('id') ?? $this->route('blog')?->id ?? null;
 
         return [
             'title' => ['required', 'string', 'max:255'],

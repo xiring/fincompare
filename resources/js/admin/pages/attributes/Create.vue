@@ -17,12 +17,12 @@
         />
 
         <FormSelect
-          id="type"
-          v-model="form.type"
-          label="Type"
+          id="data_type"
+          v-model="form.data_type"
+          label="Data Type"
           :options="typeOptions"
           required
-          :error="errors.type"
+          :error="errors.data_type"
         />
 
         <FormSelect
@@ -64,13 +64,14 @@ const productCategoriesStore = useProductCategoriesStore();
 
 const form = reactive({
   name: '',
-  type: 'string',
+  data_type: 'text',
   product_category_id: null
 });
 
 const typeOptions = [
-  { id: 'string', name: 'String' },
+  { id: 'text', name: 'Text' },
   { id: 'number', name: 'Number' },
+  { id: 'percentage', name: 'Percentage' },
   { id: 'boolean', name: 'Boolean' },
   { id: 'json', name: 'JSON' }
 ];

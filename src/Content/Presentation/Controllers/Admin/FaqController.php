@@ -65,12 +65,28 @@ class FaqController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id, ShowFaqAction $show)
+    {
+        $faq = Faq::findOrFail($id);
+        $this->authorize('view', $faq);
+        $faq = $show->execute($faq);
+
+        return response()->json($faq);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Faq $faq, ShowFaqAction $show)
+    public function edit(Request $request, int $id, ShowFaqAction $show)
     {
+        $faq = Faq::findOrFail($id);
+        $this->authorize('update', $faq);
         $faq = $show->execute($faq);
 
         return response()->json($faq);
@@ -81,8 +97,10 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(FaqRequest $request, Faq $faq, UpdateFaqAction $update)
+    public function update(FaqRequest $request, int $id, UpdateFaqAction $update)
     {
+        $faq = Faq::findOrFail($id);
+        $this->authorize('update', $faq);
         $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
 
         return response()->json($item);
@@ -93,8 +111,10 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Faq $faq, DeleteFaqAction $delete)
+    public function destroy(Request $request, int $id, DeleteFaqAction $delete)
     {
+        $faq = Faq::findOrFail($id);
+        $this->authorize('delete', $faq);
         $delete->execute($faq);
 
         return response()->json(null, 204);

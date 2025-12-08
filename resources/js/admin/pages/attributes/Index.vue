@@ -76,9 +76,10 @@
             <tr v-else v-for="attribute in attributes" :key="attribute.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ attribute.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                  {{ attribute.type }}
+                <span v-if="attribute.data_type" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                  {{ formatDataType(attribute.data_type) }}
                 </span>
+                <span v-else class="text-charcoal-400">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 {{ attribute.product_category?.name || '-' }}
@@ -180,6 +181,17 @@ const sortBy = (field) => {
 
 const loadPage = (page) => {
   fetchAttributes(page);
+};
+
+const formatDataType = (dataType) => {
+  const typeMap = {
+    'text': 'Text',
+    'number': 'Number',
+    'percentage': 'Percentage',
+    'boolean': 'Boolean',
+    'json': 'JSON'
+  };
+  return typeMap[dataType] || dataType;
 };
 
 const handleDelete = async (attribute) => {

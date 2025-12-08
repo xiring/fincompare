@@ -6,6 +6,8 @@ import apiClient from '../client';
 
 export default {
   index: (params = {}) => apiClient.get('/attributes', { params }),
+  show: (id) => apiClient.get(`/attributes/${id}/edit`),
+  edit: (id) => apiClient.get(`/attributes/${id}/edit`),
   create: (data) => apiClient.post('/attributes', data),
   update: (id, data) => apiClient.patch(`/attributes/${id}`, data),
   delete: (id) => apiClient.delete(`/attributes/${id}`),

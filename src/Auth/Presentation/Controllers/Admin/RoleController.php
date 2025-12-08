@@ -64,12 +64,26 @@ class RoleController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, int $id)
+    {
+        $role = Role::findOrFail($id);
+        $this->authorize('view', $role);
+        return response()->json($role->load('permissions'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, Role $role)
+    public function edit(Request $request, int $id)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
         return response()->json($role->load('permissions'));
     }
 
@@ -78,8 +92,10 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(\Src\Auth\Presentation\Requests\RoleRequest $request, Role $role, UpdateRoleAction $update)
+    public function update(\Src\Auth\Presentation\Requests\RoleRequest $request, int $id, UpdateRoleAction $update)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
         $role = $update->execute($role, RoleDTO::fromArray($request->validated()));
 
         return response()->json($role->load('permissions'));
@@ -90,8 +106,10 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, Role $role, DeleteRoleAction $delete)
+    public function destroy(Request $request, int $id, DeleteRoleAction $delete)
     {
+        $role = Role::findOrFail($id);
+        $this->authorize('delete', $role);
         $delete->execute($role);
 
         return response()->json(null, 204);

@@ -70,8 +70,10 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
+    public function show(Request $request, int $id, ShowCmsPageAction $show)
     {
+        $cms_page = CmsPage::findOrFail($id);
+        $this->authorize('view', $cms_page);
         $cms_page = $show->execute($cms_page);
 
         return response()->json($cms_page);
@@ -82,8 +84,10 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, CmsPage $cms_page, ShowCmsPageAction $show)
+    public function edit(Request $request, int $id, ShowCmsPageAction $show)
     {
+        $cms_page = CmsPage::findOrFail($id);
+        $this->authorize('update', $cms_page);
         $cms_page = $show->execute($cms_page);
 
         return response()->json($cms_page);
@@ -94,8 +98,10 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(CmsPageRequest $request, CmsPage $cms_page, UpdateCmsPageAction $update)
+    public function update(CmsPageRequest $request, int $id, UpdateCmsPageAction $update)
     {
+        $cms_page = CmsPage::findOrFail($id);
+        $this->authorize('update', $cms_page);
         $item = $update->execute($cms_page, CmsPageDTO::fromArray($request->validated()));
 
         return response()->json($item);
@@ -106,8 +112,10 @@ class CmsPageController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, CmsPage $cms_page, DeleteCmsPageAction $delete)
+    public function destroy(Request $request, int $id, DeleteCmsPageAction $delete)
     {
+        $cms_page = CmsPage::findOrFail($id);
+        $this->authorize('delete', $cms_page);
         $delete->execute($cms_page);
 
         return response()->json(null, 204);

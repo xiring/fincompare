@@ -9,6 +9,7 @@ import { adminApi } from '../services/api';
 
 export const useFaqsStore = defineStore('faqs', () => {
   const items = ref([]);
+  const currentItem = ref(null);
   const loading = ref(false);
   const error = ref(null);
   const pagination = ref({
@@ -57,6 +58,21 @@ export const useFaqsStore = defineStore('faqs', () => {
     }
   };
 
+  const fetchItem = async (id) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await adminApi.faqs.show(id);
+      currentItem.value = response.data;
+      return currentItem.value;
+    } catch (err) {
+      error.value = err;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const createItem = async (data) => {
     loading.value = true;
     error.value = null;
@@ -81,6 +97,9 @@ export const useFaqsStore = defineStore('faqs', () => {
       if (index !== -1) {
         items.value[index] = response.data;
       }
+      if (currentItem.value?.id === id) {
+        currentItem.value = response.data;
+      }
       return response.data;
     } catch (err) {
       error.value = err;
@@ -96,6 +115,9 @@ export const useFaqsStore = defineStore('faqs', () => {
     try {
       await adminApi.faqs.delete(id);
       items.value = items.value.filter(item => item.id !== id);
+      if (currentItem.value?.id === id) {
+        currentItem.value = null;
+      }
     } catch (err) {
       error.value = err;
       throw err;
@@ -104,15 +126,22 @@ export const useFaqsStore = defineStore('faqs', () => {
     }
   };
 
+  const clearCurrentItem = () => {
+    currentItem.value = null;
+  };
+
   return {
     items,
+    currentItem,
     loading,
     error,
     pagination,
     fetchItems,
+    fetchItem,
     createItem,
     updateItem,
     deleteItem,
+    clearCurrentItem,
   };
 });
 
