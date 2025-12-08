@@ -23,11 +23,11 @@ class EloquentBlogPostRepository implements BlogPostRepositoryInterface
             ->when($filters['status'] ?? null, fn ($q, $s) => $q->where('status', $s));
 
         // Sorting
-        $sort = $filters['sort'] ?? 'created_at';
+        $sort = $filters['sort'] ?? 'id';
         $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
-        $allowed = ['created_at', 'title', 'status', 'id'];
+        $allowed = ['id', 'created_at', 'title', 'status'];
         if (! in_array($sort, $allowed, true)) {
-            $sort = 'created_at';
+            $sort = 'id';
         }
         $query->orderBy($sort, $dir);
 

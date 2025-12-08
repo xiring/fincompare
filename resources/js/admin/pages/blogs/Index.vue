@@ -59,6 +59,14 @@
         <table class="min-w-full divide-y divide-charcoal-200">
           <thead class="bg-charcoal-50">
             <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
+                <button @click="sortBy('id')" class="flex items-center gap-1 hover:text-primary-500">
+                  ID
+                  <svg class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'id' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                  </svg>
+                </button>
+              </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Image</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Title</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Category</th>
@@ -69,6 +77,7 @@
           </thead>
           <tbody class="bg-white">
             <tr v-if="loading" v-for="i in 5" :key="i" class="animate-pulse">
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-12 w-12 bg-charcoal-200"></div></td>
               <td class="px-6 py-4"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
@@ -77,9 +86,10 @@
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="blogs.length === 0" class="text-center">
-              <td colspan="6" class="px-6 py-12 text-charcoal-500">No blog posts found</td>
+              <td colspan="7" class="px-6 py-12 text-charcoal-500">No blog posts found</td>
             </tr>
             <tr v-else v-for="blog in blogs" :key="blog.id" class="hover:bg-charcoal-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ blog.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <img
                   v-if="blog.featured_image"
@@ -145,10 +155,13 @@
 
 <script setup>
 import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useBlogsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 
+const router = useRouter();
+const route = useRoute();
 const blogsStore = useBlogsStore();
 
 // Reactive state from store
@@ -156,18 +169,45 @@ const blogs = computed(() => blogsStore.items);
 const loading = computed(() => blogsStore.loading);
 const pagination = computed(() => blogsStore.pagination);
 
+const sortField = reactive({ value: route.query.sort || 'id' });
+const sortDir = reactive({ value: route.query.dir || 'desc' });
+
+// Initialize filters from URL query params
 const filters = reactive({
-  q: '',
-  status: '',
-  per_page: 5
+  q: route.query.q || '',
+  status: route.query.status || '',
+  per_page: parseInt(route.query.per_page) || 5
 });
 
 const hasFilters = computed(() => {
   return filters.q || filters.status || filters.per_page !== 5;
 });
 
+// Update URL query parameters
+const updateQueryParams = (page = 1) => {
+  const query = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    status: filters.status || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    sort: sortField.value,
+    dir: sortDir.value
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach(key => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  router.replace({ query });
+};
+
 // Watch for per_page changes and automatically fetch
 watch(() => filters.per_page, () => {
+  updateQueryParams(1);
   fetchBlogs(1);
 });
 
@@ -177,7 +217,9 @@ const fetchBlogs = async (page = 1) => {
       page,
       per_page: filters.per_page,
       q: filters.q,
-      status: filters.status
+      status: filters.status,
+      sort: sortField.value,
+      dir: sortDir.value
     };
     await blogsStore.fetchItems(params);
   } catch (error) {
@@ -186,6 +228,7 @@ const fetchBlogs = async (page = 1) => {
 };
 
 const applyFilters = () => {
+  updateQueryParams(1);
   fetchBlogs(1);
 };
 
@@ -193,10 +236,24 @@ const resetFilters = () => {
   filters.q = '';
   filters.status = '';
   filters.per_page = 5;
+  router.replace({ query: {} });
   fetchBlogs(1);
 };
 
+const sortBy = (field) => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  fetchBlogs(currentPage);
+};
+
 const loadPage = (page) => {
+  updateQueryParams(page);
   fetchBlogs(page);
 };
 
@@ -207,7 +264,9 @@ const handleDelete = async (blog) => {
     await blogsStore.deleteItem(blog.id);
     // Store automatically updates the list, but we may need to refresh if pagination changed
     if (blogs.value.length === 0 && pagination.value.current_page > 1) {
-      fetchBlogs(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchBlogs(newPage);
     }
   } catch (error) {
     console.error('Error deleting blog:', error);
@@ -216,6 +275,9 @@ const handleDelete = async (blog) => {
 };
 
 onMounted(() => {
-  fetchBlogs();
+  const page = parseInt(route.query.page) || 1;
+  sortField.value = route.query.sort || 'id';
+  sortDir.value = route.query.dir || 'desc';
+  fetchBlogs(page);
 });
 </script>

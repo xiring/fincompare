@@ -38,6 +38,8 @@ class FormController extends Controller
             'q' => $request->get('q'),
             'status' => $request->get('status'),
             'type' => $request->get('type'),
+            'sort' => $request->get('sort'),
+            'dir' => $request->get('dir'),
         ];
         $items = $list->execute($filters, (int) $request->get('per_page', 20));
 
@@ -51,7 +53,7 @@ class FormController extends Controller
      */
     public function create(Request $request)
     {
-        
+
         return response()->json(['message' => 'Provide form payload to store.']);
     }
 

@@ -22,11 +22,11 @@ class EloquentFaqRepository implements FaqRepositoryInterface
             ->when($filters['q'] ?? null, fn ($q, $s) => $q->where('question', 'like', '%'.$s.'%'));
 
         // Sorting
-        $sort = $filters['sort'] ?? 'created_at';
+        $sort = $filters['sort'] ?? 'id';
         $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
-        $allowed = ['created_at', 'question', 'id'];
+        $allowed = ['id', 'created_at', 'question'];
         if (! in_array($sort, $allowed, true)) {
-            $sort = 'created_at';
+            $sort = 'id';
         }
         $query->orderBy($sort, $dir);
 

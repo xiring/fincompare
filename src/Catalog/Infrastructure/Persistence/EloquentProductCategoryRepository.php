@@ -15,7 +15,7 @@ class EloquentProductCategoryRepository implements ProductCategoryRepositoryInte
 {
     public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'is_active', 'created_at']) ? $filters['sort'] : 'name';
+        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'is_active', 'created_at']) ? $filters['sort'] : 'id';
         $dir = strtolower($filters['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
         return ProductCategory::query()

@@ -64,22 +64,30 @@
         <table class="min-w-full divide-y divide-charcoal-200">
           <thead class="bg-charcoal-50">
             <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
+                <button @click="sortBy('id')" class="flex items-center gap-1 hover:text-primary-500">
+                  ID
+                  <svg class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'id' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                  </svg>
+                </button>
+              </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Image</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
-                <button @click="sortBy('name')" class="hover:text-primary-500">
+                <button @click="sortBy('name')" class="flex items-center gap-1 hover:text-primary-500">
                   Name
-                  <svg v-if="sortField === 'name'" class="inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                  <svg class="inline h-4 w-4" :class="sortField.value === 'name' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'name' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                   </svg>
                 </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Category</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Partner</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
-                <button @click="sortBy('status')" class="hover:text-primary-500">
+                <button @click="sortBy('status')" class="flex items-center gap-1 hover:text-primary-500">
                   Status
-                  <svg v-if="sortField === 'status'" class="inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortDir === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                  <svg class="inline h-4 w-4" :class="sortField.value === 'status' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'status' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                   </svg>
                 </button>
               </th>
@@ -88,6 +96,7 @@
           </thead>
           <tbody class="bg-white">
             <tr v-if="loading" v-for="i in 5" :key="`skeleton-${i}`" class="animate-pulse">
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-12 w-12 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
@@ -96,9 +105,10 @@
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="products.length === 0" class="text-center">
-              <td colspan="6" class="px-6 py-12 text-charcoal-500">No products found</td>
+              <td colspan="7" class="px-6 py-12 text-charcoal-500">No products found</td>
             </tr>
             <tr v-else v-for="product in products" :key="product.id" class="hover:bg-charcoal-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <img
                   v-if="product.image"
@@ -157,12 +167,13 @@
 
 <script setup>
 import { reactive, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useProductsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 
 const router = useRouter();
+const route = useRoute();
 const productsStore = useProductsStore();
 
 // Reactive state from store
@@ -170,20 +181,43 @@ const products = computed(() => productsStore.items);
 const loading = computed(() => productsStore.loading);
 const pagination = computed(() => productsStore.pagination);
 
-const sortField = reactive({ value: 'name' });
-const sortDir = reactive({ value: 'asc' });
+const sortField = reactive({ value: route.query.sort || 'id' });
+const sortDir = reactive({ value: route.query.dir || 'desc' });
 
+// Initialize filters from URL query params
 const filters = reactive({
-  q: '',
-  per_page: 5
+  q: route.query.q || '',
+  per_page: parseInt(route.query.per_page) || 5
 });
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5;
 });
 
+// Update URL query parameters
+const updateQueryParams = (page = 1) => {
+  const query = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    sort: sortField.value,
+    dir: sortDir.value
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach(key => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  router.replace({ query });
+};
+
 // Watch for per_page changes and automatically fetch
 watch(() => filters.per_page, () => {
+  updateQueryParams(1);
   fetchProducts(1);
 });
 
@@ -206,12 +240,14 @@ const fetchProducts = async (page = 1) => {
 };
 
 const applyFilters = () => {
+  updateQueryParams(1);
   fetchProducts(1);
 };
 
 const resetFilters = () => {
   filters.q = '';
   filters.per_page = 5;
+  router.replace({ query: {} });
   fetchProducts(1);
 };
 
@@ -222,10 +258,13 @@ const sortBy = (field) => {
     sortField.value = field;
     sortDir.value = 'asc';
   }
-  fetchProducts(pagination.value?.current_page || 1);
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  fetchProducts(currentPage);
 };
 
 const loadPage = (page) => {
+  updateQueryParams(page);
   fetchProducts(page);
 };
 
@@ -236,7 +275,9 @@ const handleDelete = async (product) => {
     await productsStore.deleteItem(product.id);
     // Store automatically updates the list, but we may need to refresh if pagination changed
     if (products.value.length === 0 && pagination.value.current_page > 1) {
-      fetchProducts(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchProducts(newPage);
     }
   } catch (error) {
     console.error('Error deleting product:', error);
@@ -245,7 +286,12 @@ const handleDelete = async (product) => {
 };
 
 onMounted(() => {
-  fetchProducts();
+  // Initialize from URL query params
+  const page = parseInt(route.query.page) || 1;
+  sortField.value = route.query.sort || 'id';
+  sortDir.value = route.query.dir || 'desc';
+
+  fetchProducts(page);
 });
 </script>
 

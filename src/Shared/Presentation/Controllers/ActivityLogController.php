@@ -19,9 +19,12 @@ class ActivityLogController extends Controller
     public function index(Request $request, ActivityLogRepositoryInterface $repository)
     {
         $items = $repository->paginate([
+            'q' => $request->get('q'),
             'log_name' => $request->get('log_name'),
             'causer_id' => $request->get('causer_id'),
             'subject_type' => $request->get('subject_type'),
+            'sort' => $request->get('sort'),
+            'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
 
         return response()->json($items);

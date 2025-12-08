@@ -50,6 +50,14 @@
         <table class="min-w-full divide-y divide-charcoal-200">
           <thead class="bg-charcoal-50">
             <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
+                <button @click="sortBy('id')" class="flex items-center gap-1 hover:text-primary-500">
+                  ID
+                  <svg class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'id' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                  </svg>
+                </button>
+              </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Name</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Slug</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Status</th>
@@ -61,14 +69,16 @@
             <tr v-if="loading" v-for="i in 5" :key="i" class="animate-pulse">
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
+              <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-6 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-charcoal-200"></div></td>
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="forms.length === 0" class="text-center">
-              <td colspan="5" class="px-6 py-12 text-charcoal-500">No forms found</td>
+              <td colspan="6" class="px-6 py-12 text-charcoal-500">No forms found</td>
             </tr>
             <tr v-else v-for="form in forms" :key="form.id" class="hover:bg-charcoal-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ form.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ form.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ form.slug }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -125,11 +135,14 @@
 
 <script setup>
 import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useFormsStore } from '../../stores';
 import { adminApi } from '../../services/api';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 
+const router = useRouter();
+const route = useRoute();
 const formsStore = useFormsStore();
 
 // Reactive state from store
@@ -137,17 +150,43 @@ const forms = computed(() => formsStore.items);
 const loading = computed(() => formsStore.loading);
 const pagination = computed(() => formsStore.pagination);
 
+const sortField = reactive({ value: route.query.sort || 'id' });
+const sortDir = reactive({ value: route.query.dir || 'desc' });
+
+// Initialize filters from URL query params
 const filters = reactive({
-  q: '',
-  per_page: 5
+  q: route.query.q || '',
+  per_page: parseInt(route.query.per_page) || 5
 });
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5;
 });
 
+// Update URL query parameters
+const updateQueryParams = (page = 1) => {
+  const query = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    sort: sortField.value,
+    dir: sortDir.value
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach(key => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  router.replace({ query });
+};
+
 // Watch for per_page changes and automatically fetch
 watch(() => filters.per_page, () => {
+  updateQueryParams(1);
   fetchForms(1);
 });
 
@@ -156,7 +195,9 @@ const fetchForms = async (page = 1) => {
     const params = {
       page,
       per_page: filters.per_page,
-      q: filters.q
+      q: filters.q,
+      sort: sortField.value,
+      dir: sortDir.value
     };
     await formsStore.fetchItems(params);
   } catch (error) {
@@ -165,16 +206,31 @@ const fetchForms = async (page = 1) => {
 };
 
 const applyFilters = () => {
+  updateQueryParams(1);
   fetchForms(1);
 };
 
 const resetFilters = () => {
   filters.q = '';
   filters.per_page = 5;
+  router.replace({ query: {} });
   fetchForms(1);
 };
 
+const sortBy = (field) => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  fetchForms(currentPage);
+};
+
 const loadPage = (page) => {
+  updateQueryParams(page);
   fetchForms(page);
 };
 
@@ -207,6 +263,9 @@ const handleDuplicate = async (form) => {
 };
 
 onMounted(() => {
-  fetchForms();
+  const page = parseInt(route.query.page) || 1;
+  sortField.value = route.query.sort || 'id';
+  sortDir.value = route.query.dir || 'desc';
+  fetchForms(page);
 });
 </script>
