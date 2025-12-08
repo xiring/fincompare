@@ -102,7 +102,9 @@
 </template>
 
 <script setup>
-import { reactive, computed, onMounted } from 'vue';
+import { reactive, computed, onMounted, watch } from 'vue';
+import Pagination from '../../components/Pagination.vue';
+import PerPageSelector from '../../components/PerPageSelector.vue';
 import { usePermissionsStore } from '../../stores';
 
 const permissionsStore = usePermissionsStore();

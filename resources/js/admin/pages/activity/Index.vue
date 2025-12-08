@@ -95,9 +95,9 @@
 
 <script setup>
 import { watch, reactive, computed, onMounted } from 'vue';
-import { useActivityStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import { useActivityStore } from '../../stores';
 
 const activityStore = useActivityStore();
 
