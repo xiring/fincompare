@@ -36,7 +36,7 @@ class PermissionController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        
+
         return response()->json($items);
     }
 
@@ -47,7 +47,6 @@ class PermissionController extends Controller
      */
     public function create(Request $request)
     {
-        
         return response()->json(['message' => 'Provide permission payload to store.']);
     }
 
@@ -59,7 +58,7 @@ class PermissionController extends Controller
     public function store(\Src\Auth\Presentation\Requests\PermissionRequest $request, CreatePermissionAction $create)
     {
         $perm = $create->execute(PermissionDTO::fromArray($request->validated()));
-        
+
         return response()->json($perm, 201);
     }
 
@@ -70,7 +69,6 @@ class PermissionController extends Controller
      */
     public function edit(Request $request, Permission $permission)
     {
-        
         return response()->json($permission);
     }
 
@@ -82,7 +80,7 @@ class PermissionController extends Controller
     public function update(\Src\Auth\Presentation\Requests\PermissionRequest $request, Permission $permission, UpdatePermissionAction $update)
     {
         $permission = $update->execute($permission, PermissionDTO::fromArray($request->validated()));
-        
+
         return response()->json($permission);
     }
 
@@ -94,9 +92,7 @@ class PermissionController extends Controller
     public function destroy(Request $request, Permission $permission, DeletePermissionAction $delete)
     {
         $delete->execute($permission);
-        
-        return response()->json(null, 204);
 
-        return back()->with('status', 'Permission deleted');
+        return response()->json(null, 204);
     }
 }

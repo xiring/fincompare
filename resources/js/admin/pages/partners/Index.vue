@@ -26,15 +26,7 @@
           placeholder="Search by name"
           class="min-w-[200px] px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
         />
-        <select
-          v-model="filters.per_page"
-          class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-        >
-          <option :value="10">10 per page</option>
-          <option :value="20">20 per page</option>
-          <option :value="50">50 per page</option>
-          <option :value="100">100 per page</option>
-        </select>
+        <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
           class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 transition-colors"
@@ -51,6 +43,9 @@
         </button>
       </form>
     </div>
+
+    <!-- Pagination (Above Table) -->
+    <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
     <!-- Partners Table -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -81,7 +76,7 @@
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-if="loading" v-for="i in 5" :key="i" class="animate-pulse">
+            <tr v-if="loading" v-for="i in 5" :key="`skeleton-${i}`" class="animate-pulse">
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div></td>
               <td class="px-6 py-4 whitespace-nowrap"><div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div></td>
@@ -150,58 +145,43 @@
           </tbody>
         </table>
       </div>
-      <!-- Pagination -->
-      <div v-if="pagination && pagination.total > pagination.per_page" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700 dark:text-gray-400">
-            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} results
-          </div>
-          <div class="flex gap-2">
-            <button
-              v-if="pagination.prev_page_url"
-              @click="loadPage(pagination.current_page - 1)"
-              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Previous
-            </button>
-            <button
-              v-if="pagination.next_page_url"
-              @click="loadPage(pagination.current_page + 1)"
-              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { reactive, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { adminApi } from '../../services/api';
+import { usePartnersStore } from '../../stores';
+import Pagination from '../../components/Pagination.vue';
+import PerPageSelector from '../../components/PerPageSelector.vue';
 
 const router = useRouter();
+const partnersStore = usePartnersStore();
 
-const partners = ref([]);
-const loading = ref(false);
-const pagination = ref(null);
-const sortField = ref('name');
-const sortDir = ref('asc');
+// Reactive state from store
+const partners = computed(() => partnersStore.items);
+const loading = computed(() => partnersStore.loading);
+const pagination = computed(() => partnersStore.pagination);
+
+const sortField = reactive({ value: 'name' });
+const sortDir = reactive({ value: 'asc' });
 
 const filters = reactive({
   q: '',
-  per_page: 20
+  per_page: 5
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 20;
+  return filters.q || filters.per_page !== 5;
+});
+
+// Watch for per_page changes and automatically fetch
+watch(() => filters.per_page, () => {
+  fetchPartners(1);
 });
 
 const fetchPartners = async (page = 1) => {
-  loading.value = true;
   try {
     const params = {
       page,
@@ -210,23 +190,9 @@ const fetchPartners = async (page = 1) => {
       sort: sortField.value,
       dir: sortDir.value
     };
-    const response = await adminApi.partners.index(params);
-    const data = response.data;
-    partners.value = data.data || [];
-    pagination.value = {
-      current_page: data.current_page,
-      last_page: data.last_page,
-      per_page: data.per_page,
-      total: data.total,
-      from: data.from,
-      to: data.to,
-      prev_page_url: data.prev_page_url,
-      next_page_url: data.next_page_url
-    };
+    await partnersStore.fetchItems(params);
   } catch (error) {
     console.error('Error fetching partners:', error);
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -236,7 +202,7 @@ const applyFilters = () => {
 
 const resetFilters = () => {
   filters.q = '';
-  filters.per_page = 20;
+  filters.per_page = 5;
   fetchPartners(1);
 };
 
@@ -258,8 +224,11 @@ const handleDelete = async (partner) => {
   if (!confirm(`Delete partner "${partner.name}"?`)) return;
 
   try {
-    await adminApi.partners.delete(partner.id);
-    fetchPartners(pagination.value?.current_page || 1);
+    await partnersStore.deleteItem(partner.id);
+    // Store automatically updates the list, but we may need to refresh if pagination changed
+    if (partners.value.length === 0 && pagination.value.current_page > 1) {
+      fetchPartners(pagination.value.current_page - 1);
+    }
   } catch (error) {
     console.error('Error deleting partner:', error);
     alert('Failed to delete partner');

@@ -24,6 +24,7 @@ class AttributeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Attribute::class, 'attribute');
+    }
 
     /**
      * Display a listing of the resource.
@@ -37,10 +38,9 @@ class AttributeController extends Controller
             ->when($request->get('q'), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->orderBy('product_category_id')->orderBy('sort_order');
         $items = $query->paginate(20);
-        
-        return response()->json($items);
 
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
+        return response()->json($items);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -49,10 +49,8 @@ class AttributeController extends Controller
      */
     public function create(Request $request)
     {
-        
         return response()->json(['message' => 'Provide attribute payload to store.']);
-
-        $categories = ProductCategory::orderBy('name')->get(['id', 'name']);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -62,8 +60,9 @@ class AttributeController extends Controller
     public function store(AttributeRequest $request, CreateAttributeAction $create)
     {
         $attr = $create->execute(AttributeDTO::fromArray($request->validated()));
-        
+
         return response()->json($attr, 201);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -72,8 +71,8 @@ class AttributeController extends Controller
      */
     public function edit(Attribute $attribute)
     {
-        
         return response()->json($attribute);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -83,8 +82,9 @@ class AttributeController extends Controller
     public function update(AttributeRequest $request, Attribute $attribute, UpdateAttributeAction $update)
     {
         $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
-        
+
         return response()->json($attr);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -94,10 +94,9 @@ class AttributeController extends Controller
     public function destroy(Attribute $attribute, DeleteAttributeAction $delete)
     {
         $delete->execute($attribute);
-        
-        return response()->json(null, 204);
 
-        return back()->with('status', 'Attribute deleted');
+        return response()->json(null, 204);
+    }
 
     /**
      * Handle By category.
@@ -107,5 +106,5 @@ class AttributeController extends Controller
     public function byCategory(ProductCategory $product_category, GetAttributesByCategoryAction $byCategory)
     {
         return response()->json($byCategory->execute($product_category->id));
-
+    }
 }

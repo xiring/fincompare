@@ -25,15 +25,7 @@
           <option value="forms">Forms</option>
           <option value="blogs">Blogs</option>
         </select>
-        <select
-          v-model="filters.per_page"
-          class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-        >
-          <option :value="10">10 per page</option>
-          <option :value="20">20 per page</option>
-          <option :value="50">50 per page</option>
-          <option :value="100">100 per page</option>
-        </select>
+        <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
           class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 transition-colors"
@@ -50,6 +42,9 @@
         </button>
       </form>
     </div>
+
+    <!-- Pagination (Above Table) -->
+    <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div class="overflow-x-auto">
@@ -94,53 +89,39 @@
           </tbody>
         </table>
       </div>
-      <div v-if="pagination && pagination.total > pagination.per_page" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-700 dark:text-gray-400">
-            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} results
-          </div>
-          <div class="flex gap-2">
-            <button
-              v-if="pagination.prev_page_url"
-              @click="loadPage(pagination.current_page - 1)"
-              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Previous
-            </button>
-            <button
-              v-if="pagination.next_page_url"
-              @click="loadPage(pagination.current_page + 1)"
-              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
-import { adminApi } from '../../services/api';
+import { watch, reactive, computed, onMounted } from 'vue';
+import { useActivityStore } from '../../stores';
+import Pagination from '../../components/Pagination.vue';
+import PerPageSelector from '../../components/PerPageSelector.vue';
 
-const activities = ref([]);
-const loading = ref(false);
-const pagination = ref(null);
+const activityStore = useActivityStore();
+
+// Reactive state from store
+const activities = computed(() => activityStore.items);
+const loading = computed(() => activityStore.loading);
+const pagination = computed(() => activityStore.pagination);
 
 const filters = reactive({
   q: '',
   log_name: '',
-  per_page: 20
+  per_page: 5
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.log_name || filters.per_page !== 20;
+  return filters.q || filters.log_name || filters.per_page !== 5;
+});
+
+// Watch for per_page changes and automatically fetch
+watch(() => filters.per_page, () => {
+  fetchActivities(1);
 });
 
 const fetchActivities = async (page = 1) => {
-  loading.value = true;
   try {
     const params = {
       page,
@@ -148,23 +129,9 @@ const fetchActivities = async (page = 1) => {
       q: filters.q,
       log_name: filters.log_name
     };
-    const response = await adminApi.activity.index(params);
-    const data = response.data;
-    activities.value = data.data || [];
-    pagination.value = {
-      current_page: data.current_page,
-      last_page: data.last_page,
-      per_page: data.per_page,
-      total: data.total,
-      from: data.from,
-      to: data.to,
-      prev_page_url: data.prev_page_url,
-      next_page_url: data.next_page_url
-    };
+    await activityStore.fetchItems(params);
   } catch (error) {
     console.error('Error fetching activities:', error);
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -175,7 +142,7 @@ const applyFilters = () => {
 const resetFilters = () => {
   filters.q = '';
   filters.log_name = '';
-  filters.per_page = 20;
+  filters.per_page = 5;
   fetchActivities(1);
 };
 

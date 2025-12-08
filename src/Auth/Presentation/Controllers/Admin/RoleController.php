@@ -23,6 +23,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
+    }
 
     /**
      * Display a listing of the resource.
@@ -36,8 +37,9 @@ class RoleController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        
+
         return response()->json($items);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -46,10 +48,8 @@ class RoleController extends Controller
      */
     public function create(Request $request)
     {
-        
         return response()->json(['message' => 'Provide role payload to store.']);
-
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -59,8 +59,9 @@ class RoleController extends Controller
     public function store(\Src\Auth\Presentation\Requests\RoleRequest $request, CreateRoleAction $create)
     {
         $role = $create->execute(RoleDTO::fromArray($request->validated()));
-        
+
         return response()->json($role->load('permissions'), 201);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -69,10 +70,8 @@ class RoleController extends Controller
      */
     public function edit(Request $request, Role $role)
     {
-        
         return response()->json($role->load('permissions'));
-
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -82,8 +81,9 @@ class RoleController extends Controller
     public function update(\Src\Auth\Presentation\Requests\RoleRequest $request, Role $role, UpdateRoleAction $update)
     {
         $role = $update->execute($role, RoleDTO::fromArray($request->validated()));
-        
+
         return response()->json($role->load('permissions'));
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -93,9 +93,7 @@ class RoleController extends Controller
     public function destroy(Request $request, Role $role, DeleteRoleAction $delete)
     {
         $delete->execute($role);
-        
+
         return response()->json(null, 204);
-
-        return back()->with('status', 'Role deleted');
-
+    }
 }

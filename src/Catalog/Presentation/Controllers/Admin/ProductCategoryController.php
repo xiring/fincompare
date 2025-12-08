@@ -26,6 +26,7 @@ class ProductCategoryController extends Controller
     public function __construct()
     {
         $this->authorizeResource(ProductCategory::class, 'product_category');
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,8 +40,9 @@ class ProductCategoryController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        
+
         return response()->json($items);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -49,7 +51,6 @@ class ProductCategoryController extends Controller
      */
     public function create(Request $request)
     {
-        
         return response()->json(['message' => 'Provide product category payload to store.']);
 
         // Get all pre_forms that are not already assigned to any category
@@ -69,6 +70,7 @@ class ProductCategoryController extends Controller
             ->whereNotIn('id', $assignedPostFormIds)
             ->orderBy('name')
             ->get(['id', 'name']);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -82,10 +84,12 @@ class ProductCategoryController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('categories/'.now()->format('Y/m'), 'public');
+        }
 
         $item = $create->execute(ProductCategoryDTO::fromArray($data));
-        
+
         return response()->json($item, 201);
+    }
 
     /**
      * Display the specified resource.
@@ -95,8 +99,9 @@ class ProductCategoryController extends Controller
     public function show(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
     {
         $product_category = $show->execute($product_category);
-        
+
         return response()->json($product_category);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -106,7 +111,7 @@ class ProductCategoryController extends Controller
     public function edit(Request $request, ProductCategory $product_category, ShowProductCategoryAction $show)
     {
         $product_category = $show->execute($product_category);
-        
+
         return response()->json($product_category);
 
         // Get all pre_forms (including the one already assigned to this category)
@@ -119,7 +124,7 @@ class ProductCategoryController extends Controller
                 $q->whereNotIn('id', $assignedPreFormIds);
                 if ($product_category->pre_form_id) {
                     $q->orWhere('id', $product_category->pre_form_id);
-
+                }
             })
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -134,10 +139,11 @@ class ProductCategoryController extends Controller
                 $q->whereNotIn('id', $assignedPostFormIds);
                 if ($product_category->post_form_id) {
                     $q->orWhere('id', $product_category->post_form_id);
-
+                }
             })
             ->orderBy('name')
             ->get(['id', 'name']);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -153,15 +159,18 @@ class ProductCategoryController extends Controller
             // Delete old image if exists
             if ($product_category->image && Storage::disk('public')->exists($product_category->image)) {
                 Storage::disk('public')->delete($product_category->image);
+            }
 
             $data['image'] = $request->file('image')->store('categories/'.now()->format('Y/m'), 'public');
         } else {
             // Keep existing image if not updated
             $data['image'] = $product_category->image;
+        }
 
         $item = $update->execute($product_category, ProductCategoryDTO::fromArray($data));
-        
+
         return response()->json($item);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -171,7 +180,7 @@ class ProductCategoryController extends Controller
     public function destroy(Request $request, ProductCategory $product_category, DeleteProductCategoryAction $delete)
     {
         $delete->execute($product_category);
-        
-        return response()->json(null, 204);
 
+        return response()->json(null, 204);
+    }
 }

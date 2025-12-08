@@ -1,183 +1,126 @@
 <template>
   <div>
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Blog Post</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Update blog post information</p>
-    </div>
+    <PageHeader title="Edit Blog Post" description="Update blog post information" />
 
     <LoadingSpinner v-if="loading && !blog" text="Loading blog post..." />
     <ErrorMessage v-else-if="errorMessage" :message="errorMessage" class="mb-6" />
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
-    <div v-if="blog" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <FormCard v-if="blog">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="space-y-6">
-            <div>
-              <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Title <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="title"
-                v-model="form.title"
-                type="text"
-                required
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.title }"
-              />
-              <p v-if="errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
-            </div>
+            <FormInput
+              id="title"
+              v-model="form.title"
+              label="Title"
+              type="text"
+              required
+              :error="errors.title"
+            />
 
-            <div>
-              <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Slug
-              </label>
-              <input
-                id="slug"
-                v-model="form.slug"
-                type="text"
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.slug }"
-              />
-              <p v-if="errors.slug" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.slug }}</p>
-            </div>
+            <FormInput
+              id="slug"
+              v-model="form.slug"
+              label="Slug"
+              :error="errors.slug"
+            />
 
-            <div>
-              <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <input
-                id="category"
-                v-model="form.category"
-                type="text"
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.category }"
-              />
-              <p v-if="errors.category" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.category }}</p>
-            </div>
+            <FormInput
+              id="category"
+              v-model="form.category"
+              label="Category"
+              type="text"
+              :error="errors.category"
+            />
 
-            <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status <span class="text-red-500">*</span>
-              </label>
-              <select
-                id="status"
-                v-model="form.status"
-                required
-                class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                :class="{ 'border-red-300 dark:border-red-600': errors.status }"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="archived">Archived</option>
-              </select>
-              <p v-if="errors.status" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.status }}</p>
-            </div>
+            <FormSelect
+              id="status"
+              v-model="form.status"
+              label="Status"
+              :options="statusOptions"
+              required
+              :error="errors.status"
+            />
           </div>
 
           <div class="space-y-6">
-            <div>
-              <label for="featured_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Featured Image
+            <div v-if="blog.featured_image && !form.featured_image" class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Current Image
               </label>
-              <div v-if="blog.featured_image && !imagePreview" class="mt-2 mb-2">
-                <img :src="`/storage/${blog.featured_image}`" alt="Current image" class="h-32 w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Current image</p>
-              </div>
-              <input
-                id="featured_image"
-                type="file"
-                accept="image/*"
-                @change="handleImageChange"
-                class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400"
-              />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image.</p>
-              <div v-if="imagePreview" class="mt-2">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">New image preview:</p>
-                <img :src="imagePreview" alt="Preview" class="h-32 w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
-              </div>
-              <p v-if="errors.featured_image" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.featured_image }}</p>
+              <img :src="`/storage/${blog.featured_image}`" alt="Current image" class="h-32 w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
             </div>
+            <FormFileInput
+              id="featured_image"
+              v-model="form.featured_image"
+              label="Featured Image"
+              accept="image/*"
+              hint="JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image."
+              :preview="true"
+              :error="errors.featured_image"
+            />
           </div>
         </div>
 
-        <div>
-          <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Content
-          </label>
-          <textarea
-            id="content"
-            v-model="form.content"
-            rows="10"
-            class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 'border-red-300 dark:border-red-600': errors.content }"
-          ></textarea>
-          <p v-if="errors.content" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.content }}</p>
-        </div>
+        <FormTextarea
+          id="content"
+          v-model="form.content"
+          label="Content"
+          :rows="10"
+          :error="errors.content"
+        />
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label for="seo_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Title
-            </label>
-            <input
+        <FormSection title="SEO Settings">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormInput
               id="seo_title"
               v-model="form.seo_title"
+              label="SEO Title"
               type="text"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
             />
-          </div>
-          <div>
-            <label for="seo_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Description
-            </label>
-            <textarea
+
+            <FormTextarea
               id="seo_description"
               v-model="form.seo_description"
-              rows="2"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            ></textarea>
-          </div>
-          <div>
-            <label for="seo_keywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Keywords
-            </label>
-            <input
+              label="SEO Description"
+              :rows="2"
+            />
+
+            <FormInput
               id="seo_keywords"
               v-model="form.seo_keywords"
+              label="SEO Keywords"
               type="text"
               placeholder="keyword1, keyword2, keyword3"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
-        </div>
+        </FormSection>
 
-        <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <router-link
-            to="/admin/blogs"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-          >
-            Cancel
-          </router-link>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
-            <span>{{ loading ? 'Updating...' : 'Update Blog Post' }}</span>
-          </button>
-        </div>
+        <FormActions
+          :loading="loading"
+          submit-text="Update Blog Post"
+          loading-text="Updating..."
+          cancel-route="/admin/blogs"
+        />
       </form>
-    </div>
+    </FormCard>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { adminApi } from '../../services/api';
+import { useBlogsStore } from '../../stores';
 import { extractValidationErrors } from '../../utils/validation';
+import PageHeader from '../../components/PageHeader.vue';
+import FormCard from '../../components/FormCard.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormTextarea from '../../components/FormTextarea.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import FormFileInput from '../../components/FormFileInput.vue';
+import FormSection from '../../components/FormSection.vue';
+import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
@@ -186,7 +129,9 @@ const route = useRoute();
 const router = useRouter();
 const blogId = route.params.id;
 
-const blog = ref(null);
+const blogsStore = useBlogsStore();
+const blog = computed(() => blogsStore.currentItem);
+
 const form = reactive({
   title: '',
   slug: '',
@@ -199,41 +144,30 @@ const form = reactive({
   seo_keywords: ''
 });
 
+const statusOptions = [
+  { id: 'draft', name: 'Draft' },
+  { id: 'published', name: 'Published' },
+  { id: 'archived', name: 'Archived' }
+];
+
 const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
-const loading = ref(false);
-const imagePreview = ref(null);
-
-const handleImageChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    form.featured_image = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    form.featured_image = null;
-    imagePreview.value = null;
-  }
-};
+const loading = computed(() => blogsStore.loading);
 
 const loadBlog = async () => {
-  loading.value = true;
   try {
-    const response = await adminApi.blogs.show(blogId);
-    blog.value = response.data;
-
-    form.title = blog.value.title || '';
-    form.slug = blog.value.slug || '';
-    form.category = blog.value.category || '';
-    form.content = blog.value.content || '';
-    form.status = blog.value.status || 'draft';
-    form.seo_title = blog.value.seo_title || '';
-    form.seo_description = blog.value.seo_description || '';
-    form.seo_keywords = blog.value.seo_keywords || '';
+    await blogsStore.fetchItem(blogId);
+    if (blog.value) {
+      form.title = blog.value.title || '';
+      form.slug = blog.value.slug || '';
+      form.category = blog.value.category || '';
+      form.content = blog.value.content || '';
+      form.status = blog.value.status || 'draft';
+      form.seo_title = blog.value.seo_title || '';
+      form.seo_description = blog.value.seo_description || '';
+      form.seo_keywords = blog.value.seo_keywords || '';
+    }
   } catch (error) {
     console.error('Error loading blog:', error);
     if (error.response?.status === 404) {
@@ -241,8 +175,6 @@ const loadBlog = async () => {
     } else {
       errorMessage.value = 'Failed to load blog post';
     }
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -250,16 +182,14 @@ const handleSubmit = async () => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
-  loading.value = true;
 
   try {
-    await adminApi.blogs.update(blogId, form);
+    await blogsStore.updateItem(blogId, form);
     successMessage.value = 'Blog post updated successfully!';
     setTimeout(() => {
       router.push('/admin/blogs');
     }, 1500);
   } catch (error) {
-    loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -272,4 +202,3 @@ onMounted(() => {
   loadBlog();
 });
 </script>
-

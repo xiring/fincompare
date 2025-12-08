@@ -1,0 +1,10 @@
+<template>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <slot />
+  </div>
+</template>
+
+<script setup>
+// FormCard component - provides consistent card styling for forms
+</script>
+

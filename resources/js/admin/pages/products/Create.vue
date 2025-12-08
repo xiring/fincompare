@@ -215,8 +215,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useProductsStore } from '../../stores';
+import { usePartnersStore } from '../../stores';
+import { useProductCategoriesStore } from '../../stores';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors, formatValidationError } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
@@ -225,6 +228,12 @@ import SuccessMessage from '../../components/SuccessMessage.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
 
 const router = useRouter();
+const productsStore = useProductsStore();
+const partnersStore = usePartnersStore();
+const productCategoriesStore = useProductCategoriesStore();
+
+// Use store loading state
+const loading = computed(() => productsStore.loading);
 
 const form = reactive({
   name: '',
@@ -244,7 +253,6 @@ const attributes = ref([]);
 const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
-const loading = ref(false);
 const loadingAttributes = ref(false);
 const imagePreview = ref(null);
 
@@ -307,13 +315,12 @@ const handleSubmit = async () => {
       attributes: form.attributes
     };
 
-    await adminApi.products.create(data);
+    await productsStore.createItem(data);
     successMessage.value = 'Product created successfully!';
     setTimeout(() => {
       router.push('/admin/products');
     }, 1500);
   } catch (error) {
-    loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -324,13 +331,13 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   try {
-    // Load partners and categories
-    const [partnersRes, categoriesRes] = await Promise.all([
-      adminApi.partners.index(),
-      adminApi.productCategories.index()
+    // Load partners and categories using stores (fetch all items for dropdowns)
+    await Promise.all([
+      partnersStore.fetchItems({ per_page: 1000 }),
+      productCategoriesStore.fetchItems({ per_page: 1000 })
     ]);
-    partners.value = partnersRes.data.data || partnersRes.data || [];
-    categories.value = categoriesRes.data.data || categoriesRes.data || [];
+    partners.value = partnersStore.items;
+    categories.value = productCategoriesStore.items;
   } catch (error) {
     console.error('Error loading form data:', error);
     errorMessage.value = 'Failed to load form data';

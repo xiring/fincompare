@@ -7,7 +7,7 @@
     </div>
 
     <!-- Loading State -->
-    <LoadingSpinner v-if="loading && !product" text="Loading product..." />
+    <LoadingSpinner v-if="loading && !productsStore.currentItem" text="Loading product..." />
 
     <!-- Error Message -->
     <ErrorMessage v-else-if="errorMessage" :message="errorMessage" class="mb-6" />
@@ -16,7 +16,7 @@
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
     <!-- Form -->
-    <div v-if="product" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div v-if="productsStore.currentItem" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left Column: Basic Product Information -->
@@ -222,8 +222,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useProductsStore } from '../../stores';
+import { usePartnersStore } from '../../stores';
+import { useProductCategoriesStore } from '../../stores';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
@@ -235,7 +238,14 @@ const route = useRoute();
 const router = useRouter();
 const productId = route.params.id;
 
-const product = ref(null);
+const productsStore = useProductsStore();
+const partnersStore = usePartnersStore();
+const productCategoriesStore = useProductCategoriesStore();
+
+// Use store loading state and current item
+const loading = computed(() => productsStore.loading);
+const product = computed(() => productsStore.currentItem);
+
 const form = reactive({
   name: '',
   slug: '',
@@ -254,7 +264,6 @@ const attributes = ref([]);
 const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
-const loading = ref(false);
 const loadingAttributes = ref(false);
 const imagePreview = ref(null);
 
@@ -288,7 +297,7 @@ const loadAttributes = async () => {
     attributes.value.forEach(attr => {
       if (!(attr.id in form.attributes)) {
         // Try to get existing value from product
-        const existingValue = product.value?.attribute_values?.find(av => av.attribute_id === attr.id);
+        const existingValue = productsStore.currentItem?.attribute_values?.find(av => av.attribute_id === attr.id);
         if (existingValue) {
           form.attributes[attr.id] = existingValue.value || existingValue.getScalarValue?.() || '';
         } else {
@@ -305,19 +314,17 @@ const loadAttributes = async () => {
 };
 
 const loadProduct = async () => {
-  loading.value = true;
   try {
-    const response = await adminApi.products.show(productId);
-    product.value = response.data;
+    await productsStore.fetchItem(productId);
 
     // Populate form
-    form.name = product.value.name || '';
-    form.slug = product.value.slug || '';
-    form.partner_id = product.value.partner_id || '';
-    form.product_category_id = product.value.product_category_id || '';
-    form.description = product.value.description || '';
-    form.is_featured = product.value.is_featured || false;
-    form.status = product.value.status || 'active';
+    form.name = productsStore.currentItem?.name || '';
+    form.slug = productsStore.currentItem?.slug || '';
+    form.partner_id = productsStore.currentItem?.partner_id || '';
+    form.product_category_id = productsStore.currentItem?.product_category_id || '';
+    form.description = productsStore.currentItem?.description || '';
+    form.is_featured = productsStore.currentItem?.is_featured || false;
+    form.status = productsStore.currentItem?.status || 'active';
 
     // Load attributes if category is set
     if (form.product_category_id) {
@@ -330,8 +337,6 @@ const loadProduct = async () => {
     } else {
       errorMessage.value = 'Failed to load product';
     }
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -339,7 +344,6 @@ const handleSubmit = async () => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
-  loading.value = true;
 
   try {
     const data = {
@@ -350,13 +354,12 @@ const handleSubmit = async () => {
       attributes: form.attributes
     };
 
-    await adminApi.products.update(productId, data);
+    await productsStore.updateItem(productId, data);
     successMessage.value = 'Product updated successfully!';
     setTimeout(() => {
       router.push('/admin/products');
     }, 1500);
   } catch (error) {
-    loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -367,13 +370,13 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   try {
-    // Load partners, categories, and product in parallel
-    const [partnersRes, categoriesRes] = await Promise.all([
-      adminApi.partners.index(),
-      adminApi.productCategories.index()
+    // Load partners and categories using stores (fetch all items for dropdowns)
+    await Promise.all([
+      partnersStore.fetchItems({ per_page: 1000 }),
+      productCategoriesStore.fetchItems({ per_page: 1000 })
     ]);
-    partners.value = partnersRes.data.data || partnersRes.data || [];
-    categories.value = categoriesRes.data.data || categoriesRes.data || [];
+    partners.value = partnersStore.items;
+    categories.value = productCategoriesStore.items;
 
     // Load product
     await loadProduct();

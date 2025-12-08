@@ -1,144 +1,100 @@
 <template>
   <div>
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create CMS Page</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Add a new CMS page</p>
-    </div>
+    <PageHeader title="Create CMS Page" description="Add a new CMS page" />
 
     <ErrorMessage v-if="errorMessage" :message="errorMessage" class="mb-6" />
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <FormCard>
       <form @submit.prevent="handleSubmit" class="space-y-6">
-        <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Title <span class="text-red-500">*</span>
-          </label>
-          <input
-            id="title"
-            v-model="form.title"
-            type="text"
-            required
-            class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 'border-red-300 dark:border-red-600': errors.title }"
-          />
-          <p v-if="errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
-        </div>
+        <FormInput
+          id="title"
+          v-model="form.title"
+          label="Title"
+          type="text"
+          required
+          :error="errors.title"
+        />
 
-        <div>
-          <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Slug (optional)
-          </label>
-          <input
-            id="slug"
-            v-model="form.slug"
-            type="text"
-            class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 'border-red-300 dark:border-red-600': errors.slug }"
-          />
-          <p v-if="errors.slug" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.slug }}</p>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave empty to auto-generate from title</p>
-        </div>
+        <FormInput
+          id="slug"
+          v-model="form.slug"
+          label="Slug"
+          hint="Leave empty to auto-generate from title"
+          :error="errors.slug"
+        />
 
-        <div>
-          <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Status <span class="text-red-500">*</span>
-          </label>
-          <select
-            id="status"
-            v-model="form.status"
-            required
-            class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 'border-red-300 dark:border-red-600': errors.status }"
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-          </select>
-          <p v-if="errors.status" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.status }}</p>
-        </div>
+        <FormSelect
+          id="status"
+          v-model="form.status"
+          label="Status"
+          :options="statusOptions"
+          required
+          :error="errors.status"
+        />
 
-        <div>
-          <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Content
-          </label>
-          <textarea
-            id="content"
-            v-model="form.content"
-            rows="12"
-            class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            :class="{ 'border-red-300 dark:border-red-600': errors.content }"
-          ></textarea>
-          <p v-if="errors.content" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.content }}</p>
-        </div>
+        <FormTextarea
+          id="content"
+          v-model="form.content"
+          label="Content"
+          :rows="12"
+          :error="errors.content"
+        />
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label for="seo_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Title
-            </label>
-            <input
+        <FormSection title="SEO Settings">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FormInput
               id="seo_title"
               v-model="form.seo_title"
+              label="SEO Title"
               type="text"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
             />
-          </div>
-          <div>
-            <label for="seo_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Description
-            </label>
-            <textarea
+
+            <FormTextarea
               id="seo_description"
               v-model="form.seo_description"
-              rows="2"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-            ></textarea>
-          </div>
-          <div>
-            <label for="seo_keywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              SEO Keywords
-            </label>
-            <input
+              label="SEO Description"
+              :rows="2"
+            />
+
+            <FormInput
               id="seo_keywords"
               v-model="form.seo_keywords"
+              label="SEO Keywords"
               type="text"
               placeholder="keyword1, keyword2, keyword3"
-              class="block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
-        </div>
+        </FormSection>
 
-        <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <router-link
-            to="/admin/cms-pages"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-          >
-            Cancel
-          </router-link>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium text-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
-            <span>{{ loading ? 'Creating...' : 'Save CMS Page' }}</span>
-          </button>
-        </div>
+        <FormActions
+          :loading="loading"
+          submit-text="Save CMS Page"
+          loading-text="Creating..."
+          cancel-route="/admin/cms-pages"
+        />
       </form>
-    </div>
+    </FormCard>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { adminApi } from '../../services/api';
+import { useCmsPagesStore } from '../../stores';
 import { extractValidationErrors } from '../../utils/validation';
-import LoadingSpinner from '../../components/LoadingSpinner.vue';
+import PageHeader from '../../components/PageHeader.vue';
+import FormCard from '../../components/FormCard.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormTextarea from '../../components/FormTextarea.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import FormSection from '../../components/FormSection.vue';
+import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 
 const router = useRouter();
+const cmsPagesStore = useCmsPagesStore();
 
 const form = reactive({
   title: '',
@@ -150,30 +106,32 @@ const form = reactive({
   seo_keywords: ''
 });
 
+const statusOptions = [
+  { id: 'draft', name: 'Draft' },
+  { id: 'published', name: 'Published' }
+];
+
 const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
-const loading = ref(false);
+const loading = computed(() => cmsPagesStore.loading);
 
 const handleSubmit = async () => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
-  loading.value = true;
 
   try {
-    // Auto-generate slug if not provided
     if (!form.slug && form.title) {
       form.slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
-    await adminApi.cmsPages.create(form);
+    await cmsPagesStore.createItem(form);
     successMessage.value = 'CMS page created successfully!';
     setTimeout(() => {
       router.push('/admin/cms-pages');
     }, 1500);
   } catch (error) {
-    loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -182,4 +140,3 @@ const handleSubmit = async () => {
   }
 };
 </script>
-

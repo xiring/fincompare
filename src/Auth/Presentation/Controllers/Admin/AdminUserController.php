@@ -23,6 +23,7 @@ class AdminUserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
+    }
 
     /**
      * Display a listing of the resource.
@@ -36,8 +37,9 @@ class AdminUserController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));
-        
+
         return response()->json($items);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -46,10 +48,8 @@ class AdminUserController extends Controller
      */
     public function create(Request $request)
     {
-        
         return response()->json(['message' => 'Provide user payload to store.']);
-
-        $roles = Role::orderBy('name')->get(['id', 'name']);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -59,8 +59,9 @@ class AdminUserController extends Controller
     public function store(\Src\Auth\Presentation\Requests\AdminUserStoreRequest $request, CreateAdminUserAction $create)
     {
         $user = $create->execute(AdminUserDTO::fromArray($request->validated()));
-        
+
         return response()->json($user->load('roles'), 201);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -69,10 +70,8 @@ class AdminUserController extends Controller
      */
     public function edit(Request $request, User $user)
     {
-        
         return response()->json($user->load('roles'));
-
-        $roles = Role::orderBy('name')->get(['id', 'name']);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -82,8 +81,9 @@ class AdminUserController extends Controller
     public function update(\Src\Auth\Presentation\Requests\AdminUserUpdateRequest $request, User $user, UpdateAdminUserAction $update)
     {
         $user = $update->execute($user, AdminUserDTO::fromArray($request->validated()));
-        
+
         return response()->json($user->load('roles'));
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -93,9 +93,7 @@ class AdminUserController extends Controller
     public function destroy(Request $request, User $user, DeleteAdminUserAction $delete)
     {
         $delete->execute($user);
-        
+
         return response()->json(null, 204);
-
-        return back()->with('status', 'User deleted');
-
+    }
 }

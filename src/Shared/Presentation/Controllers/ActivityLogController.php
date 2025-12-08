@@ -24,7 +24,7 @@ class ActivityLogController extends Controller
             ->when($request->get('subject_type'), fn ($q, $t) => $q->where('subject_type', $t))
             ->orderByDesc('id');
         $items = $query->paginate((int) $request->get('per_page', 20));
-        
-        return response()->json($items);
 
+        return response()->json($items);
+    }
 }
