@@ -63,7 +63,7 @@ export function useLocalStorage<T = any>(
   };
 
   return {
-    value: state,
+    value: state as Ref<T>,
     remove,
     clear,
   };

@@ -15,7 +15,7 @@
               label="Name"
               type="text"
               required
-              :error="errors.name"
+              :error="getError(errors, 'name')"
             />
 
             <FormInput
@@ -23,7 +23,7 @@
               v-model="form.slug"
               label="Slug"
               hint="Leave empty to auto-generate from name"
-              :error="errors.slug"
+              :error="getError(errors, 'slug')"
             />
 
             <FormInput
@@ -31,7 +31,7 @@
               v-model="form.website_url"
               label="Website URL"
               type="url"
-              :error="errors.website_url"
+              :error="getError(errors, 'website_url')"
             />
 
             <FormInput
@@ -39,7 +39,7 @@
               v-model="form.contact_email"
               label="Contact Email"
               type="email"
-              :error="errors.contact_email"
+              :error="getError(errors, 'contact_email')"
             />
 
             <FormInput
@@ -47,7 +47,7 @@
               v-model="form.contact_phone"
               label="Contact Phone"
               type="text"
-              :error="errors.contact_phone"
+              :error="getError(errors, 'contact_phone')"
             />
 
             <FormSelect
@@ -56,7 +56,7 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="errors.status"
+              :error="getError(errors, 'status')"
             />
           </div>
 
@@ -68,7 +68,7 @@
               accept="image/*"
               hint="JPG, PNG, GIF or WebP. Max size: 2MB"
               :preview="true"
-              :error="errors.logo"
+              :error="getError(errors, 'logo')"
             />
           </div>
         </div>
@@ -88,7 +88,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePartnersStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -142,7 +142,20 @@ const handleSubmit = async (): Promise<void> => {
       form.slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
-    await partnersStore.createItem(form);
+    // Create FormData for file upload
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      const value = (form as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        if (key === 'logo' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    await partnersStore.createItem(formData as any);
     successMessage.value = 'Partner created successfully!';
     setTimeout(() => {
       router.push('/admin/partners');

@@ -16,14 +16,14 @@
               label="Title"
               type="text"
               required
-              :error="errors.title"
+              :error="getError(errors, 'title')"
             />
 
             <FormInput
               id="slug"
               v-model="form.slug"
               label="Slug"
-              :error="errors.slug"
+              :error="getError(errors, 'slug')"
             />
 
             <FormInput
@@ -31,7 +31,7 @@
               v-model="form.category"
               label="Category"
               type="text"
-              :error="errors.category"
+              :error="getError(errors, 'category')"
             />
 
             <FormSelect
@@ -40,7 +40,7 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="errors.status"
+              :error="getError(errors, 'status')"
             />
           </div>
 
@@ -58,7 +58,7 @@
               accept="image/*"
               hint="JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image."
               :preview="true"
-              :error="errors.featured_image"
+              :error="getError(errors, 'featured_image')"
             />
           </div>
         </div>
@@ -67,7 +67,7 @@
           id="content"
           v-model="form.content"
           label="Content"
-          :error="errors.content"
+          :error="getError(errors, 'content')"
           height="400px"
         />
 
@@ -112,7 +112,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useBlogsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -198,7 +198,20 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    await blogsStore.updateItem(blogId, form);
+    // Create FormData for file upload
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      const value = (form as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        if (key === 'featured_image' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    await blogsStore.updateItem(blogId, formData as any);
     successMessage.value = 'Blog post updated successfully!';
     setTimeout(() => {
       router.push('/admin/blogs');

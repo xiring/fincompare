@@ -2,7 +2,7 @@
  * Composable for consistent image URL handling
  */
 
-import { computed, type Ref, type ComputedRef } from 'vue';
+import { computed, type Ref } from 'vue';
 import { getImageUrl } from '../utils/helpers';
 
 export function useImageUrl<T extends { image_url?: string; partner?: { logo_url?: string } }>(

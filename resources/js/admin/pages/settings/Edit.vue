@@ -18,7 +18,7 @@
               label="Site Name"
               type="text"
               required
-              :error="errors.site_name"
+              :error="getError(errors, 'site_name')"
             />
 
             <FormInput
@@ -74,7 +74,7 @@
                 accept="image/*"
                 hint="JPG, PNG, GIF or WebP. Max size: 2MB. Leave empty to keep current logo."
                 :preview="true"
-                :error="errors.logo"
+                :error="getError(errors, 'logo')"
               />
             </div>
 
@@ -92,7 +92,7 @@
                 accept="image/*"
                 hint="ICO, PNG. Max size: 1MB. Leave empty to keep current favicon."
                 :preview="true"
-                :error="errors.favicon"
+                :error="getError(errors, 'favicon')"
               />
             </div>
 
@@ -158,7 +158,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { adminApi } from '../../services/api';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -236,7 +236,7 @@ const loadSettings = async (): Promise<void> => {
   try {
     const response = await adminApi.settings.show();
     // API returns { data: { ...settings } }, so we need response.data.data
-    settings.value = response.data.data || response.data;
+    settings.value = (response.data as any).data || response.data;
 
     // Populate form with settings data
     if (settings.value) {
@@ -279,8 +279,8 @@ const handleSubmit = async (): Promise<void> => {
 
     const response = await adminApi.settings.update(data);
     // Update settings from response if available
-    if (response.data?.data) {
-      settings.value = response.data.data;
+    if ((response.data as any)?.data) {
+      settings.value = (response.data as any).data;
     }
     successMessage.value = 'Settings updated successfully!';
     setTimeout(() => {

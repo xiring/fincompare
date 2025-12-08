@@ -15,7 +15,7 @@
           required
           placeholder="e.g., products.create, users.edit"
           hint="Use dot notation: resource.action (e.g., products.create)"
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormActions
@@ -33,7 +33,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePermissionsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';

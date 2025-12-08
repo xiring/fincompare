@@ -2,7 +2,7 @@
  * Composable for consistent error handling across pages
  */
 
-import { ref, type Ref } from 'vue';
+import { ref } from 'vue';
 
 export function useErrorHandling() {
   const error = ref<string | null>(null);

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import type { SiteSettings } from './types/index';
 
 // Import pages directly (eager loading)
 import Home from './pages/Home.vue';
@@ -18,9 +19,7 @@ import Lead from './pages/Lead.vue';
 
 declare global {
   interface Window {
-    __SITE_SETTINGS__?: {
-      site_name?: string;
-    };
+    __SITE_SETTINGS__?: SiteSettings;
   }
 }
 

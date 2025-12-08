@@ -3,7 +3,7 @@
  * Manages product comparison state with localStorage sync
  */
 
-import { ref, computed, type Ref, type ComputedRef } from 'vue';
+import { ref, computed, type ComputedRef } from 'vue';
 import { useLocalStorage } from './useLocalStorage';
 import { webService } from '../services/api';
 import { STORAGE_KEYS } from '../utils/constants';

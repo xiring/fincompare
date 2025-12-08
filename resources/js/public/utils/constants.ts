@@ -28,6 +28,7 @@ export const TEXT = {
   REMOVE_FROM_COMPARE: 'Remove from Compare',
   IN_COMPARE: 'In Compare',
   MORE_DETAILS: 'More Details',
+  OPTIONAL: 'Optional',
 
   // Page Titles
   HOME: 'Home',

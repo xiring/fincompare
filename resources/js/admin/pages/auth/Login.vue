@@ -154,11 +154,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
-import type { FormErrors } from '../types/index';
+import type { FormErrors } from '../../types/index';
 
-const router = useRouter();
 const route = useRoute();
 
 interface LoginFormData {

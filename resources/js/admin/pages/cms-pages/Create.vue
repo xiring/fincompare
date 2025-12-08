@@ -13,7 +13,7 @@
           label="Title"
           type="text"
           required
-          :error="errors.title"
+          :error="getError(errors, 'title')"
         />
 
         <FormInput
@@ -21,7 +21,7 @@
           v-model="form.slug"
           label="Slug"
           hint="Leave empty to auto-generate from title"
-          :error="errors.slug"
+          :error="getError(errors, 'slug')"
         />
 
         <FormSelect
@@ -30,14 +30,14 @@
           label="Status"
           :options="statusOptions"
           required
-          :error="errors.status"
+          :error="getError(errors, 'status')"
         />
 
         <FormWysiwyg
           id="content"
           v-model="form.content"
           label="Content"
-          :error="errors.content"
+          :error="getError(errors, 'content')"
           height="400px"
         />
 
@@ -82,7 +82,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';

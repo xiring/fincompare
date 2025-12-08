@@ -40,3 +40,38 @@ export interface FormSubmissionData {
   [key: string]: any;
 }
 
+// Vue component shims
+declare module '../layouts/GuestLayout.vue';
+declare module '../../layouts/GuestLayout.vue';
+declare module '../../../layouts/GuestLayout.vue';
+declare module './App.vue';
+declare module '../App.vue';
+declare module '../components/AddProductModal.vue';
+declare module '../../components/AddProductModal.vue';
+declare module '../components/ConfirmModal.vue';
+declare module '../../components/ConfirmModal.vue';
+declare module '../components/ProductCard.vue';
+declare module '../../components/ProductCard.vue';
+declare module '../components/HeroSection.vue' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{
+    title: string;
+    subtitle?: string;
+  }, {}, any, {}, {}, any, {
+    breadcrumb?: any;
+    default?: any;
+  }>;
+  export default component;
+}
+declare module '../components/LoadingSkeleton.vue' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{
+    count?: number;
+    containerClass?: string;
+    itemClass?: string;
+  }, {}, any, {}, {}, any, {
+    default?: (props: { index: number }) => any;
+  }>;
+  export default component;
+}
+

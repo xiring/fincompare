@@ -1,4 +1,4 @@
-import { ref, onUnmounted, type Ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 
 /**
  * Composable for reveal animations using Intersection Observer
@@ -32,7 +32,7 @@ export function useReveal(threshold: number = 0.18, element: HTMLElement | null 
       { threshold }
     );
 
-    observer.observe(targetElement);
+    observer.observe(targetElement as unknown as Element);
   };
 
   onUnmounted(() => {

@@ -33,7 +33,7 @@ export function useVirtualScroll(options: VirtualScrollOptions = {}): VirtualScr
   } = options;
 
   const scrollTop = ref<number>(0);
-  const containerRef = ref<HTMLElement | null>(null);
+  const containerRef = ref<HTMLElement | null>(null) as Ref<HTMLElement | null>;
 
   // Calculate visible range
   const startIndex = computed(() => {

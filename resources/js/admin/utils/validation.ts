@@ -2,6 +2,10 @@
  * Form Validation Utilities
  */
 
+import type { Ref } from 'vue';
+
+export type FormErrors = Record<string, string | string[]>;
+
 /**
  * Validates email format
  */
@@ -92,7 +96,18 @@ export const formatValidationError = (
   if (!errors || !errors[field]) return null;
   const fieldErrors = errors[field];
   if (!fieldErrors) return null;
-  return Array.isArray(fieldErrors) ? fieldErrors[0] : (fieldErrors as any);
+  const error = Array.isArray(fieldErrors) ? fieldErrors[0] : String(fieldErrors);
+  return error || null;
+};
+
+/**
+ * Get error message for a field from FormErrors
+ */
+export const getError = (errors: Ref<FormErrors> | FormErrors, field: string): string | undefined => {
+  const errorsObj = 'value' in errors ? errors.value : errors;
+  const fieldErrors = errorsObj[field as keyof typeof errorsObj];
+  if (!fieldErrors) return undefined;
+  return Array.isArray(fieldErrors) ? fieldErrors[0] : (typeof fieldErrors === 'string' ? fieldErrors : undefined);
 };
 
 /**
@@ -119,8 +134,8 @@ export const createValidator = (rules: Record<string, string[]>) => {
             errors[field] = `${field} must be at least ${min} characters`;
           }
         } else if (rule.startsWith('max:') && value) {
-          const max = parseInt(rule.split(':')[1]);
-          if (!validateMaxLength(value, max)) {
+          const max = parseInt(rule.split(':')[1] || '0');
+          if (!validateMaxLength(String(value), max)) {
             errors[field] = `${field} must not exceed ${max} characters`;
           }
         } else if (rule === 'email' && value && !validateEmail(value)) {

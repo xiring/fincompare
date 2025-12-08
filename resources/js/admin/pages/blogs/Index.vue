@@ -118,7 +118,7 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                {{ new Date(blog.created_at).toLocaleDateString() }}
+                {{ blog.created_at ? new Date(blog.created_at).toLocaleDateString() : '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">

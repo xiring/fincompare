@@ -73,7 +73,7 @@
             <iframe
               :src="siteSettings.map_url"
               class="w-full h-full border-0"
-              allowfullscreen=""
+              allowfullscreen
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
             ></iframe>
@@ -110,12 +110,13 @@ const form = ref<ContactFormData>({
 });
 
 const { loading, errors, success, submit: submitForm } = useFormSubmission(
-  async (data: ContactFormData) => {
+  async (data: Record<string, any>) => {
+    const formData = data as ContactFormData;
     const payload = {
-      name: data.name || '',
-      email: data.email || '',
-      message: data.message || '',
-      submitted_at: parseInt(String(data.submitted_at || Math.floor(Date.now() / 1000)), 10),
+      name: formData.name || '',
+      email: formData.email || '',
+      message: formData.message || '',
+      submitted_at: parseInt(String(formData.submitted_at || Math.floor(Date.now() / 1000)), 10),
     };
     await webService.submitContact(payload);
     // Reset form after successful submission

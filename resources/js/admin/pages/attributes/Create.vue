@@ -13,7 +13,7 @@
           label="Name"
           type="text"
           required
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormSelect
@@ -22,7 +22,7 @@
           label="Data Type"
           :options="typeOptions"
           required
-          :error="errors.data_type"
+          :error="getError(errors, 'data_type')"
         />
 
         <FormSelect
@@ -31,7 +31,7 @@
           label="Product Category"
           :options="categoryOptions"
           placeholder="All Categories"
-          :error="errors.product_category_id"
+          :error="getError(errors, 'product_category_id')"
         />
 
         <FormActions
@@ -49,7 +49,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAttributesStore, useProductCategoriesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -99,7 +99,10 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    await attributesStore.createItem(form);
+    await attributesStore.createItem({
+      ...form,
+      product_category_id: form.product_category_id || undefined,
+    });
     successMessage.value = 'Attribute created successfully!';
     setTimeout(() => {
       router.push('/admin/attributes');

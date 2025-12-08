@@ -360,7 +360,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
 import { getImageUrl, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
@@ -394,7 +394,6 @@ const initialProductIds = getProductIds();
 const {
   products,
   features,
-  values,
   loading,
   error,
   fetchCompareData,
@@ -410,7 +409,7 @@ useSEO({
   keywords: ['compare products', 'product comparison', 'financial comparison', 'compare loans', 'compare credit cards'],
 });
 
-const getCellClass = (productId: number, key: string): string => {
+const getCellClass = (_productId: number, key: string): string => {
   if (!highlightDiff.value) return '';
   if (hasDifferentValues(key)) {
     return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)] font-semibold';
@@ -418,7 +417,7 @@ const getCellClass = (productId: number, key: string): string => {
   return '';
 };
 
-const getMobileRowClass = (productId: number, key: string): string => {
+const getMobileRowClass = (_productId: number, key: string): string => {
   if (!highlightDiff.value) return '';
   if (hasDifferentValues(key)) {
     return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)]';

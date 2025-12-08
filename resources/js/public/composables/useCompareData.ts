@@ -2,7 +2,7 @@
  * Compare data composable
  */
 
-import { computed, ref, type Ref, type ComputedRef } from 'vue';
+import { computed, ref, type ComputedRef } from 'vue';
 import { apiService } from '../services/api';
 import { getImageUrl } from '../utils/helpers';
 import type { Product } from '../types/index';

@@ -13,7 +13,7 @@
           label="Name"
           type="text"
           required
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormInput
@@ -22,7 +22,7 @@
           label="Email"
           type="email"
           required
-          :error="errors.email"
+          :error="getError(errors, 'email')"
         />
 
         <FormInput
@@ -31,7 +31,7 @@
           label="Password"
           type="password"
           required
-          :error="errors.password"
+          :error="getError(errors, 'password')"
         />
 
         <FormInput
@@ -40,7 +40,7 @@
           label="Confirm Password"
           type="password"
           required
-          :error="errors.password_confirmation"
+          :error="getError(errors, 'password_confirmation')"
         />
 
         <FormCheckbox
@@ -49,7 +49,7 @@
           label="Roles"
           :options="roles"
           multiple
-          :error="errors.roles"
+          :error="getError(errors, 'roles')"
         />
 
         <FormActions
@@ -67,7 +67,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsersStore, useRolesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -109,7 +109,7 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    await usersStore.createItem(form);
+    await usersStore.createItem(form as any);
     successMessage.value = 'User created successfully!';
     setTimeout(() => {
       router.push('/admin/users');

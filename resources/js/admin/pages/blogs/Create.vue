@@ -15,7 +15,7 @@
               label="Title"
               type="text"
               required
-              :error="errors.title"
+              :error="getError(errors, 'title')"
             />
 
             <FormInput
@@ -23,7 +23,7 @@
               v-model="form.slug"
               label="Slug"
               hint="Leave empty to auto-generate from title"
-              :error="errors.slug"
+              :error="getError(errors, 'slug')"
             />
 
             <FormInput
@@ -31,7 +31,7 @@
               v-model="form.category"
               label="Category"
               type="text"
-              :error="errors.category"
+              :error="getError(errors, 'category')"
             />
 
             <FormSelect
@@ -40,7 +40,7 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="errors.status"
+              :error="getError(errors, 'status')"
             />
           </div>
 
@@ -52,7 +52,7 @@
               accept="image/*"
               hint="JPG, PNG, GIF or WebP. Max size: 5MB"
               :preview="true"
-              :error="errors.featured_image"
+              :error="getError(errors, 'featured_image')"
             />
           </div>
         </div>
@@ -61,7 +61,7 @@
           id="content"
           v-model="form.content"
           label="Content"
-          :error="errors.content"
+          :error="getError(errors, 'content')"
           height="400px"
         />
 
@@ -106,7 +106,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBlogsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -168,7 +168,20 @@ const handleSubmit = async (): Promise<void> => {
       form.slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
-    await blogsStore.createItem(form);
+    // Create FormData for file upload
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      const value = (form as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        if (key === 'featured_image' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    await blogsStore.createItem(formData as any);
     successMessage.value = 'Blog post created successfully!';
     setTimeout(() => {
       router.push('/admin/blogs');

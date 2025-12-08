@@ -13,7 +13,7 @@
           label="Question"
           type="text"
           required
-          :error="errors.question"
+          :error="getError(errors, 'question')"
         />
 
         <FormTextarea
@@ -22,7 +22,7 @@
           label="Answer"
           :rows="6"
           required
-          :error="errors.answer"
+          :error="getError(errors, 'answer')"
         />
 
         <FormActions
@@ -40,7 +40,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFaqsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';

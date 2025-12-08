@@ -132,7 +132,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { apiService, webService } from '../services/api';
 import { useSEO } from '../composables';
 import { TEXT, SUCCESS_MESSAGES, ERROR_MESSAGES, BUTTON_TEXT, FORM_LABELS } from '../utils';
@@ -142,7 +142,7 @@ import GuestLayout from '../layouts/GuestLayout.vue';
 import type { Product } from '../../types/index';
 
 const route = useRoute();
-const router = useRouter();
+// const router = useRouter(); // Unused
 const product = ref<Product | null>(null);
 const productLoading = ref<boolean>(false);
 const productError = ref<string | null>(null);
@@ -175,13 +175,13 @@ useSEO({
   keywords: TEXT.SEO_KEYWORDS_LEAD,
 });
 
-const productImageUrl = computed<string | null>(() => {
+const productImageUrl = computed<string | undefined>(() => {
   if (product.value?.image_url) {
     return product.value.image_url.startsWith('http')
       ? product.value.image_url
       : `/storage/${product.value.image_url}`;
   }
-  return null;
+  return undefined;
 });
 
 const submitForm = async (): Promise<void> => {
@@ -232,8 +232,11 @@ const loadProduct = async (): Promise<void> => {
 
   try {
     const response = await apiService.getProduct(productParam);
-    product.value = response.data.product;
-    form.value.product_id = product.value.id || productParam;
+    const responseData = (response.data as any).data || response.data;
+    product.value = (responseData.product || responseData) as Product | null;
+    if (product.value) {
+      form.value.product_id = product.value.id || (typeof productParam === 'number' ? productParam : parseInt(productParam));
+    }
   } catch (err: any) {
     console.error('Failed to fetch product:', err);
     productError.value = err.response?.data?.message || err.message || ERROR_MESSAGES.PRODUCT.LOAD_INFO;

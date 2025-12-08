@@ -17,8 +17,8 @@
           <div class="flex flex-col lg:grid lg:grid-cols-12 items-start gap-6 lg:gap-8">
             <div class="flex-shrink-0 lg:col-span-2">
               <img
-                v-if="product.image_url"
-                :src="productImageUrl"
+                v-if="product.image_url || product.image"
+                :src="productImageUrl || undefined"
                 :alt="product.name"
                 loading="lazy"
                 class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white/10 object-cover ring-4 ring-white/30 shadow-2xl"
@@ -38,7 +38,7 @@
                   <svg class="w-4 h-4 text-white/80 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
-                  <span class="text-white/90 font-medium">{{ product.partner?.name || TEXT.PARTNER }}</span>
+                  <span class="text-white/90 font-medium">{{ product.partner?.name || 'Partner' }}</span>
                 </div>
                 <span v-if="product.is_featured" class="px-3 py-1 text-xs rounded-full bg-amber-300 text-slate-900 font-bold shadow-sm whitespace-nowrap">{{ TEXT.FEATURED }}</span>
                 <span class="px-3 py-1 text-xs rounded-full bg-white/20 backdrop-blur-sm text-white font-medium whitespace-nowrap">{{ product.status || 'active' }}</span>
@@ -218,10 +218,10 @@
       <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/98 backdrop-blur-md border-t border-gray-200 shadow-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0 flex-1">
-            <img
-              v-if="product.image_url"
-              :src="productImageUrl"
-              :alt="product.name"
+              <img
+                v-if="productImageUrl"
+                :src="productImageUrl"
+                :alt="product.name"
               loading="lazy"
               class="w-12 h-12 rounded-xl bg-gray-100 object-cover border border-gray-200 shadow-sm"
             />
@@ -314,14 +314,22 @@ import { getExcerpt, copyToClipboard, TEXT, ERROR_MESSAGES, SUCCESS_MESSAGES } f
 import { useToastStore } from '../../stores/toast';
 import { SearchIcon, CopyIcon } from '../../components/icons';
 import { ErrorState, HeroSection } from '../../components';
+// @ts-ignore - Vue component shim should handle this
 import GuestLayout from '../../layouts/GuestLayout.vue';
-import type { Product, Attribute } from '../../types/index';
+import type { Product } from '../../types/index';
+
+interface ProductAttribute {
+  id: number;
+  name: string;
+  value?: string | number | boolean;
+  [key: string]: any;
+}
 
 const route = useRoute();
 const product = ref<Product | null>(null);
-const attributes = ref<Attribute[]>([]);
+const attributes = ref<ProductAttribute[]>([]);
 const loading = ref<boolean>(true);
-const activeTab = ref<'overview' | 'features' | 'eligibility' | 'documents'>('overview');
+const activeTab = ref<'overview' | 'features' | 'eligibility' | 'documents' | string>('overview');
 const featureQuery = ref<string>('');
 
 const { toggleCompare: toggleCompareAction, isInCompare: checkInCompare } = useCompare();
@@ -338,11 +346,11 @@ const tabs = [
   { key: 'documents', label: TEXT.TAB_DOCUMENTS },
 ];
 
-const filteredAttributes = computed<Attribute[]>(() => {
+const filteredAttributes = computed<ProductAttribute[]>(() => {
   if (!featureQuery.value) return attributes.value;
   const query = featureQuery.value.toLowerCase();
   return attributes.value.filter(
-    (attr) =>
+    (attr: ProductAttribute) =>
       (attr.name || '').toLowerCase().includes(query) || (String(attr.value || '')).toLowerCase().includes(query)
   );
 });
@@ -411,8 +419,10 @@ const loadProduct = async (): Promise<void> => {
 
   try {
     const response = await apiService.getProduct(slug);
-    product.value = response.data.product;
-    attributes.value = response.data.attributes || [];
+    // Handle both response formats: { data: Product } or Product
+    const productData = (response.data as any).product || response.data;
+    product.value = productData as Product;
+    attributes.value = (response.data as any).attributes || [];
     clearError();
   } catch (err: any) {
     handleError(err, ERROR_MESSAGES.PRODUCT.LOAD_DETAIL);

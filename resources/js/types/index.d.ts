@@ -9,6 +9,31 @@ declare module '*.vue' {
   export default component;
 }
 
+// Specific component type definitions with slots
+declare module '../public/components/HeroSection.vue' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{
+    title: string;
+    subtitle?: string;
+  }, {}, any, {}, {}, any, {
+    breadcrumb?: any;
+    default?: any;
+  }>;
+  export default component;
+}
+
+declare module '../public/components/LoadingSkeleton.vue' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{
+    count?: number;
+    containerClass?: string;
+    itemClass?: string;
+  }, {}, any, {}, {}, any, {
+    default?: (props: { index: number }) => any;
+  }>;
+  export default component;
+}
+
 // Global window extensions
 declare global {
   interface Window {
@@ -86,13 +111,22 @@ export interface Product extends BaseEntity {
   price?: number;
   image?: string;
   image_url?: string;
-  status: 'published' | 'draft';
+  status: 'published' | 'draft' | 'active' | 'inactive';
   category_id?: number;
   partner_id?: number;
   featured?: boolean;
+  is_featured?: boolean;
   attributeValues?: ProductAttributeValue[];
   partner?: Partner;
   category?: ProductCategory;
+  product_category?: ProductCategory;
+  eligibility?: string;
+  documents?: string;
+  attribute_highlights?: {
+    interest_rate?: string;
+    max_amount?: string;
+    [key: string]: any;
+  };
 }
 
 export interface ProductAttributeValue extends BaseEntity {

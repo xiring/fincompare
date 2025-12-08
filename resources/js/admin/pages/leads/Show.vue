@@ -53,7 +53,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-charcoal-700">Date</label>
-            <p class="text-sm text-charcoal-800">{{ new Date(lead.created_at).toLocaleString() }}</p>
+            <p class="text-sm text-charcoal-800">{{ lead.created_at ? new Date(lead.created_at).toLocaleString() : '-' }}</p>
           </div>
           <div v-if="lead.product_category">
             <label class="block text-sm font-medium text-charcoal-700">Product Category</label>
@@ -93,11 +93,11 @@ const leadId = route.params.id as string;
 const lead = ref<Lead | null>(null);
 
 interface StatusFormData {
-  status: string;
+  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected';
 }
 
 const form = reactive<StatusFormData>({
-  status: '',
+  status: 'new',
 });
 
 const errorMessage = ref<string>('');
@@ -108,8 +108,10 @@ const loadLead = async (): Promise<void> => {
   loading.value = true;
   try {
     const response = await adminApi.leads.show(leadId);
-    lead.value = response.data;
-    form.status = lead.value.status || 'new';
+    lead.value = ((response.data as any).data || response.data) as Lead | null;
+    if (lead.value) {
+      form.status = (lead.value.status || 'new') as 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected';
+    }
   } catch (error: any) {
     console.error('Error loading lead:', error);
     if (error.response?.status === 404) {
@@ -124,10 +126,10 @@ const loadLead = async (): Promise<void> => {
 
 const handleStatusUpdate = async (): Promise<void> => {
   try {
-    await adminApi.leads.update(leadId, { status: form.status });
+    await adminApi.leads.update(leadId, { status: form.status as 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected' });
     successMessage.value = 'Status updated successfully!';
     if (lead.value) {
-      lead.value.status = form.status;
+      lead.value.status = form.status as 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected';
     }
     setTimeout(() => {
       successMessage.value = '';

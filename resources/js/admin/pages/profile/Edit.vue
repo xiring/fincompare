@@ -19,7 +19,7 @@
             label="Name"
             type="text"
             required
-            :error="profileErrors.name"
+            :error="getError(profileErrors, 'name')"
           />
 
           <FormInput
@@ -28,7 +28,7 @@
             label="Email"
             type="email"
             required
-            :error="profileErrors.email"
+            :error="getError(profileErrors, 'email')"
           />
 
           <FormActions
@@ -52,7 +52,7 @@
             label="Current Password"
             type="password"
             required
-            :error="passwordErrors.current_password"
+            :error="getError(passwordErrors, 'current_password')"
           />
 
           <FormInput
@@ -62,7 +62,7 @@
             type="password"
             required
             hint="Must be at least 8 characters"
-            :error="passwordErrors.password"
+            :error="getError(passwordErrors, 'password')"
           />
 
           <FormInput
@@ -71,7 +71,7 @@
             label="Confirm Password"
             type="password"
             required
-            :error="passwordErrors.password_confirmation"
+            :error="getError(passwordErrors, 'password_confirmation')"
           />
 
           <FormActions
@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { adminApi } from '../../services/api';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
@@ -135,10 +135,12 @@ const loadUser = async (): Promise<void> => {
   loading.value = true;
   try {
     const response = await adminApi.profile.show();
-    user.value = response.data;
+    user.value = ((response.data as any).data || response.data) as User | null;
 
-    profileForm.name = user.value.name || '';
-    profileForm.email = user.value.email || '';
+    if (user.value) {
+      profileForm.name = user.value.name || '';
+      profileForm.email = user.value.email || '';
+    }
   } catch (error: any) {
     console.error('Error loading user:', error);
     errorMessage.value = 'Failed to load profile';

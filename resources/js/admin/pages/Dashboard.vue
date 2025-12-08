@@ -93,7 +93,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-charcoal-800 group-hover:text-primary-600">{{ lead.name || lead.email }}</p>
-              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.phone || 'No contact info' }}</p>
+              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.mobile_number || (lead.data as any)?.phone || 'No contact info' }}</p>
             </div>
             <div class="flex items-center gap-2">
               <span
@@ -240,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useProductsStore, useLeadsStore, usePartnersStore, useUsersStore, useActivityStore } from '../stores';
 import { adminApi } from '../services/api';
 import PageHeader from '../components/PageHeader.vue';
@@ -296,10 +296,10 @@ const formatTime = (dateString: string | null | undefined): string => {
 };
 
 const getInitials = (name: string | null | undefined): string => {
-  if (!name) return '?';
+  if (!name) return '??';
   const parts = name.split(' ');
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    return (parts[0][0]! + parts[1][0]!).toUpperCase();
   }
   return name.substring(0, 2).toUpperCase();
 };
@@ -311,7 +311,8 @@ const getStatusClass = (status: string | null | undefined): string => {
     converted: 'bg-green-100 text-green-800',
     rejected: 'bg-red-100 text-red-800',
   };
-  return classes[status?.toLowerCase() || 'new'] || classes.new;
+  const statusLower = (status?.toLowerCase() || 'new') as string;
+  return (classes[statusLower] || classes.new) as string;
 };
 
 const getActivityIcon = (logName: string | null | undefined): any => {
@@ -343,7 +344,7 @@ const fetchStats = async (): Promise<void> => {
     // Optimized: Use dedicated stats endpoint for better performance
     // Single API call instead of 4 separate pagination queries
     const response = await adminApi.stats.index();
-    const statsData = response.data?.data || response.data;
+    const statsData = (response.data as any)?.data || response.data;
 
     stats.value.products = statsData.products || 0;
     stats.value.leads = statsData.leads || 0;

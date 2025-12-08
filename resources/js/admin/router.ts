@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 
 // Import layouts
+// @ts-ignore - Vue component shim should handle this
 import AdminLayout from './layouts/AdminLayout.vue';
 
 // Import critical pages (used immediately on load)

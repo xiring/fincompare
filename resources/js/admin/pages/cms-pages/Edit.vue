@@ -14,14 +14,14 @@
           label="Title"
           type="text"
           required
-          :error="errors.title"
+          :error="getError(errors, 'title')"
         />
 
         <FormInput
           id="slug"
           v-model="form.slug"
           label="Slug"
-          :error="errors.slug"
+          :error="getError(errors, 'slug')"
         />
 
         <FormSelect
@@ -30,14 +30,14 @@
           label="Status"
           :options="statusOptions"
           required
-          :error="errors.status"
+          :error="getError(errors, 'status')"
         />
 
         <FormWysiwyg
           id="content"
           v-model="form.content"
           label="Content"
-          :error="errors.content"
+          :error="getError(errors, 'content')"
           height="400px"
         />
 
@@ -82,7 +82,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';

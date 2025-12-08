@@ -95,7 +95,7 @@ export function useAsyncData<T = any>(
   }
 
   return {
-    data,
+    data: data as Ref<T | null>,
     loading: computed(() => loading.value),
     error: computed(() => error.value),
     hasData,

@@ -94,7 +94,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 <div v-if="lead?.email" class="text-primary-500">{{ lead.email }}</div>
                 <div v-if="lead?.mobile_number" class="text-charcoal-500">{{ lead.mobile_number }}</div>
-                <span v-if="!lead?.email && !lead.data?.mobile_number" class="text-charcoal-400">-</span>
+                <span v-if="!lead?.email && !lead?.mobile_number" class="text-charcoal-400">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 <div v-if="lead.product">{{ lead.product.name }}</div>

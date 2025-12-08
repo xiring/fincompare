@@ -13,7 +13,7 @@
           label="Name"
           type="text"
           required
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormInput
@@ -21,7 +21,7 @@
           v-model="form.slug"
           label="Slug"
           hint="Leave empty to auto-generate from name"
-          :error="errors.slug"
+          :error="getError(errors, 'slug')"
         />
 
         <FormTextarea
@@ -29,7 +29,7 @@
           v-model="form.description"
           label="Description"
           :rows="4"
-          :error="errors.description"
+          :error="getError(errors, 'description')"
         />
 
         <FormActions
@@ -47,7 +47,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductCategoriesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';

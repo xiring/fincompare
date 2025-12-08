@@ -39,7 +39,7 @@ export function usePagination(options: PaginationOptions = {}): UsePaginationRet
   const {
     initialPage = 1,
     perPage = 12,
-    infiniteScroll = false,
+    infiniteScroll: _infiniteScroll = false,
   } = options;
 
   const currentPage = ref<number>(initialPage);

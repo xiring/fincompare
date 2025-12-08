@@ -14,7 +14,7 @@
           label="Name"
           type="text"
           required
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormInput
@@ -23,7 +23,7 @@
           label="Email"
           type="email"
           required
-          :error="errors.email"
+          :error="getError(errors, 'email')"
         />
 
         <FormInput
@@ -32,7 +32,7 @@
           label="Password"
           type="password"
           hint="Leave empty to keep current password"
-          :error="errors.password"
+          :error="getError(errors, 'password')"
         />
 
         <FormInput
@@ -40,7 +40,7 @@
           v-model="form.password_confirmation"
           label="Confirm Password"
           type="password"
-          :error="errors.password_confirmation"
+          :error="getError(errors, 'password_confirmation')"
         />
 
         <FormCheckbox
@@ -49,7 +49,7 @@
           label="Roles"
           :options="roles"
           multiple
-          :error="errors.roles"
+          :error="getError(errors, 'roles')"
         />
 
         <FormActions
@@ -67,7 +67,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUsersStore, useRolesStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
@@ -138,7 +138,7 @@ const handleSubmit = async (): Promise<void> => {
       delete data.password_confirmation;
     }
 
-    await usersStore.updateItem(userId, data);
+    await usersStore.updateItem(userId, data as any);
     successMessage.value = 'User updated successfully!';
     setTimeout(() => {
       router.push('/admin/users');

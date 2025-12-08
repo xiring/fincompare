@@ -32,12 +32,24 @@ export interface Product extends BaseEntity {
   slug: string;
   description?: string;
   image?: string;
+  image_url?: string;
   partner_id?: number;
   partner?: Partner;
   category_id?: number;
   category?: ProductCategory;
+  product_category?: ProductCategory; // Alias for category
   attributeValues?: ProductAttributeValue[];
   is_active?: boolean;
+  is_featured?: boolean;
+  featured?: boolean; // Alias for is_featured
+  status?: 'active' | 'inactive' | 'published' | 'draft'; // Status field
+  eligibility?: string;
+  documents?: string;
+  attribute_highlights?: {
+    interest_rate?: string;
+    max_amount?: string;
+    [key: string]: any;
+  };
 }
 
 export interface ProductAttributeValue {
@@ -70,6 +82,7 @@ export interface Attribute extends BaseEntity {
   category_id?: number;
   product_category_id?: number;
   category?: ProductCategory;
+  product_category?: ProductCategory; // Alias for category
   is_filterable?: boolean;
   is_active?: boolean;
   is_required?: boolean;
@@ -82,7 +95,12 @@ export interface Partner extends BaseEntity {
   slug: string;
   description?: string;
   logo?: string;
+  logo_path?: string;
   website?: string;
+  website_url?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  status?: 'active' | 'inactive';
   is_active?: boolean;
 }
 
@@ -93,6 +111,7 @@ export interface Form extends BaseEntity {
   type: 'pre_form' | 'post_form';
   description?: string;
   is_active?: boolean;
+  status?: 'active' | 'inactive'; // Status field
   inputs?: FormInput[];
 }
 
@@ -117,6 +136,16 @@ export interface Lead extends BaseEntity {
   status: 'new' | 'contacted' | 'qualified' | 'converted' | 'rejected';
   data?: Record<string, any>;
   notes?: string;
+  // Direct properties that might be in data
+  full_name?: string;
+  name?: string;
+  email?: string;
+  mobile_number?: string;
+  phone?: string;
+  source?: string;
+  product_category?: ProductCategory;
+  message?: string;
+  meta?: Record<string, any>;
 }
 
 // Blog Post types
@@ -128,6 +157,11 @@ export interface BlogPost extends BaseEntity {
   featured_image?: string;
   published_at?: string;
   is_published?: boolean;
+  status?: 'draft' | 'published' | 'archived';
+  category?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
 }
 
 // CMS Page types
@@ -136,6 +170,10 @@ export interface CmsPage extends BaseEntity {
   slug: string;
   content?: string;
   is_active?: boolean;
+  status?: 'draft' | 'published';
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
 }
 
 // FAQ types

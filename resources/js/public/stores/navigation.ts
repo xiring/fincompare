@@ -4,7 +4,7 @@
  */
 
 import { defineStore } from 'pinia';
-import { ref, type Ref } from 'vue';
+import { ref } from 'vue';
 
 export const useNavigationStore = defineStore('navigation', () => {
   const mobileMenuOpen = ref<boolean>(false);

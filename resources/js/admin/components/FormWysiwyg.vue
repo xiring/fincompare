@@ -50,7 +50,7 @@ const emit = defineEmits<{
 
 const editorId = ref<string>(`${props.id}_editor`);
 const quillInstance: Ref<Quill | null> = ref<Quill | null>(null);
-const hiddenTextarea: Ref<HTMLTextAreaElement | null> = ref<HTMLTextAreaElement | null>(null);
+const hiddenTextarea = ref<HTMLTextAreaElement | null>(null);
 
 const initQuill = (): void => {
   const editorElement = document.getElementById(editorId.value);
@@ -89,11 +89,12 @@ const initQuill = (): void => {
   });
 
   // Set initial content
-  if (props.modelValue) {
+  if (props.modelValue && quillInstance.value) {
     quillInstance.value.clipboard.dangerouslyPasteHTML(props.modelValue);
   }
 
   // Handle image upload
+  if (!quillInstance.value) return;
   const toolbar = quillInstance.value.getModule('toolbar');
   toolbar.addHandler('image', () => {
     const input = document.createElement('input');
@@ -107,9 +108,11 @@ const initQuill = (): void => {
 
       try {
         const response = await adminApi.uploads.wysiwyg(file);
-        if (response.data?.url) {
+        if (response.data?.url && quillInstance.value) {
           const range = quillInstance.value.getSelection(true);
-          quillInstance.value.insertEmbed(range.index, 'image', response.data.url);
+          if (range) {
+            quillInstance.value.insertEmbed(range.index, 'image', response.data.url);
+          }
         }
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -119,28 +122,34 @@ const initQuill = (): void => {
   });
 
   // Sync changes back to textarea
-  quillInstance.value.on('text-change', () => {
-    const editor = editorElement.querySelector('.ql-editor') as HTMLElement;
-    if (editor && hiddenTextarea.value) {
-      const html = editor.innerHTML;
-      hiddenTextarea.value.value = html;
-      emit('update:modelValue', html);
-    }
-  });
+  if (quillInstance.value) {
+    quillInstance.value.on('text-change', () => {
+      const editor = editorElement.querySelector('.ql-editor') as HTMLElement;
+      if (editor && hiddenTextarea.value && hiddenTextarea.value instanceof HTMLTextAreaElement) {
+        const html = editor.innerHTML;
+        hiddenTextarea.value.value = html;
+        emit('update:modelValue', html);
+      }
+    });
+  }
 };
 
 // Watch for external changes to modelValue (e.g., when loading data in edit mode)
 watch(() => props.modelValue, (newValue) => {
-  if (quillInstance.value && hiddenTextarea.value) {
+  if (quillInstance.value) {
     const editorElement = document.getElementById(editorId.value);
     if (editorElement) {
       const editor = editorElement.querySelector('.ql-editor') as HTMLElement;
       if (editor) {
         const currentContent = editor.innerHTML;
         // Only update if the content is actually different to avoid infinite loops
-        if (newValue !== currentContent && newValue !== hiddenTextarea.value.value) {
-          quillInstance.value.clipboard.dangerouslyPasteHTML(newValue || '');
-          hiddenTextarea.value.value = newValue || '';
+        if (hiddenTextarea.value && hiddenTextarea.value instanceof HTMLTextAreaElement) {
+          if (newValue !== currentContent && newValue !== hiddenTextarea.value.value) {
+            if (quillInstance.value) {
+              quillInstance.value.clipboard.dangerouslyPasteHTML(newValue || '');
+            }
+            hiddenTextarea.value.value = newValue || '';
+          }
         }
       }
     }

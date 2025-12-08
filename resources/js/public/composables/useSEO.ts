@@ -3,7 +3,7 @@
  * Provides a centralized way to manage SEO meta tags across pages
  */
 
-import { computed, type ComputedRef } from 'vue';
+import { computed } from 'vue';
 import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
 import { useHead } from '@vueuse/head';
 import { useSiteSettings } from './useSiteSettings';

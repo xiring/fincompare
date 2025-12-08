@@ -16,14 +16,14 @@
               label="Name"
               type="text"
               required
-              :error="errors.name"
+              :error="getError(errors, 'name')"
             />
 
             <FormInput
               id="slug"
               v-model="form.slug"
               label="Slug"
-              :error="errors.slug"
+              :error="getError(errors, 'slug')"
             />
 
             <FormInput
@@ -31,7 +31,7 @@
               v-model="form.website_url"
               label="Website URL"
               type="url"
-              :error="errors.website_url"
+              :error="getError(errors, 'website_url')"
             />
 
             <FormInput
@@ -39,7 +39,7 @@
               v-model="form.contact_email"
               label="Contact Email"
               type="email"
-              :error="errors.contact_email"
+              :error="getError(errors, 'contact_email')"
             />
 
             <FormInput
@@ -47,7 +47,7 @@
               v-model="form.contact_phone"
               label="Contact Phone"
               type="text"
-              :error="errors.contact_phone"
+              :error="getError(errors, 'contact_phone')"
             />
 
             <FormSelect
@@ -56,16 +56,16 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="errors.status"
+              :error="getError(errors, 'status')"
             />
           </div>
 
           <div class="space-y-6">
-            <div v-if="partner.logo_path && !form.logo" class="mb-4">
+            <div v-if="(partner.logo_path || partner.logo) && !form.logo" class="mb-4">
               <label class="block text-sm font-medium text-charcoal-700">
                 Current Logo
               </label>
-              <img :src="`/storage/${partner.logo_path}`" alt="Current logo" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
+              <img :src="`/storage/${partner.logo_path || partner.logo}`" alt="Current logo" class="h-32 w-32 object-cover rounded-lg border border-charcoal-200" />
             </div>
             <FormFileInput
               id="logo"
@@ -74,7 +74,7 @@
               accept="image/*"
               hint="JPG, PNG, GIF or WebP. Max size: 2MB. Leave empty to keep current logo."
               :preview="true"
-              :error="errors.logo"
+              :error="getError(errors, 'logo')"
             />
           </div>
         </div>
@@ -94,7 +94,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePartnersStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -149,10 +149,10 @@ const loadPartner = async (): Promise<void> => {
     if (partner.value) {
       form.name = partner.value.name || '';
       form.slug = partner.value.slug || '';
-      form.website_url = partner.value.website_url || '';
-      form.contact_email = partner.value.contact_email || '';
-      form.contact_phone = partner.value.contact_phone || '';
-      form.status = (partner.value.status as 'active' | 'inactive') || 'active';
+      form.website_url = (partner.value as any).website_url || partner.value.website || '';
+      form.contact_email = (partner.value as any).contact_email || '';
+      form.contact_phone = (partner.value as any).contact_phone || '';
+      form.status = ((partner.value as any).status || (partner.value.is_active ? 'active' : 'inactive')) as 'active' | 'inactive';
     }
   } catch (error: any) {
     console.error('Error loading partner:', error);
@@ -170,7 +170,20 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    await partnersStore.updateItem(partnerId, form);
+    // Create FormData for file upload
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      const value = (form as any)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        if (key === 'logo' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    await partnersStore.updateItem(partnerId, formData as any);
     successMessage.value = 'Partner updated successfully!';
     setTimeout(() => {
       router.push('/admin/partners');

@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue';
+import { ref } from 'vue';
 
 type CounterMode = 'percent' | 'kplus' | 'plus' | 'default';
 
@@ -50,7 +50,7 @@ export function useCounter(target: number, duration: number, mode: CounterMode =
       { threshold: 0.4 }
     );
 
-    obs.observe(elementRef.value);
+    obs.observe(elementRef.value as unknown as Element);
   };
 
   return {

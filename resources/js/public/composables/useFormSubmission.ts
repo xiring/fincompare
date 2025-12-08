@@ -2,7 +2,7 @@
  * Composable for form submission with consistent error handling and success feedback
  */
 
-import { ref, nextTick, type Ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 interface UseFormSubmissionOptions {
   onSuccess?: () => void;
@@ -13,7 +13,7 @@ interface UseFormSubmissionOptions {
 }
 
 interface FormErrors {
-  [key: string]: string[];
+  [key: string]: string[] | undefined;
   _general?: string[];
 }
 
@@ -24,7 +24,6 @@ export function useFormSubmission(
   const {
     onSuccess = null,
     onError = null,
-    successMessage = 'Form submitted successfully!',
     scrollToSuccess = true,
     successSelector = '[data-success-message]',
   } = options;

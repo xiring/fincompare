@@ -2,7 +2,7 @@
  * Blog posts composable with pagination and filtering
  */
 
-import { ref, computed, type Ref, type ComputedRef } from 'vue';
+import { ref, computed, type ComputedRef } from 'vue';
 import { useAsyncData } from './useAsyncData';
 import { usePagination } from './usePagination';
 import { apiService } from '../services/api';

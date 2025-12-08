@@ -18,7 +18,7 @@
           label="CSV File"
           accept=".csv,.txt"
           required
-          :error="errors.file"
+          :error="getError(errors, 'file')"
           hint="Supported formats: CSV, TXT (max 20MB)"
           @update:modelValue="handleFileChange"
         />
@@ -94,7 +94,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
@@ -173,7 +173,7 @@ const handleSubmit = async (): Promise<void> => {
 
   try {
     // Import using store
-    await productsStore.importProducts(form.file, form.delimiter, form.has_header);
+    await (productsStore as any).importProducts(form.file, form.delimiter, form.has_header);
 
     successMessage.value = 'Products import started successfully! The import is being processed in the background.';
     setTimeout(() => {

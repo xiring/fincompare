@@ -92,8 +92,8 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ partner.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <img
-                  v-if="partner.logo_path"
-                  :src="`/storage/${partner.logo_path}`"
+                  v-if="partner.logo_path || partner.logo"
+                  :src="`/storage/${partner.logo_path || partner.logo}`"
                   :alt="partner.name"
                   loading="lazy"
                   class="h-12 w-12 object-cover rounded-lg border border-charcoal-200"
@@ -105,10 +105,10 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ partner.name }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ partner.contact_email || '-' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ (partner as any).contact_email || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                <a v-if="partner.website_url" :href="partner.website_url" target="_blank" class="text-primary-500 hover:text-primary-600">
-                  {{ partner.website_url }}
+                <a v-if="(partner as any).website_url || partner.website" :href="(partner as any).website_url || partner.website" target="_blank" class="text-primary-500 hover:text-primary-600">
+                  {{ (partner as any).website_url || partner.website || '-' }}
                 </a>
                 <span v-else>-</span>
               </td>

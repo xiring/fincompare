@@ -16,6 +16,7 @@
 import { useSEO } from '../composables';
 import { TEXT } from '../utils';
 import { HeroSection } from '../components';
+// @ts-ignore - Vue component shim should handle this
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 useSEO({

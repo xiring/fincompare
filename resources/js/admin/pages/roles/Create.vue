@@ -13,7 +13,7 @@
           label="Name"
           type="text"
           required
-          :error="errors.name"
+          :error="getError(errors, 'name')"
         />
 
         <FormCheckbox
@@ -22,7 +22,7 @@
           label="Permissions"
           :options="permissions"
           multiple
-          :error="errors.permissions"
+          :error="getError(errors, 'permissions')"
         />
 
         <FormActions
@@ -40,7 +40,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRolesStore, usePermissionsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -76,7 +76,7 @@ const handleSubmit = async (): Promise<void> => {
   successMessage.value = '';
 
   try {
-    await rolesStore.createItem(form);
+    await rolesStore.createItem(form as any);
     successMessage.value = 'Role created successfully!';
     setTimeout(() => {
       router.push('/admin/roles');

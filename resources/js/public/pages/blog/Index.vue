@@ -138,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiService, default as apiClient } from '../../services/api';
 import { debounce, getExcerpt, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
@@ -279,7 +279,7 @@ onMounted(() => {
       });
     }, { threshold: 0.1 });
 
-    observer.observe(sentinelRef.value);
+    observer.observe(sentinelRef.value as unknown as Element);
   }
 });
 </script>
