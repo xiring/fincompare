@@ -27,18 +27,14 @@
             class="hidden lg:flex text-charcoal-300 hover:text-white p-1 rounded transition-colors"
             title="Toggle sidebar"
           >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronRightIcon v-if="sidebarCollapsed" class="h-5 w-5" />
+            <ChevronLeftIcon v-else class="h-5 w-5" />
           </button>
           <button
             @click="sidebarOpen = false"
             class="lg:hidden text-charcoal-300 hover:text-white p-1 rounded transition-colors"
           >
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XIcon class="h-6 w-6" />
           </button>
         </div>
       </div>
@@ -54,7 +50,7 @@
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           :title="sidebarCollapsed ? 'Dashboard' : ''"
         >
-          <component :is="DashboardIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <DashboardIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
           <span v-show="!sidebarCollapsed" class="truncate">Dashboard</span>
         </router-link>
 
@@ -67,7 +63,7 @@
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           :title="sidebarCollapsed ? 'Partners' : ''"
         >
-          <component :is="PartnersIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <PartnersIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
           <span v-show="!sidebarCollapsed" class="truncate">Partners</span>
         </router-link>
 
@@ -82,55 +78,54 @@
             :title="sidebarCollapsed ? 'Catalog' : ''"
           >
             <div class="flex items-center min-w-0">
-              <component :is="CatalogIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <CatalogIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
               <span v-show="!sidebarCollapsed" class="truncate">Catalog</span>
             </div>
-            <svg
+            <ChevronDownIcon
               v-show="!sidebarCollapsed"
               class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': catalogOpen }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+            />
           </button>
           <div v-show="catalogOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/forms"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/forms')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <FormsIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Forms
             </router-link>
             <router-link
               to="/admin/product-categories"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/product-categories')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <CategoriesIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Categories
             </router-link>
             <router-link
               to="/admin/products"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/products')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <ProductsIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Products
             </router-link>
             <router-link
               to="/admin/attributes"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/attributes')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <AttributesIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Attributes
             </router-link>
           </div>
@@ -145,7 +140,7 @@
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           :title="sidebarCollapsed ? 'Leads' : ''"
         >
-          <component :is="LeadsIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <LeadsIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
           <span v-show="!sidebarCollapsed" class="truncate">Leads</span>
         </router-link>
 
@@ -158,7 +153,7 @@
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           :title="sidebarCollapsed ? 'Activity' : ''"
         >
-          <component :is="ActivityIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <ActivityIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
           <span v-show="!sidebarCollapsed" class="truncate">Activity</span>
         </router-link>
 
@@ -173,46 +168,44 @@
             :title="sidebarCollapsed ? 'Access' : ''"
           >
             <div class="flex items-center min-w-0">
-              <component :is="AccessIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <AccessIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
               <span v-show="!sidebarCollapsed" class="truncate">Access</span>
             </div>
-            <svg
+            <ChevronDownIcon
               v-show="!sidebarCollapsed"
               class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': accessOpen }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+            />
           </button>
           <div v-show="accessOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/users"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/users')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <UsersIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Users
             </router-link>
             <router-link
               to="/admin/roles"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/roles')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <RolesIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Roles
             </router-link>
             <router-link
               to="/admin/permissions"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/permissions')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <PermissionsIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Permissions
             </router-link>
           </div>
@@ -229,46 +222,44 @@
             :title="sidebarCollapsed ? 'Content' : ''"
           >
             <div class="flex items-center min-w-0">
-              <component :is="ContentIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <ContentIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
               <span v-show="!sidebarCollapsed" class="truncate">Content</span>
             </div>
-            <svg
+            <ChevronDownIcon
               v-show="!sidebarCollapsed"
               class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': contentOpen }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+            />
           </button>
           <div v-show="contentOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/blogs"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/blogs')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <BlogsIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               Blogs
             </router-link>
             <router-link
               to="/admin/cms-pages"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/cms-pages')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <CmsPagesIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               CMS Pages
             </router-link>
             <router-link
               to="/admin/faqs"
-              class="block px-3 py-2 text-sm rounded-lg transition-colors"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/faqs')
                 ? 'bg-primary-500/20 text-primary-300 font-medium'
                 : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
             >
+              <FaqsIcon class="h-4 w-4 mr-2 flex-shrink-0" />
               FAQs
             </router-link>
           </div>
@@ -283,7 +274,7 @@
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
           :title="sidebarCollapsed ? 'Settings' : ''"
         >
-          <component :is="SettingsIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <SettingsIcon class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
           <span v-show="!sidebarCollapsed" class="truncate">Settings</span>
         </router-link>
       </nav>
@@ -306,19 +297,15 @@
               @click="sidebarOpen = true"
               class="lg:hidden text-charcoal-500 hover:text-charcoal-700 p-2 rounded transition-colors"
             >
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <MenuIcon class="h-6 w-6" />
             </button>
             <button
               @click="toggleSidebar"
               class="hidden lg:flex text-charcoal-500 hover:text-charcoal-700 p-2 rounded transition-colors"
               title="Toggle sidebar"
             >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path v-if="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronRightIcon v-if="sidebarCollapsed" class="h-5 w-5" />
+              <ChevronLeftIcon v-else class="h-5 w-5" />
             </button>
           </div>
 
@@ -344,9 +331,7 @@
                   <div class="text-sm font-medium text-charcoal-900">{{ userName }}</div>
                   <div class="text-xs text-charcoal-500">{{ userEmail }}</div>
                 </div>
-                <svg class="h-5 w-5 text-charcoal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDownIcon class="h-5 w-5 text-charcoal-500" />
               </button>
 
               <!-- Dropdown Menu -->
@@ -399,16 +384,31 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter, RouterView } from 'vue-router';
 import axios from 'axios';
-
-// Icons (simplified - you can import from a component library)
-const DashboardIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>' };
-const PartnersIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 10-8 0v4m-2 4h12a2 2 0 012 2v3H2v-3a2 2 0 012-2z" /></svg>' };
-const CatalogIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>' };
-const LeadsIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' };
-const ActivityIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' };
-const AccessIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>' };
-const ContentIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' };
-const SettingsIcon = { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>' };
+import {
+  DashboardIcon,
+  PartnersIcon,
+  CatalogIcon,
+  FormsIcon,
+  CategoriesIcon,
+  ProductsIcon,
+  AttributesIcon,
+  LeadsIcon,
+  ActivityIcon,
+  AccessIcon,
+  UsersIcon,
+  RolesIcon,
+  PermissionsIcon,
+  ContentIcon,
+  BlogsIcon,
+  CmsPagesIcon,
+  FaqsIcon,
+  SettingsIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  XIcon,
+  MenuIcon
+} from '../components/icons';
 
 const route = useRoute();
 const router = useRouter();

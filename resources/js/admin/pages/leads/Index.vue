@@ -64,9 +64,7 @@
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
                 <button @click="sortBy('id')" class="flex items-center gap-1 hover:text-primary-500">
                   ID
-                  <svg class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'id' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
-                  </svg>
+                  <component :is="sortField.value === 'id' && sortDir.value === 'asc' ? ArrowUpIcon : ArrowDownIcon" class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" />
                 </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Name</th>
@@ -149,6 +147,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useLeadsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 
 const router = useRouter();
 const route = useRoute();

@@ -11,18 +11,14 @@
           to="/admin/products/import"
           class="inline-flex items-center justify-center px-4 py-2.5 bg-amber-600 text-white rounded-lg font-medium text-sm hover:bg-amber-700 transition-colors"
         >
-          <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
+          <UploadIcon class="h-5 w-5 mr-2" />
           Import
         </router-link>
         <router-link
           to="/admin/products/create"
           class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-500 transition-colors"
         >
-          <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
+          <PlusIcon class="h-5 w-5 mr-2" />
           New Product
         </router-link>
       </div>
@@ -67,18 +63,14 @@
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
                 <button @click="sortBy('id')" class="flex items-center gap-1 hover:text-primary-500">
                   ID
-                  <svg class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'id' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
-                  </svg>
+                  <component :is="sortField.value === 'id' && sortDir.value === 'asc' ? ArrowUpIcon : ArrowDownIcon" class="inline h-4 w-4" :class="sortField.value === 'id' ? 'text-primary-500' : 'text-charcoal-400'" />
                 </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Image</th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
                 <button @click="sortBy('name')" class="flex items-center gap-1 hover:text-primary-500">
                   Name
-                  <svg class="inline h-4 w-4" :class="sortField.value === 'name' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'name' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
-                  </svg>
+                  <component :is="sortField.value === 'name' && sortDir.value === 'asc' ? ArrowUpIcon : ArrowDownIcon" class="inline h-4 w-4" :class="sortField.value === 'name' ? 'text-primary-500' : 'text-charcoal-400'" />
                 </button>
               </th>
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">Category</th>
@@ -86,9 +78,7 @@
               <th class="px-6 py-3 text-left text-xs font-semibold text-charcoal-600">
                 <button @click="sortBy('status')" class="flex items-center gap-1 hover:text-primary-500">
                   Status
-                  <svg class="inline h-4 w-4" :class="sortField.value === 'status' ? 'text-primary-500' : 'text-charcoal-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortField.value === 'status' && sortDir.value === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
-                  </svg>
+                  <component :is="sortField.value === 'status' && sortDir.value === 'asc' ? ArrowUpIcon : ArrowDownIcon" class="inline h-4 w-4" :class="sortField.value === 'status' ? 'text-primary-500' : 'text-charcoal-400'" />
                 </button>
               </th>
               <th class="px-6 py-3 text-right text-xs font-semibold text-charcoal-600">Actions</th>
@@ -142,18 +132,14 @@
                     title="Edit"
                     class="inline-flex items-center justify-center p-2 text-primary-500 hover:text-primary-900 hover:bg-primary-50"
                   >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <EditIcon />
                   </router-link>
                   <button
                     @click="handleDelete(product)"
                     title="Delete"
                     class="inline-flex items-center justify-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50"
                   >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                    <DeleteIcon />
                   </button>
                 </div>
               </td>
@@ -171,6 +157,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useProductsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 
 const router = useRouter();
 const route = useRoute();
