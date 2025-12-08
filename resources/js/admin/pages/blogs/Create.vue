@@ -57,12 +57,12 @@
           </div>
         </div>
 
-        <FormTextarea
+        <FormWysiwyg
           id="content"
           v-model="form.content"
           label="Content"
-          :rows="10"
           :error="errors.content"
+          height="400px"
         />
 
         <FormSection title="SEO Settings">
@@ -111,6 +111,7 @@ import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
+import FormWysiwyg from '../../components/FormWysiwyg.vue';
 import FormSelect from '../../components/FormSelect.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormSection from '../../components/FormSection.vue';
