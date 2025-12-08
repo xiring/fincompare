@@ -1,25 +1,20 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-charcoal-800">Admin Dashboard</h1>
-      <p class="mt-2 text-sm text-charcoal-600">Welcome back, {{ userName }}!</p>
-    </div>
+    <PageHeader title="Dashboard" :description="`Welcome back, ${userName}!`" />
 
     <!-- Stats Cards -->
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
       <router-link
         to="/admin/products"
-        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md transition-shadow"
+        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md hover:border-primary-300 transition-all"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-charcoal-500">Manage</p>
-            <p class="mt-2 text-2xl font-bold text-charcoal-800">Products</p>
-            <p class="mt-1 text-sm text-charcoal-600">{{ stats.products || 0 }} total</p>
+            <p class="text-sm font-medium text-charcoal-500">Products</p>
+            <p class="mt-2 text-3xl font-bold text-charcoal-800">{{ stats.products || 0 }}</p>
           </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 text-primary-500">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 group-hover:bg-primary-100">
+            <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
@@ -28,16 +23,15 @@
 
       <router-link
         to="/admin/leads"
-        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md transition-shadow"
+        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md hover:border-primary-300 transition-all"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-charcoal-500">View</p>
-            <p class="mt-2 text-2xl font-bold text-charcoal-800">Leads</p>
-            <p class="mt-1 text-sm text-charcoal-600">{{ stats.leads || 0 }} total</p>
+            <p class="text-sm font-medium text-charcoal-500">Leads</p>
+            <p class="mt-2 text-3xl font-bold text-charcoal-800">{{ stats.leads || 0 }}</p>
           </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 text-primary-500">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 group-hover:bg-green-100">
+            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
@@ -46,46 +40,382 @@
 
       <router-link
         to="/admin/partners"
-        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md transition-shadow"
+        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md hover:border-primary-300 transition-all"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-charcoal-500">Manage</p>
-            <p class="mt-2 text-2xl font-bold text-charcoal-800">Partners</p>
-            <p class="mt-1 text-sm text-charcoal-600">{{ stats.partners || 0 }} total</p>
+            <p class="text-sm font-medium text-charcoal-500">Partners</p>
+            <p class="mt-2 text-3xl font-bold text-charcoal-800">{{ stats.partners || 0 }}</p>
           </div>
-          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 text-primary-500">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 group-hover:bg-blue-100">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+        </div>
+      </router-link>
+
+      <router-link
+        to="/admin/users"
+        class="group relative bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 hover:shadow-md hover:border-primary-300 transition-all"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-charcoal-500">Users</p>
+            <p class="mt-2 text-3xl font-bold text-charcoal-800">{{ stats.users || 0 }}</p>
+          </div>
+          <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-purple-50 group-hover:bg-purple-100">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
         </div>
       </router-link>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6">
-      <h2 class="text-lg font-semibold text-charcoal-800">Recent Activity</h2>
-      <div class="text-sm text-charcoal-500 mt-2">
-        Activity log will appear here...
-      </div>
+    <div class="grid gap-6 lg:grid-cols-2 mb-8">
+      <!-- Recent Leads -->
+      <FormCard>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-charcoal-800">Recent Leads</h2>
+          <router-link
+            to="/admin/leads"
+            class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View All
+          </router-link>
+        </div>
+        <LoadingSpinner v-if="loadingLeads" text="Loading leads..." />
+        <div v-else-if="recentLeads.length === 0" class="text-sm text-charcoal-500 py-8 text-center">
+          No leads yet
+        </div>
+        <div v-else class="space-y-3">
+          <router-link
+            v-for="lead in recentLeads"
+            :key="lead.id"
+            :to="`/admin/leads/${lead.id}`"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-charcoal-50 transition-colors group"
+          >
+            <div class="flex-shrink-0 w-10 h-10 bg-primary-50 rounded-full flex items-center justify-center">
+              <span class="text-sm font-medium text-primary-600">{{ getInitials(lead.name || lead.email) }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-charcoal-800 group-hover:text-primary-600">{{ lead.name || lead.email }}</p>
+              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.phone || 'No contact info' }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                :class="getStatusClass(lead.status)"
+              >
+                {{ lead.status || 'new' }}
+              </span>
+              <svg class="h-5 w-5 text-charcoal-400 group-hover:text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </router-link>
+        </div>
+      </FormCard>
+
+      <!-- Quick Actions -->
+      <FormCard>
+        <h2 class="text-lg font-semibold text-charcoal-800 mb-6">Quick Actions</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <router-link
+            to="/admin/products/create"
+            class="flex flex-col items-center justify-center p-4 border border-charcoal-200 rounded-lg hover:bg-charcoal-50 hover:border-primary-300 transition-colors group"
+          >
+            <div class="w-10 h-10 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center mb-2 group-hover:bg-primary-100">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-charcoal-700">New Product</span>
+          </router-link>
+          <router-link
+            to="/admin/partners/create"
+            class="flex flex-col items-center justify-center p-4 border border-charcoal-200 rounded-lg hover:bg-charcoal-50 hover:border-primary-300 transition-colors group"
+          >
+            <div class="w-10 h-10 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center mb-2 group-hover:bg-primary-100">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-charcoal-700">New Partner</span>
+          </router-link>
+          <router-link
+            to="/admin/blogs/create"
+            class="flex flex-col items-center justify-center p-4 border border-charcoal-200 rounded-lg hover:bg-charcoal-50 hover:border-primary-300 transition-colors group"
+          >
+            <div class="w-10 h-10 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center mb-2 group-hover:bg-primary-100">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-charcoal-700">New Blog</span>
+          </router-link>
+          <router-link
+            to="/admin/forms/create"
+            class="flex flex-col items-center justify-center p-4 border border-charcoal-200 rounded-lg hover:bg-charcoal-50 hover:border-primary-300 transition-colors group"
+          >
+            <div class="w-10 h-10 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center mb-2 group-hover:bg-primary-100">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-charcoal-700">New Form</span>
+          </router-link>
+        </div>
+      </FormCard>
+    </div>
+
+    <!-- Recent Items -->
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- Recent Products -->
+      <FormCard>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-charcoal-800">Recent Products</h2>
+          <router-link
+            to="/admin/products"
+            class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View All
+          </router-link>
+        </div>
+        <LoadingSpinner v-if="loadingProducts" text="Loading products..." />
+        <div v-else-if="recentProducts.length === 0" class="text-sm text-charcoal-500 py-8 text-center">
+          No products yet
+        </div>
+        <div v-else class="space-y-3">
+          <router-link
+            v-for="product in recentProducts"
+            :key="product.id"
+            :to="`/admin/products/${product.id}/edit`"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-charcoal-50 transition-colors group"
+          >
+            <div v-if="product.image" class="flex-shrink-0">
+              <img
+                :src="`/storage/${product.image}`"
+                :alt="product.name"
+                class="w-12 h-12 object-cover rounded-lg border border-charcoal-200"
+              />
+            </div>
+            <div v-else class="flex-shrink-0 w-12 h-12 bg-charcoal-100 rounded-lg flex items-center justify-center">
+              <svg class="h-6 w-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-charcoal-800 group-hover:text-primary-600">{{ product.name }}</p>
+              <p class="text-xs text-charcoal-500 mt-0.5">{{ formatTime(product.created_at) }}</p>
+            </div>
+            <svg class="h-5 w-5 text-charcoal-400 group-hover:text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </router-link>
+        </div>
+      </FormCard>
+
+      <!-- Recent Activities -->
+      <FormCard>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-charcoal-800">Recent Activities</h2>
+          <router-link
+            to="/admin/activity"
+            class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            View All
+          </router-link>
+        </div>
+        <LoadingSpinner v-if="loadingActivity" text="Loading activity..." />
+        <div v-else-if="recentActivities.length === 0" class="text-sm text-charcoal-500 py-8 text-center">
+          No recent activity
+        </div>
+        <div v-else class="space-y-4">
+          <div
+            v-for="activity in recentActivities"
+            :key="activity.id"
+            class="flex items-start gap-3 pb-4 border-b border-charcoal-100 last:border-0 last:pb-0"
+          >
+            <div class="flex-shrink-0 mt-0.5">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="getActivityIconClass(activity.log_name)">
+                <component :is="getActivityIcon(activity.log_name)" class="h-4 w-4" />
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-charcoal-800">{{ activity.description }}</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-xs text-charcoal-500">{{ activity.causer?.name || 'System' }}</span>
+                <span class="text-xs text-charcoal-400">•</span>
+                <span class="text-xs text-charcoal-500">{{ formatTime(activity.created_at) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </FormCard>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useProductsStore, useLeadsStore, usePartnersStore, useUsersStore, useActivityStore } from '../stores';
+import PageHeader from '../components/PageHeader.vue';
+import FormCard from '../components/FormCard.vue';
+import LoadingSpinner from '../components/LoadingSpinner.vue';
+
+const productsStore = useProductsStore();
+const leadsStore = useLeadsStore();
+const partnersStore = usePartnersStore();
+const usersStore = useUsersStore();
+const activityStore = useActivityStore();
 
 const userName = ref('Admin');
 const stats = ref({
   products: 0,
   leads: 0,
-  partners: 0
+  partners: 0,
+  users: 0
 });
 
-onMounted(() => {
-  // TODO: Fetch dashboard stats from API
-  // For now, using placeholder values
+const recentProducts = ref([]);
+const recentLeads = ref([]);
+const recentActivities = ref([]);
+
+const loadingProducts = ref(false);
+const loadingLeads = ref(false);
+const loadingActivity = ref(false);
+
+const formatTime = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
+const getInitials = (name) => {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
+const getStatusClass = (status) => {
+  const classes = {
+    new: 'bg-blue-100 text-blue-800',
+    contacted: 'bg-yellow-100 text-yellow-800',
+    converted: 'bg-green-100 text-green-800',
+    rejected: 'bg-red-100 text-red-800'
+  };
+  return classes[status?.toLowerCase()] || classes.new;
+};
+
+
+const getActivityIcon = (logName) => {
+  const icons = {
+    products: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>' },
+    partners: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
+    users: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>' },
+    leads: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' },
+    forms: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>' },
+    blogs: { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>' }
+  };
+  return icons[logName] || { template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' };
+};
+
+const getActivityIconClass = (logName) => {
+  const classes = {
+    products: 'bg-primary-50 text-primary-600',
+    partners: 'bg-blue-50 text-blue-600',
+    users: 'bg-purple-50 text-purple-600',
+    leads: 'bg-green-50 text-green-600',
+    forms: 'bg-yellow-50 text-yellow-600',
+    blogs: 'bg-indigo-50 text-indigo-600'
+  };
+  return classes[logName] || 'bg-charcoal-50 text-charcoal-600';
+};
+
+const fetchStats = async () => {
+  try {
+    // Fetch counts from stores
+    await Promise.all([
+      productsStore.fetchItems({ per_page: 1 }).then(() => {
+        stats.value.products = productsStore.pagination.total || 0;
+      }),
+      leadsStore.fetchItems({ per_page: 1 }).then(() => {
+        stats.value.leads = leadsStore.pagination.total || 0;
+      }),
+      partnersStore.fetchItems({ per_page: 1 }).then(() => {
+        stats.value.partners = partnersStore.pagination.total || 0;
+      }),
+      usersStore.fetchItems({ per_page: 1 }).then(() => {
+        stats.value.users = usersStore.pagination.total || 0;
+      })
+    ]);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+};
+
+const fetchRecentProducts = async () => {
+  loadingProducts.value = true;
+  try {
+    await productsStore.fetchItems({ per_page: 5, sort: 'created_at', dir: 'desc' });
+    recentProducts.value = productsStore.items.slice(0, 5);
+  } catch (error) {
+    console.error('Error fetching recent products:', error);
+  } finally {
+    loadingProducts.value = false;
+  }
+};
+
+const fetchRecentLeads = async () => {
+  loadingLeads.value = true;
+  try {
+    await leadsStore.fetchItems({ per_page: 50, status: 'new' });
+    // Filter to only show "new" leads and take first 5
+    recentLeads.value = leadsStore.items
+      .filter(lead => (lead.status || 'new').toLowerCase() === 'new')
+      .slice(0, 5);
+  } catch (error) {
+    console.error('Error fetching recent leads:', error);
+  } finally {
+    loadingLeads.value = false;
+  }
+};
+
+const fetchRecentActivity = async () => {
+  loadingActivity.value = true;
+  try {
+    await activityStore.fetchItems({ per_page: 5 });
+    recentActivities.value = activityStore.items.slice(0, 5);
+  } catch (error) {
+    console.error('Error fetching recent activity:', error);
+  } finally {
+    loadingActivity.value = false;
+  }
+};
+
+onMounted(async () => {
+  // Fetch user name from auth store or API
+  // For now, using placeholder
+  await Promise.all([
+    fetchStats(),
+    fetchRecentProducts(),
+    fetchRecentLeads(),
+    fetchRecentActivity()
+  ]);
 });
 </script>
-

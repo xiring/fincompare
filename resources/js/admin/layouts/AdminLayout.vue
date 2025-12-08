@@ -1,75 +1,93 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-charcoal-50 flex flex-col">
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed top-0 left-0 z-40 w-64 h-screen transition-transform',
+        'fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-        'lg:translate-x-0'
+        'lg:translate-x-0',
+        sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
+        'w-64'
       ]"
       class="bg-charcoal-800 border-r border-charcoal-700"
     >
       <!-- Logo -->
-      <div class="flex items-center justify-between h-16 px-6 border-b border-charcoal-700">
-        <div class="flex items-center">
-          <div class="h-8 w-8 bg-primary-500 rounded-lg flex items-center justify-center">
+      <div class="flex items-center justify-between h-16 px-4 border-b border-charcoal-700">
+        <div class="flex items-center min-w-0">
+          <div class="h-8 w-8 bg-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
             <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <span class="ml-3 text-xl font-bold text-white">FinCompare</span>
+          <span v-show="!sidebarCollapsed" class="ml-3 text-xl font-bold text-white whitespace-nowrap overflow-hidden">FinCompare</span>
         </div>
-        <button
-          @click="sidebarOpen = false"
-          class="lg:hidden text-charcoal-300 hover:text-white"
-        >
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button
+            @click="toggleSidebar"
+            class="hidden lg:flex text-charcoal-300 hover:text-white p-1 rounded transition-colors"
+            title="Toggle sidebar"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path v-if="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            @click="sidebarOpen = false"
+            class="lg:hidden text-charcoal-300 hover:text-white p-1 rounded transition-colors"
+          >
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Navigation -->
-      <nav class="px-4 py-6 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
+      <nav class="px-2 py-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem-4rem)]">
         <!-- Dashboard -->
         <router-link
           to="/admin"
-          class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
           :class="isActive('/admin') && route.path === '/admin'
             ? 'bg-primary-500/20 text-primary-300'
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+          :title="sidebarCollapsed ? 'Dashboard' : ''"
         >
-          <component :is="DashboardIcon" class="h-5 w-5 mr-3" />
-          <span>Dashboard</span>
+          <component :is="DashboardIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <span v-show="!sidebarCollapsed" class="truncate">Dashboard</span>
         </router-link>
 
         <!-- Partners -->
         <router-link
           to="/admin/partners"
-          class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
           :class="isActive('/admin/partners')
             ? 'bg-primary-500/20 text-primary-300'
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+          :title="sidebarCollapsed ? 'Partners' : ''"
         >
-          <component :is="PartnersIcon" class="h-5 w-5 mr-3" />
-          <span>Partners</span>
+          <component :is="PartnersIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <span v-show="!sidebarCollapsed" class="truncate">Partners</span>
         </router-link>
 
         <!-- Catalog Dropdown -->
         <div class="space-y-1">
           <button
             @click="catalogOpen = !catalogOpen"
-            class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
             :class="isCatalogActive()
               ? 'bg-primary-500/20 text-primary-300'
               : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+            :title="sidebarCollapsed ? 'Catalog' : ''"
           >
-            <div class="flex items-center">
-              <component :is="CatalogIcon" class="h-5 w-5 mr-3" />
-              <span>Catalog</span>
+            <div class="flex items-center min-w-0">
+              <component :is="CatalogIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <span v-show="!sidebarCollapsed" class="truncate">Catalog</span>
             </div>
             <svg
-              class="h-4 w-4 transition-transform"
+              v-show="!sidebarCollapsed"
+              class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': catalogOpen }"
               fill="none"
               stroke="currentColor"
@@ -78,7 +96,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="catalogOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
+          <div v-show="catalogOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/forms"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -121,42 +139,46 @@
         <!-- Leads -->
         <router-link
           to="/admin/leads"
-          class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
           :class="isActive('/admin/leads')
             ? 'bg-primary-500/20 text-primary-300'
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+          :title="sidebarCollapsed ? 'Leads' : ''"
         >
-          <component :is="LeadsIcon" class="h-5 w-5 mr-3" />
-          <span>Leads</span>
+          <component :is="LeadsIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <span v-show="!sidebarCollapsed" class="truncate">Leads</span>
         </router-link>
 
         <!-- Activity -->
         <router-link
           to="/admin/activity"
-          class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
           :class="isActive('/admin/activity')
             ? 'bg-primary-500/20 text-primary-300'
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+          :title="sidebarCollapsed ? 'Activity' : ''"
         >
-          <component :is="ActivityIcon" class="h-5 w-5 mr-3" />
-          <span>Activity</span>
+          <component :is="ActivityIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <span v-show="!sidebarCollapsed" class="truncate">Activity</span>
         </router-link>
 
         <!-- Access Dropdown (Admin Only) -->
         <div v-if="isAdmin" class="space-y-1">
           <button
             @click="accessOpen = !accessOpen"
-            class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
             :class="isAccessActive()
               ? 'bg-primary-500/20 text-primary-300'
               : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+            :title="sidebarCollapsed ? 'Access' : ''"
           >
-            <div class="flex items-center">
-              <component :is="AccessIcon" class="h-5 w-5 mr-3" />
-              <span>Access</span>
+            <div class="flex items-center min-w-0">
+              <component :is="AccessIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <span v-show="!sidebarCollapsed" class="truncate">Access</span>
             </div>
             <svg
-              class="h-4 w-4 transition-transform"
+              v-show="!sidebarCollapsed"
+              class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': accessOpen }"
               fill="none"
               stroke="currentColor"
@@ -165,7 +187,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="accessOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
+          <div v-show="accessOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/users"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -200,17 +222,19 @@
         <div class="space-y-1">
           <button
             @click="contentOpen = !contentOpen"
-            class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
             :class="isContentActive()
               ? 'bg-primary-500/20 text-primary-300'
               : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+            :title="sidebarCollapsed ? 'Content' : ''"
           >
-            <div class="flex items-center">
-              <component :is="ContentIcon" class="h-5 w-5 mr-3" />
-              <span>Content</span>
+            <div class="flex items-center min-w-0">
+              <component :is="ContentIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+              <span v-show="!sidebarCollapsed" class="truncate">Content</span>
             </div>
             <svg
-              class="h-4 w-4 transition-transform"
+              v-show="!sidebarCollapsed"
+              class="h-4 w-4 transition-transform flex-shrink-0"
               :class="{ 'rotate-180': contentOpen }"
               fill="none"
               stroke="currentColor"
@@ -219,7 +243,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <div v-show="contentOpen" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
+          <div v-show="contentOpen && !sidebarCollapsed" class="ml-8 space-y-1 border-l-2 border-charcoal-700 pl-4">
             <router-link
               to="/admin/blogs"
               class="block px-3 py-2 text-sm rounded-lg transition-colors"
@@ -253,13 +277,14 @@
         <!-- Settings -->
         <router-link
           to="/admin/settings"
-          class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group"
           :class="isActive('/admin/settings')
             ? 'bg-primary-500/20 text-primary-300'
             : 'text-charcoal-300 hover:bg-charcoal-700 hover:text-white'"
+          :title="sidebarCollapsed ? 'Settings' : ''"
         >
-          <component :is="SettingsIcon" class="h-5 w-5 mr-3" />
-          <span>Settings</span>
+          <component :is="SettingsIcon" class="h-5 w-5 flex-shrink-0" :class="sidebarCollapsed ? '' : 'mr-3'" />
+          <span v-show="!sidebarCollapsed" class="truncate">Settings</span>
         </router-link>
       </nav>
     </aside>
@@ -272,18 +297,30 @@
     ></div>
 
     <!-- Main Content -->
-    <div class="lg:pl-64">
+    <div class="flex-1 flex flex-col transition-all duration-300" :class="sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64'">
       <!-- Header -->
       <header class="sticky top-0 z-30 bg-white border-b border-charcoal-200">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-          <button
-            @click="sidebarOpen = true"
-            class="lg:hidden text-charcoal-500 hover:text-charcoal-700"
-          >
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              @click="sidebarOpen = true"
+              class="lg:hidden text-charcoal-500 hover:text-charcoal-700 p-2 rounded transition-colors"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <button
+              @click="toggleSidebar"
+              class="hidden lg:flex text-charcoal-500 hover:text-charcoal-700 p-2 rounded transition-colors"
+              title="Toggle sidebar"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="sidebarCollapsed" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
 
           <div class="flex-1 flex items-center justify-end gap-4">
             <!-- Notifications -->
@@ -337,9 +374,23 @@
       </header>
 
       <!-- Page Content -->
-      <main class="p-4 sm:p-6 lg:p-8">
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 pb-20">
         <RouterView />
       </main>
+
+      <!-- Footer -->
+      <footer class="bg-white border-t border-charcoal-200 py-4 px-4 sm:px-6 lg:px-8 mt-auto">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-sm text-charcoal-600">
+            <p>&copy; {{ currentYear }} FinCompare. All rights reserved.</p>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-charcoal-600">
+            <a href="#" class="hover:text-primary-600 transition-colors">Privacy Policy</a>
+            <a href="#" class="hover:text-primary-600 transition-colors">Terms of Service</a>
+            <a href="#" class="hover:text-primary-600 transition-colors">Support</a>
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 </template>
@@ -363,6 +414,7 @@ const route = useRoute();
 const router = useRouter();
 
 const sidebarOpen = ref(false);
+const sidebarCollapsed = ref(false);
 const userMenuOpen = ref(false);
 const userMenuRef = ref(null);
 const catalogOpen = ref(false);
@@ -370,6 +422,32 @@ const accessOpen = ref(false);
 const contentOpen = ref(false);
 const user = ref({ name: 'Admin User', email: 'admin@example.com' });
 const isAdmin = ref(true); // TODO: Get from user data
+const currentYear = ref(new Date().getFullYear());
+
+// Load sidebar state from localStorage
+const loadSidebarState = () => {
+  const saved = localStorage.getItem('sidebarCollapsed');
+  if (saved !== null) {
+    sidebarCollapsed.value = saved === 'true';
+  }
+};
+
+// Save sidebar state to localStorage
+const saveSidebarState = () => {
+  localStorage.setItem('sidebarCollapsed', sidebarCollapsed.value.toString());
+};
+
+// Toggle sidebar collapse
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  saveSidebarState();
+  // Close dropdowns when collapsing
+  if (sidebarCollapsed.value) {
+    catalogOpen.value = false;
+    accessOpen.value = false;
+    contentOpen.value = false;
+  }
+};
 
 const isActive = (path) => {
   if (path === '/admin') {
@@ -437,6 +515,7 @@ watch(() => route.path, () => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  loadSidebarState();
   // Fetch user data
   // You can add an API call here to get user info
 });

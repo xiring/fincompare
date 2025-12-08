@@ -1,12 +1,12 @@
 <template>
   <div>
     <input
-      v-if="attr.data_type === 'string'"
+      v-if="attr.data_type === 'text'"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       type="text"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+      class="block w-full px-4 py-2.5 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors"
     />
     <input
       v-else-if="attr.data_type === 'number' || attr.data_type === 'percentage'"
@@ -15,9 +15,9 @@
       type="number"
       step="any"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+      class="block w-full px-4 py-2.5 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors"
     />
-    <div v-else-if="attr.data_type === 'boolean'" class="mt-2">
+    <div v-else-if="attr.data_type === 'boolean'">
       <label class="flex items-center gap-3">
         <input
           :checked="modelValue === '1' || modelValue === true || modelValue === 1"
@@ -33,7 +33,7 @@
       :value="modelValue"
       @change="$emit('update:modelValue', $event.target.value)"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+      class="block w-full px-4 py-2.5 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors"
     >
       <option value="">-- Select Partner --</option>
       <option v-for="partner in partners" :key="partner.id" :value="partner.id">
@@ -46,7 +46,7 @@
       @input="handleJsonInput"
       rows="3"
       :required="attr.is_required"
-      class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+      class="block w-full px-4 py-2.5 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors resize-y"
       placeholder='{"key": "value"}'
     ></textarea>
   </div>

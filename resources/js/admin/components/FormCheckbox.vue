@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <label v-if="label" :for="id" class="block text-sm font-medium text-charcoal-700">
+  <div class="mb-6">
+    <label v-if="label" :for="id" class="block text-sm font-medium text-charcoal-700 mb-2">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -10,7 +10,7 @@
         :key="getOptionValue(option)"
         :class="[
           'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
-          'hover:bg-gray-50',
+          'hover:bg-charcoal-50',
           error ? 'border-red-300' : 'border-charcoal-200'
         ]"
       >
@@ -27,8 +27,8 @@
       </label>
       <p v-if="options.length === 0" class="text-sm text-charcoal-500">No options available</p>
     </div>
-    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
-    <p v-if="hint && !error" class="mt-1 text-xs text-charcoal-500">{{ hint }}</p>
+    <p v-if="error" class="mt-1.5 text-sm text-red-600">{{ error }}</p>
+    <p v-if="hint && !error" class="mt-1.5 text-xs text-charcoal-500">{{ hint }}</p>
   </div>
 </template>
 

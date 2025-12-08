@@ -1,233 +1,155 @@
 <template>
   <div>
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-charcoal-800">Site Settings</h1>
-      <p class="mt-1 text-sm text-charcoal-600">Manage site settings</p>
-    </div>
+    <PageHeader title="Site Settings" description="Manage site settings" />
 
     <LoadingSpinner v-if="loading && !settings" text="Loading settings..." />
     <ErrorMessage v-else-if="errorMessage" :message="errorMessage" class="mb-6" />
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
     <FormCard v-if="settings">
-      <form @submit.prevent="handleSubmit" class="space-y-6">
+      <form @submit.prevent="handleSubmit">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="space-y-6">
-            <h3 class="text-lg font-semibold text-charcoal-800">General Settings</h3>
+          <div>
+            <h3 class="text-lg font-semibold text-charcoal-800 mb-6">General Settings</h3>
 
-            <div>
-              <label for="site_name" class="block text-sm font-medium text-charcoal-700">
-                Site Name <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="site_name"
-                v-model="form.site_name"
-                type="text"
-                required
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-                :class="{ 'border-red-300': errors.site_name }"
-              />
-              <p v-if="errors.site_name" class="mt-1 text-sm text-red-600">{{ errors.site_name }}</p>
-            </div>
+            <FormInput
+              id="site_name"
+              v-model="form.site_name"
+              label="Site Name"
+              type="text"
+              required
+              :error="errors.site_name"
+            />
 
-            <div>
-              <label for="site_slogon" class="block text-sm font-medium text-charcoal-700">
-                Site Slogan
-              </label>
-              <input
-                id="site_slogon"
-                v-model="form.site_slogon"
-                type="text"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <FormInput
+              id="site_slogon"
+              v-model="form.site_slogon"
+              label="Site Slogan"
+              type="text"
+            />
 
-            <div>
-              <label for="email_address" class="block text-sm font-medium text-charcoal-700">
-                Email Address
-              </label>
-              <input
-                id="email_address"
-                v-model="form.email_address"
-                type="email"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <FormInput
+              id="email_address"
+              v-model="form.email_address"
+              label="Email Address"
+              type="email"
+            />
 
-            <div>
-              <label for="contact_number" class="block text-sm font-medium text-charcoal-700">
-                Contact Number
-              </label>
-              <input
-                id="contact_number"
-                v-model="form.contact_number"
-                type="text"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <FormInput
+              id="contact_number"
+              v-model="form.contact_number"
+              label="Contact Number"
+              type="text"
+            />
 
-            <div>
-              <label for="address" class="block text-sm font-medium text-charcoal-700">
-                Address
-              </label>
-              <textarea
-                id="address"
-                v-model="form.address"
-                rows="3"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              ></textarea>
-            </div>
+            <FormTextarea
+              id="address"
+              v-model="form.address"
+              label="Address"
+              :rows="3"
+            />
 
-            <div>
-              <label for="map_url" class="block text-sm font-medium text-charcoal-700">
-                Map URL
-              </label>
-              <input
-                id="map_url"
-                v-model="form.map_url"
-                type="url"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <FormInput
+              id="map_url"
+              v-model="form.map_url"
+              label="Map URL"
+              type="url"
+            />
           </div>
 
-          <div class="space-y-6">
-            <h3 class="text-lg font-semibold text-charcoal-800">Branding</h3>
+          <div>
+            <h3 class="text-lg font-semibold text-charcoal-800 mb-6">Branding</h3>
 
-            <div>
-              <label for="logo" class="block text-sm font-medium text-charcoal-700">
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-charcoal-700 mb-2">
                 Logo
               </label>
-              <div v-if="settings.logo && !logoPreview" class="mt-2 mb-2">
+              <div v-if="settings.logo && !form.logo" class="mb-3">
                 <img :src="`/storage/${settings.logo}`" alt="Current logo" class="h-24 object-contain rounded-lg border border-charcoal-200" />
-                <p class="mt-1 text-xs text-charcoal-500">Current logo</p>
+                <p class="mt-1.5 text-xs text-charcoal-500">Current logo</p>
               </div>
-              <input
+              <FormFileInput
                 id="logo"
-                type="file"
+                v-model="form.logo"
                 accept="image/*"
-                @change="handleLogoChange"
-                class="block w-full text-sm text-charcoal-500"
+                hint="JPG, PNG, GIF or WebP. Max size: 2MB. Leave empty to keep current logo."
+                :preview="true"
+                :error="errors.logo"
               />
-              <p class="mt-1 text-xs text-charcoal-500">JPG, PNG, GIF or WebP. Max size: 2MB. Leave empty to keep current logo.</p>
-              <div v-if="logoPreview" class="mt-2">
-                <p class="text-xs text-charcoal-500">New logo preview:</p>
-                <img :src="logoPreview" alt="Preview" class="h-24 object-contain rounded-lg border border-charcoal-200" />
-              </div>
             </div>
 
-            <div>
-              <label for="favicon" class="block text-sm font-medium text-charcoal-700">
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-charcoal-700 mb-2">
                 Favicon
               </label>
-              <div v-if="settings.favicon && !faviconPreview" class="mt-2 mb-2">
+              <div v-if="settings.favicon && !form.favicon" class="mb-3">
                 <img :src="`/storage/${settings.favicon}`" alt="Current favicon" class="h-12 w-12 object-contain rounded-lg border border-charcoal-200" />
-                <p class="mt-1 text-xs text-charcoal-500">Current favicon</p>
+                <p class="mt-1.5 text-xs text-charcoal-500">Current favicon</p>
               </div>
-              <input
+              <FormFileInput
                 id="favicon"
-                type="file"
+                v-model="form.favicon"
                 accept="image/*"
-                @change="handleFaviconChange"
-                class="block w-full text-sm text-charcoal-500"
-              />
-              <p class="mt-1 text-xs text-charcoal-500">ICO, PNG. Max size: 1MB. Leave empty to keep current favicon.</p>
-              <div v-if="faviconPreview" class="mt-2">
-                <p class="text-xs text-charcoal-500">New favicon preview:</p>
-                <img :src="faviconPreview" alt="Preview" class="h-12 w-12 object-contain rounded-lg border border-charcoal-200" />
-              </div>
-            </div>
-
-            <h3 class="text-lg font-semibold text-charcoal-800">Social Media</h3>
-
-            <div>
-              <label for="facebook_url" class="block text-sm font-medium text-charcoal-700">
-                Facebook URL
-              </label>
-              <input
-                id="facebook_url"
-                v-model="form.facebook_url"
-                type="url"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+                hint="ICO, PNG. Max size: 1MB. Leave empty to keep current favicon."
+                :preview="true"
+                :error="errors.favicon"
               />
             </div>
 
-            <div>
-              <label for="instgram_url" class="block text-sm font-medium text-charcoal-700">
-                Instagram URL
-              </label>
-              <input
-                id="instgram_url"
-                v-model="form.instgram_url"
-                type="url"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <h3 class="text-lg font-semibold text-charcoal-800 mb-6">Social Media</h3>
 
-            <div>
-              <label for="twitter_url" class="block text-sm font-medium text-charcoal-700">
-                Twitter URL
-              </label>
-              <input
-                id="twitter_url"
-                v-model="form.twitter_url"
-                type="url"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
+            <FormInput
+              id="facebook_url"
+              v-model="form.facebook_url"
+              label="Facebook URL"
+              type="url"
+            />
+
+            <FormInput
+              id="instgram_url"
+              v-model="form.instgram_url"
+              label="Instagram URL"
+              type="url"
+            />
+
+            <FormInput
+              id="twitter_url"
+              v-model="form.twitter_url"
+              label="Twitter URL"
+              type="url"
+            />
           </div>
         </div>
 
-        <div class="border-t border-charcoal-200">
-          <h3 class="text-lg font-semibold text-charcoal-800">SEO Settings</h3>
+        <FormSection title="SEO Settings">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label for="seo_titl" class="block text-sm font-medium text-charcoal-700">
-                SEO Title
-              </label>
-              <input
-                id="seo_titl"
-                v-model="form.seo_titl"
-                type="text"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
-            <div>
-              <label for="seo_keyword" class="block text-sm font-medium text-charcoal-700">
-                SEO Keywords
-              </label>
-              <input
-                id="seo_keyword"
-                v-model="form.seo_keyword"
-                type="text"
-                placeholder="keyword1, keyword2, keyword3"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              />
-            </div>
-            <div>
-              <label for="seo_description" class="block text-sm font-medium text-charcoal-700">
-                SEO Description
-              </label>
-              <textarea
-                id="seo_description"
-                v-model="form.seo_description"
-                rows="2"
-                class="block w-full px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-              ></textarea>
-            </div>
+            <FormInput
+              id="seo_titl"
+              v-model="form.seo_titl"
+              label="SEO Title"
+              type="text"
+            />
+            <FormInput
+              id="seo_keyword"
+              v-model="form.seo_keyword"
+              label="SEO Keywords"
+              type="text"
+              placeholder="keyword1, keyword2, keyword3"
+            />
+            <FormTextarea
+              id="seo_description"
+              v-model="form.seo_description"
+              label="SEO Description"
+              :rows="2"
+            />
           </div>
-        </div>
+        </FormSection>
 
-        <div class="flex items-center gap-3 pt-4 border-t border-charcoal-200">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <LoadingSpinner v-if="loading" spinner-class="h-4 w-4 mr-2" container-class="py-0" />
-            <span>{{ loading ? 'Saving...' : 'Save Settings' }}</span>
-          </button>
-        </div>
+        <FormActions
+          :loading="loading"
+          submit-text="Save Settings"
+          loading-text="Saving..."
+        />
       </form>
     </FormCard>
   </div>
@@ -237,10 +159,16 @@
 import { ref, reactive, onMounted } from 'vue';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors } from '../../utils/validation';
+import PageHeader from '../../components/PageHeader.vue';
+import FormCard from '../../components/FormCard.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormTextarea from '../../components/FormTextarea.vue';
+import FormFileInput from '../../components/FormFileInput.vue';
+import FormSection from '../../components/FormSection.vue';
+import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
-import FormCard from '../../components/FormCard.vue';
 
 const settings = ref(null);
 const form = reactive({
@@ -264,38 +192,6 @@ const errors = ref({});
 const errorMessage = ref('');
 const successMessage = ref('');
 const loading = ref(false);
-const logoPreview = ref(null);
-const faviconPreview = ref(null);
-
-const handleLogoChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    form.logo = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      logoPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    form.logo = null;
-    logoPreview.value = null;
-  }
-};
-
-const handleFaviconChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    form.favicon = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      faviconPreview.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    form.favicon = null;
-    faviconPreview.value = null;
-  }
-};
 
 const loadSettings = async () => {
   loading.value = true;
