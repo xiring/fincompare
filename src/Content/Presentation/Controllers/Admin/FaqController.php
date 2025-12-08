@@ -12,6 +12,7 @@ use Src\Content\Application\Actions\ShowFaqAction;
 use Src\Content\Application\Actions\UpdateFaqAction;
 use Src\Content\Application\DTOs\FaqDTO;
 use Src\Content\Domain\Entities\Faq;
+use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 use Src\Content\Presentation\Requests\FaqRequest;
 
 /**
@@ -69,9 +70,12 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, int $id, ShowFaqAction $show)
+    public function show(Request $request, int $id, ShowFaqAction $show, FaqRepositoryInterface $repository)
     {
-        $faq = Faq::findOrFail($id);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
+        }
         $this->authorize('view', $faq);
         $faq = $show->execute($faq);
 
@@ -83,9 +87,12 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, int $id, ShowFaqAction $show)
+    public function edit(Request $request, int $id, ShowFaqAction $show, FaqRepositoryInterface $repository)
     {
-        $faq = Faq::findOrFail($id);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
+        }
         $this->authorize('update', $faq);
         $faq = $show->execute($faq);
 
@@ -97,9 +104,12 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(FaqRequest $request, int $id, UpdateFaqAction $update)
+    public function update(FaqRequest $request, int $id, UpdateFaqAction $update, FaqRepositoryInterface $repository)
     {
-        $faq = Faq::findOrFail($id);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
+        }
         $this->authorize('update', $faq);
         $item = $update->execute($faq, FaqDTO::fromArray($request->validated()));
 
@@ -111,9 +121,12 @@ class FaqController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, int $id, DeleteFaqAction $delete)
+    public function destroy(Request $request, int $id, DeleteFaqAction $delete, FaqRepositoryInterface $repository)
     {
-        $faq = Faq::findOrFail($id);
+        $faq = $repository->find($id);
+        if (!$faq) {
+            abort(404);
+        }
         $this->authorize('delete', $faq);
         $delete->execute($faq);
 

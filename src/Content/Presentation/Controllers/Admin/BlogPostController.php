@@ -12,6 +12,7 @@ use Src\Content\Application\Actions\ShowBlogPostAction;
 use Src\Content\Application\Actions\UpdateBlogPostAction;
 use Src\Content\Application\DTOs\BlogPostDTO;
 use Src\Content\Domain\Entities\BlogPost;
+use Src\Content\Domain\Repositories\BlogPostRepositoryInterface;
 use Src\Content\Presentation\Requests\BlogPostRequest;
 
 /**
@@ -70,9 +71,12 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, int $id, ShowBlogPostAction $show)
+    public function show(Request $request, int $id, ShowBlogPostAction $show, BlogPostRepositoryInterface $repository)
     {
-        $blog = BlogPost::findOrFail($id);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
+        }
         $this->authorize('view', $blog);
         $blog = $show->execute($blog);
 
@@ -84,9 +88,12 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, int $id, ShowBlogPostAction $show)
+    public function edit(Request $request, int $id, ShowBlogPostAction $show, BlogPostRepositoryInterface $repository)
     {
-        $blog = BlogPost::findOrFail($id);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
+        }
         $this->authorize('update', $blog);
         $blog = $show->execute($blog);
 
@@ -98,9 +105,12 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(BlogPostRequest $request, int $id, UpdateBlogPostAction $update)
+    public function update(BlogPostRequest $request, int $id, UpdateBlogPostAction $update, BlogPostRepositoryInterface $repository)
     {
-        $blog = BlogPost::findOrFail($id);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
+        }
         $this->authorize('update', $blog);
         $post = $update->execute($blog, BlogPostDTO::fromArray($request->validated()));
 
@@ -112,9 +122,12 @@ class BlogPostController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, int $id, DeleteBlogPostAction $delete)
+    public function destroy(Request $request, int $id, DeleteBlogPostAction $delete, BlogPostRepositoryInterface $repository)
     {
-        $blog = BlogPost::findOrFail($id);
+        $blog = $repository->find($id);
+        if (!$blog) {
+            abort(404);
+        }
         $this->authorize('delete', $blog);
         $delete->execute($blog);
 

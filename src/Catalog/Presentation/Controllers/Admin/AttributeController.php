@@ -8,10 +8,11 @@ use Illuminate\Routing\Controller;
 use Src\Catalog\Application\Actions\CreateAttributeAction;
 use Src\Catalog\Application\Actions\DeleteAttributeAction;
 use Src\Catalog\Application\Actions\GetAttributesByCategoryAction;
+use Src\Catalog\Application\Actions\ListAttributesAction;
 use Src\Catalog\Application\Actions\UpdateAttributeAction;
 use Src\Catalog\Application\DTOs\AttributeDTO;
 use Src\Catalog\Domain\Entities\Attribute;
-use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Domain\Repositories\AttributeRepositoryInterface;
 use Src\Catalog\Presentation\Requests\AttributeRequest;
 
 /**
@@ -31,13 +32,14 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request, ListAttributesAction $list)
     {
-        $query = Attribute::query()->with('productCategory')
-            ->when($request->get('product_category_id'), fn ($q, $cid) => $q->where('product_category_id', $cid))
-            ->when($request->get('q'), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
-            ->orderBy('product_category_id')->orderBy('sort_order');
-        $items = $query->paginate(20);
+        $items = $list->execute([
+            'q' => $request->get('q'),
+            'product_category_id' => $request->get('product_category_id'),
+            'sort' => $request->get('sort'),
+            'dir' => $request->get('dir'),
+        ], (int) $request->get('per_page', 20));
 
         return response()->json($items);
     }
@@ -69,11 +71,14 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(int $id)
+    public function edit(int $id, AttributeRepositoryInterface $repository)
     {
-        $attribute = Attribute::findOrFail($id);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
+        }
         $this->authorize('update', $attribute);
-        return response()->json($attribute);
+        return response()->json($attribute->load('productCategory'));
     }
 
     /**
@@ -81,9 +86,12 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(AttributeRequest $request, int $id, UpdateAttributeAction $update)
+    public function update(AttributeRequest $request, int $id, UpdateAttributeAction $update, AttributeRepositoryInterface $repository)
     {
-        $attribute = Attribute::findOrFail($id);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
+        }
         $this->authorize('update', $attribute);
         $attr = $update->execute($attribute, AttributeDTO::fromArray($request->validated()));
 
@@ -95,9 +103,12 @@ class AttributeController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(int $id, DeleteAttributeAction $delete)
+    public function destroy(int $id, DeleteAttributeAction $delete, AttributeRepositoryInterface $repository)
     {
-        $attribute = Attribute::findOrFail($id);
+        $attribute = $repository->find($id);
+        if (!$attribute) {
+            abort(404);
+        }
         $this->authorize('delete', $attribute);
         $delete->execute($attribute);
 

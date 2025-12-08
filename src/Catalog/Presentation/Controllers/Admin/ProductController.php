@@ -12,9 +12,8 @@ use Src\Catalog\Application\Actions\ListProductsAction;
 use Src\Catalog\Application\Actions\ShowProductAction;
 use Src\Catalog\Application\Actions\UpdateProductAction;
 use Src\Catalog\Domain\Entities\Product;
-use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 use Src\Catalog\Presentation\Requests\ProductRequest;
-use Src\Partners\Domain\Entities\Partner;
 
 /**
  * ProductController controller.
@@ -81,6 +80,7 @@ class ProductController extends Controller
                 'image' => $data['image'] ?? null,
                 'is_featured' => (bool) ($data['is_featured'] ?? false),
                 'status' => $data['status'],
+                'attributes' => $data['attributes'] ?? [],
             ],
             attributesInput: $data['attributes'] ?? []
         );
@@ -92,9 +92,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Request $request, int $id, ShowProductAction $show)
+    public function show(Request $request, int $id, ShowProductAction $show, AdminProductRepositoryInterface $repository)
     {
-        $product = Product::findOrFail($id);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
         $this->authorize('view', $product);
         $product = $show->execute($product);
         return response()->json($product);
@@ -105,9 +108,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request, int $id, ShowProductAction $show)
+    public function edit(Request $request, int $id, ShowProductAction $show, AdminProductRepositoryInterface $repository)
     {
-        $product = Product::findOrFail($id);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
         $this->authorize('update', $product);
         $product = $show->execute($product);
         return response()->json($product);
@@ -118,9 +124,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductRequest $request, int $id, UpdateProductAction $update)
+    public function update(ProductRequest $request, int $id, UpdateProductAction $update, AdminProductRepositoryInterface $repository)
     {
-        $product = Product::findOrFail($id);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
         $this->authorize('update', $product);
 
         $data = $request->validated();
@@ -160,9 +169,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function duplicate(int $id, DuplicateProductAction $duplicate)
+    public function duplicate(int $id, DuplicateProductAction $duplicate, AdminProductRepositoryInterface $repository)
     {
-        $product = Product::findOrFail($id);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
         $this->authorize('create', Product::class);
         $duplicatedProduct = $duplicate->execute($product);
 
@@ -174,9 +186,12 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, int $id, DeleteProductAction $delete)
+    public function destroy(Request $request, int $id, DeleteProductAction $delete, AdminProductRepositoryInterface $repository)
     {
-        $product = Product::findOrFail($id);
+        $product = $repository->find($id);
+        if (!$product) {
+            abort(404);
+        }
         $this->authorize('delete', $product);
         $delete->execute($product);
         return response()->json(null, 204);

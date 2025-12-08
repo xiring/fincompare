@@ -2,6 +2,7 @@
 
 namespace Src\Content\Infrastructure\Persistence;
 
+use Src\Content\Application\DTOs\BlogPostDTO;
 use Src\Content\Domain\Entities\BlogPost;
 use Src\Content\Domain\Repositories\BlogPostRepositoryInterface;
 
@@ -31,5 +32,30 @@ class EloquentBlogPostRepository implements BlogPostRepositoryInterface
         $query->orderBy($sort, $dir);
 
         return $query->paginate($perPage);
+    }
+
+    public function find(int $id): ?BlogPost
+    {
+        return BlogPost::find($id);
+    }
+
+    public function create(BlogPostDTO $dto): BlogPost
+    {
+        $data = $dto->toArray();
+        $data['tags'] = $dto->tags;
+        return BlogPost::create($data);
+    }
+
+    public function update(BlogPost $blogPost, BlogPostDTO $dto): BlogPost
+    {
+        $data = $dto->toArray();
+        $data['tags'] = $dto->tags;
+        $blogPost->update($data);
+        return $blogPost;
+    }
+
+    public function delete(BlogPost $blogPost): void
+    {
+        $blogPost->delete();
     }
 }

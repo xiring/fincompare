@@ -4,7 +4,7 @@ namespace Src\Shared\Presentation\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Spatie\Activitylog\Models\Activity;
+use Src\Shared\Domain\Repositories\ActivityLogRepositoryInterface;
 
 /**
  * ActivityLogController controller.
@@ -16,14 +16,13 @@ class ActivityLogController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request, ActivityLogRepositoryInterface $repository)
     {
-        $query = Activity::query()
-            ->when($request->get('log_name'), fn ($q, $n) => $q->where('log_name', $n))
-            ->when($request->get('causer_id'), fn ($q, $id) => $q->where('causer_id', $id))
-            ->when($request->get('subject_type'), fn ($q, $t) => $q->where('subject_type', $t))
-            ->orderByDesc('id');
-        $items = $query->paginate((int) $request->get('per_page', 20));
+        $items = $repository->paginate([
+            'log_name' => $request->get('log_name'),
+            'causer_id' => $request->get('causer_id'),
+            'subject_type' => $request->get('subject_type'),
+        ], (int) $request->get('per_page', 20));
 
         return response()->json($items);
     }

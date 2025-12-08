@@ -2,6 +2,7 @@
 
 namespace Src\Content\Infrastructure\Persistence;
 
+use Src\Content\Application\DTOs\CmsPageDTO;
 use Src\Content\Domain\Entities\CmsPage;
 use Src\Content\Domain\Repositories\CmsPageRepositoryInterface;
 
@@ -31,5 +32,26 @@ class EloquentCmsPageRepository implements CmsPageRepositoryInterface
         $query->orderBy($sort, $dir);
 
         return $query->paginate($perPage);
+    }
+
+    public function find(int $id): ?CmsPage
+    {
+        return CmsPage::find($id);
+    }
+
+    public function create(CmsPageDTO $dto): CmsPage
+    {
+        return CmsPage::create($dto->toArray());
+    }
+
+    public function update(CmsPage $cmsPage, CmsPageDTO $dto): CmsPage
+    {
+        $cmsPage->update($dto->toArray());
+        return $cmsPage;
+    }
+
+    public function delete(CmsPage $cmsPage): void
+    {
+        $cmsPage->delete();
     }
 }

@@ -13,6 +13,7 @@ class ProductDTO
         public string $name,
         public ?string $slug = null,
         public ?string $description = null,
+        public ?string $image = null,
         public bool $is_featured = false,
         public string $status = 'active',
         public array $attributes = [],
@@ -26,6 +27,7 @@ class ProductDTO
             name: $data['name'],
             slug: $data['slug'] ?? null,
             description: $data['description'] ?? null,
+            image: $data['image'] ?? null,
             is_featured: (bool) ($data['is_featured'] ?? false),
             status: $data['status'] ?? 'active',
             attributes: $data['attributes'] ?? [],
@@ -40,9 +42,9 @@ class ProductDTO
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
+            'image' => $this->image,
             'is_featured' => $this->is_featured,
             'status' => $this->status,
-            'attributes' => $this->attributes,
         ];
     }
 }

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Src\Shared\Domain\Repositories\ActivityLogRepositoryInterface;
+use Src\Shared\Infrastructure\Persistence\EloquentActivityLogRepository;
 use Illuminate\Support\Str;
 
 /**
@@ -28,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
 
             return $auth->guard($guardName);
         });
+
+        // Bind ActivityLog repository
+        $this->app->bind(ActivityLogRepositoryInterface::class, EloquentActivityLogRepository::class);
     }
 
     public function boot(): void

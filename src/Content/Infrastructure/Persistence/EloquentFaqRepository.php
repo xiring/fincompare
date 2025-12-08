@@ -2,6 +2,7 @@
 
 namespace Src\Content\Infrastructure\Persistence;
 
+use Src\Content\Application\DTOs\FaqDTO;
 use Src\Content\Domain\Entities\Faq;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
 
@@ -50,5 +51,26 @@ class EloquentFaqRepository implements FaqRepositoryInterface
         }
 
         return $query->orderBy($sort, $dir)->get(['id', 'question', 'answer', 'created_at']);
+    }
+
+    public function find(int $id): ?Faq
+    {
+        return Faq::find($id);
+    }
+
+    public function create(FaqDTO $dto): Faq
+    {
+        return Faq::create($dto->toArray());
+    }
+
+    public function update(Faq $faq, FaqDTO $dto): Faq
+    {
+        $faq->update($dto->toArray());
+        return $faq;
+    }
+
+    public function delete(Faq $faq): void
+    {
+        $faq->delete();
     }
 }
