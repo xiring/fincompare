@@ -57,5 +57,19 @@ return [
                 'tries' => 1,
             ],
         ],
+
+        // Add staging/testing environments that default to production config
+        'staging' => [
+            'supervisor-1' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'imports'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'tries' => 3,
+            ],
+        ],
     ],
 ];

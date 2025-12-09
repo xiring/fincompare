@@ -16,6 +16,23 @@ Common issues
 - Queue jobs not processing
   - Verify queue worker or Horizon is running; check QUEUE_CONNECTION
 
+- Horizon showing "Inactive" status
+  - **Issue**: Horizon dashboard shows "Inactive" even though process is running
+  - **Common Causes**:
+    1. `APP_ENV` doesn't match Horizon environment configuration (must be 'production', 'local', or 'staging')
+    2. Redis connection issues - verify Redis is running and accessible
+    3. Horizon needs restart after configuration changes
+    4. Supervisor config pointing to wrong directory
+  - **Solutions**:
+    1. Check `APP_ENV` in `.env` matches Horizon config environments
+    2. Verify Redis connection: `redis-cli ping` (should return "PONG")
+    3. Check Redis config in `.env`: `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB`
+    4. Restart Horizon: `php artisan horizon:terminate` then restart via supervisor
+    5. Clear config cache: `php artisan config:clear && php artisan config:cache`
+    6. Verify supervisor config path matches actual project directory
+    7. Check Horizon logs: `tail -f storage/logs/horizon.log`
+    8. Test Redis connection from Laravel: `php artisan tinker` then `Redis::ping()`
+
 - Route not found after adding controller
   - Run: php artisan route:clear (then route:cache in prod)
 

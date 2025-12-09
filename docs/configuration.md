@@ -12,7 +12,11 @@ Packages and features
 
 - Sanctum: SANCTUM_STATEFUL_DOMAINS (if using SPA on a different domain)
 - Telescope: TELESCOPE_ENABLED=true (in non-production) and middleware as configured
-- Horizon: configure queue connection via QUEUE_CONNECTION and horizon config if enabled
+- Horizon: 
+  - Configure queue connection via QUEUE_CONNECTION=redis
+  - Ensure APP_ENV matches Horizon environment config (production, local, or staging)
+  - Redis connection: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD (if set), REDIS_DB
+  - See `config/horizon.php` for environment-specific supervisor configurations
 - Spatie Permission: see `config/permission.php` for table names and cache settings
 - Spatie Activitylog: see `config/activitylog.php`
 

@@ -28,6 +28,25 @@ Queues & schedule
   - or Horizon (configure supervisors)
 - Add cron entry: * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
 
+Horizon Setup
+
+- Ensure `APP_ENV` matches Horizon environment config (production, local, or staging)
+- Verify Redis is running and accessible
+- Supervisor config example:
+  ```
+  [program:horizon]
+  process_name=%(program_name)s
+  command=php /var/www/html/fincompare/artisan horizon
+  autostart=true
+  autorestart=true
+  user=www-data
+  redirect_stderr=true
+  stdout_logfile=/var/www/html/fincompare/storage/logs/horizon.log
+  stopwaitsecs=3600
+  ```
+- After supervisor config changes: `sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl restart horizon`
+- If Horizon shows "Inactive": Check Redis connection, verify APP_ENV, restart Horizon, clear config cache
+
 Environment
 
 - Ensure correct permissions for `storage/` and `bootstrap/cache/`
