@@ -31,6 +31,12 @@ Common issues
   - **Solution**: Pass plain JavaScript object to store methods; API modules handle `FormData` conversion automatically
   - See `docs/typescript-migration.md` section "Form Submission with File Uploads" for correct pattern
 
+- Build taking too long on server
+  - **Issue**: `pnpm run build` is slow, especially type checking
+  - **Solution**: Use `pnpm run build` (skips type checking) for production deployments. Type checking is optional and can be run separately with `pnpm run type-check` in CI/CD
+  - **Optimization**: Vite build is optimized with esbuild minification and manual chunk splitting for better caching
+  - **Note**: Type checking (`vue-tsc`) can be slow on servers with limited resources. It's recommended to run type checking in CI/CD pipelines rather than during deployment
+
 FAQ
 
 - How do I access the admin panel?

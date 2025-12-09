@@ -111,9 +111,17 @@ php artisan db:seed
 
 5. **Build frontend assets**
 ```bash
+# Production build (fast, skips type checking)
 pnpm run build
-# or for development:
+
+# Production build with type checking (slower, recommended for CI/CD)
+pnpm run build:check
+
+# Development server
 pnpm run dev
+
+# Type checking only
+pnpm run type-check
 ```
 
 6. **Start the application**
@@ -307,8 +315,11 @@ php artisan route:clear && php artisan config:clear && php artisan cache:clear
 # Type checking (TypeScript)
 pnpm run type-check
 
-# Build assets
+# Production build (fast, skips type checking)
 pnpm run build
+
+# Production build with type checking (slower, for CI/CD)
+pnpm run build:check
 
 # Development server
 pnpm run dev
@@ -390,7 +401,7 @@ php artisan test
 2. Configure production database
 3. Set `QUEUE_CONNECTION=redis`
 4. Run migrations: `php artisan migrate --force`
-5. Build assets: `pnpm run build`
+5. Build assets: `pnpm run build` (production build, skips type checking for speed)
 6. Cache configuration: `php artisan config:cache`
 7. Cache routes: `php artisan route:cache`
 

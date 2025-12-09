@@ -16,6 +16,8 @@ npm-debug.log
 yarn-error.log
 package-lock.json
 # pnpm-lock.yaml should be committed
+# TypeScript incremental build cache
+*.tsbuildinfo
 /.fleet
 /.idea
 /.vscode

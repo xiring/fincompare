@@ -39,4 +39,22 @@ export default defineConfig({
             '@stores': path.resolve(__dirname, './resources/js/public/stores'),
         },
     },
+    build: {
+        // Optimize build performance
+        minify: 'esbuild',
+        cssMinify: true,
+        sourcemap: false,
+        // Increase chunk size warning limit
+        chunkSizeWarningLimit: 1000,
+        // Optimize rollup options
+        rollupOptions: {
+            output: {
+                // Manual chunk splitting for better caching
+                manualChunks: {
+                    'vue-vendor': ['vue', 'vue-router', 'pinia'],
+                    'admin-vendor': ['quill'],
+                },
+            },
+        },
+    },
 });
