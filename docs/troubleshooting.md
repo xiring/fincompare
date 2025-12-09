@@ -32,10 +32,22 @@ Common issues
   - See `docs/typescript-migration.md` section "Form Submission with File Uploads" for correct pattern
 
 - Build taking too long on server
-  - **Issue**: `pnpm run build` is slow, especially type checking
-  - **Solution**: Use `pnpm run build` (skips type checking) for production deployments. Type checking is optional and can be run separately with `pnpm run type-check` in CI/CD
-  - **Optimization**: Vite build is optimized with esbuild minification and manual chunk splitting for better caching
+  - **Issue**: `pnpm run build` is slow
+  - **Solutions**:
+    1. Use `pnpm run build` (skips type checking) for production deployments
+    2. Type checking is optional - run separately with `pnpm run type-check` in CI/CD
+    3. Build is optimized with:
+       - esbuild for fast minification (faster than terser)
+       - esbuild for CSS minification
+       - Disabled sourcemaps in production
+       - Optimized chunk splitting
+       - Dependency pre-bundling
+    4. For even faster builds, consider:
+       - Using a build server with more CPU cores
+       - Caching `node_modules` between builds
+       - Using CI/CD with build caching
   - **Note**: Type checking (`vue-tsc`) can be slow on servers with limited resources. It's recommended to run type checking in CI/CD pipelines rather than during deployment
+  - **CSS @import Error**: If you see `@import must precede all other statements`, ensure `@import` statements come before `@tailwind` directives in CSS files
 
 FAQ
 

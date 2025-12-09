@@ -5,6 +5,8 @@ Build artifacts
 - Composer prod install: composer install --no-dev --optimize-autoloader --no-interaction
 - Frontend build: pnpm install --frozen-lockfile && pnpm run build
   - Note: Production builds skip type checking for speed. Run `pnpm run type-check` separately in CI/CD if needed.
+  - For faster builds, ensure pnpm store is cached between builds (pnpm uses a global store)
+  - Build is optimized with esbuild minification and chunk splitting
 
 App bootstrap
 
