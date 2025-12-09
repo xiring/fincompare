@@ -12,6 +12,7 @@ Quick links:
 - Controllers Reference: controllers.md
 - CSV Import Guide: csv-import.md
 - Deployment & Operations: deployment.md
+- Ubuntu 24.04 Deployment Guide: deployment-ubuntu.md (Complete guide for Nginx, PHP 8.3-FPM, PostgreSQL, Redis)
 - TypeScript Migration Guide: typescript-migration.md
 - Contributing & Coding Standards: contributing.md
 - Troubleshooting & FAQ: troubleshooting.md

@@ -438,6 +438,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - **Controllers**: `docs/controllers.md`
 - **CSV Import**: `docs/csv-import.md`
 - **Deployment**: `docs/deployment.md`
+- **Ubuntu 24.04 Deployment**: `docs/deployment-ubuntu.md` (Complete guide for Nginx, PHP 8.3-FPM, PostgreSQL, Redis)
 - **TypeScript Migration**: `docs/typescript-migration.md`
 - **Contributing**: `docs/contributing.md`
 - **Troubleshooting**: `docs/troubleshooting.md`
