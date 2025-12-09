@@ -93,7 +93,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-charcoal-800 group-hover:text-primary-600">{{ lead.name || lead.email }}</p>
-              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.mobile_number || (lead.data as any)?.phone || 'No contact info' }}</p>
+              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.mobile_number || lead.phone || (lead.data as any)?.phone || 'No contact info' }}</p>
             </div>
             <div class="flex items-center gap-2">
               <span

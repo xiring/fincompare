@@ -98,6 +98,7 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
                 <div v-if="lead.product">{{ lead.product.name }}</div>
+                <div v-else-if="lead.product_category">{{ lead.product_category.name }}</div>
                 <span v-else class="text-charcoal-400">-</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
