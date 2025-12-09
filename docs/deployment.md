@@ -32,16 +32,18 @@ Horizon Setup
 
 - Ensure `APP_ENV` matches Horizon environment config (production, local, or staging)
 - Verify Redis is running and accessible
-- Supervisor config example:
+- Supervisor config example (`/etc/supervisor/conf.d/fincompare-app.conf`):
   ```
-  [program:horizon]
-  process_name=%(program_name)s
+  [program:fincompare_horizon]
+  process_name=%(program_name)s_%(process_num)02d
   command=php /var/www/html/fincompare/artisan horizon
   autostart=true
   autorestart=true
-  user=www-data
   redirect_stderr=true
+  user=www-data
   stdout_logfile=/var/www/html/fincompare/storage/logs/horizon.log
+  stdout_logfile_maxbytes=10MB
+  logfile_backups=14
   stopwaitsecs=3600
   ```
 - After supervisor config changes: `sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl restart horizon`
