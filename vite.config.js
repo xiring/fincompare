@@ -43,11 +43,17 @@ export default defineConfig({
     optimizeDeps: {
         include: ['vue', 'vue-router', 'pinia', 'axios'],
         exclude: [],
+        // Force re-optimization if needed
+        force: false,
     },
     // Use esbuild for faster transforms
     esbuild: {
         target: 'es2020',
         legalComments: 'none',
+        // Ensure proper minification
+        minifyIdentifiers: true,
+        minifySyntax: true,
+        minifyWhitespace: true,
     },
     build: {
         // Optimize build performance
@@ -61,24 +67,14 @@ export default defineConfig({
         // Optimize rollup options
         rollupOptions: {
             output: {
-                // Manual chunk splitting for better caching
+                // Let Vite handle chunk splitting automatically to avoid circular dependencies
+                // Only split out very large dependencies
                 manualChunks: (id) => {
-                    // Vue ecosystem
-                    if (id.includes('node_modules/vue') || id.includes('node_modules/@vue')) {
-                        return 'vue-vendor';
-                    }
-                    // Router and state management
-                    if (id.includes('node_modules/vue-router') || id.includes('node_modules/pinia')) {
-                        return 'router-vendor';
-                    }
-                    // Admin-specific vendor
+                    // Only split quill (large WYSIWYG editor) if it's used
                     if (id.includes('node_modules/quill')) {
-                        return 'admin-vendor';
+                        return 'quill';
                     }
-                    // Other large dependencies
-                    if (id.includes('node_modules')) {
-                        return 'vendor';
-                    }
+                    // Let Vite automatically handle Vue ecosystem chunking
                 },
                 // Optimize chunk file names
                 chunkFileNames: 'assets/js/[name]-[hash].js',

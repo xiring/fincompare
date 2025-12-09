@@ -48,6 +48,11 @@ Common issues
        - Using CI/CD with build caching
   - **Note**: Type checking (`vue-tsc`) can be slow on servers with limited resources. It's recommended to run type checking in CI/CD pipelines rather than during deployment
   - **CSS @import Error**: If you see `@import must precede all other statements`, ensure `@import` statements come before `@tailwind` directives in CSS files
+  - **Blank page after build / "Cannot access before initialization" error**:
+    - **Issue**: Page shows blank after production build with initialization errors
+    - **Cause**: Circular dependencies from aggressive chunk splitting
+    - **Solution**: Simplified chunk splitting strategy - let Vite handle Vue ecosystem automatically
+    - **Fix**: Clear build cache and rebuild: `rm -rf public/build node_modules/.vite && pnpm run build`
 
 FAQ
 
