@@ -18,7 +18,7 @@
                 label="Name"
                 type="text"
                 required
-                :error="getError('name')"
+                :error="getError(errors, 'name')"
               />
 
               <FormInput
@@ -26,7 +26,7 @@
                 v-model="form.slug"
                 label="Slug"
                 hint="Leave empty to auto-generate from name"
-                :error="getError('slug')"
+                :error="getError(errors, 'slug')"
               />
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -36,7 +36,7 @@
                   label="Partner"
                   :options="partners"
                   required
-                  :error="getError('partner_id')"
+                  :error="getError(errors, 'partner_id')"
                 />
 
                 <FormSelect
@@ -45,7 +45,7 @@
                   label="Category"
                   :options="categories"
                   required
-                  :error="getError('product_category_id')"
+                  :error="getError(errors, 'product_category_id')"
                 />
               </div>
 
@@ -54,7 +54,7 @@
                 v-model="form.description"
                 label="Description"
                 :rows="4"
-                :error="getError('description')"
+                :error="getError(errors, 'description')"
               />
 
               <!-- Image with existing image display -->
@@ -72,7 +72,7 @@
                   accept="image/*"
                   hint="JPG, PNG, GIF or WebP. Max size: 5MB. Leave empty to keep current image."
                   :preview="true"
-                  :error="getError('image')"
+                  :error="getError(errors, 'image')"
                 />
                 <div v-if="imagePreview" class="mt-2">
                   <p class="text-xs text-charcoal-500">New image preview:</p>
@@ -100,7 +100,7 @@
                 label="Status"
                 :options="statusOptions"
                 required
-                :error="getError('status')"
+                :error="getError(errors, 'status')"
               />
             </FormSection>
           </div>
@@ -153,10 +153,7 @@ import { useProductsStore } from '../../stores';
 import { usePartnersStore } from '../../stores';
 import { useProductCategoriesStore } from '../../stores';
 import { adminApi } from '../../services/api';
-import { extractValidationErrors } from '../../utils/validation';
-import LoadingSpinner from '../../components/LoadingSpinner.vue';
-import ErrorMessage from '../../components/ErrorMessage.vue';
-import SuccessMessage from '../../components/SuccessMessage.vue';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormSection from '../../components/FormSection.vue';
@@ -166,6 +163,9 @@ import FormSelect from '../../components/FormSelect.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
+import LoadingSpinner from '../../components/LoadingSpinner.vue';
+import ErrorMessage from '../../components/ErrorMessage.vue';
+import SuccessMessage from '../../components/SuccessMessage.vue';
 import type { Attribute, Partner, ProductCategory, FormErrors } from '../../types/index';
 
 const route = useRoute();
@@ -217,13 +217,6 @@ const statusOptions = [
   { id: 'active', name: 'Active' },
   { id: 'inactive', name: 'Inactive' },
 ];
-
-// Helper to get first error string from errors object
-const getError = (field: string): string | undefined => {
-  const error = errors.value[field];
-  if (!error) return undefined;
-  return Array.isArray(error) ? error[0] : error;
-};
 
 // Watch for image changes to show preview
 watch(() => form.image, (newFile) => {

@@ -19,14 +19,14 @@
               label="Name"
               type="text"
               required
-              :error="getError('name')"
+              :error="getError(errors, 'name')"
             />
 
             <FormInput
               id="slug"
               v-model="form.slug"
               label="Slug"
-              :error="getError('slug')"
+              :error="getError(errors, 'slug')"
             />
 
             <FormTextarea
@@ -34,7 +34,7 @@
               v-model="form.description"
               label="Description"
               :rows="3"
-              :error="getError('description')"
+              :error="getError(errors, 'description')"
             />
 
             <FormSelect
@@ -43,7 +43,7 @@
               label="Type"
               :options="typeOptions"
               required
-              :error="getError('type')"
+              :error="getError(errors, 'type')"
             />
 
             <FormSelect
@@ -52,7 +52,7 @@
               label="Status"
               :options="statusOptions"
               required
-              :error="getError('status')"
+              :error="getError(errors, 'status')"
             />
             </FormSection>
           </div>
@@ -128,7 +128,7 @@
                   label="Label"
                   type="text"
                   required
-                  :error="getError(`inputs.${index}.label`)"
+                  :error="getError(errors, `inputs.${index}.label`)"
                 />
 
                 <FormInput
@@ -138,7 +138,7 @@
                   type="text"
                   required
                   hint="Lowercase letters, numbers, and underscores only"
-                  :error="getError(`inputs.${index}.name`)"
+                  :error="getError(errors, `inputs.${index}.name`)"
                 />
 
                 <FormSelect
@@ -147,7 +147,7 @@
                   label="Type"
                   :options="inputTypeOptions"
                   required
-                  :error="getError(`inputs.${index}.type`)"
+                  :error="getError(errors, `inputs.${index}.type`)"
                 />
 
                 <div class="flex items-center pt-6">
@@ -167,7 +167,7 @@
                   v-model="input.placeholder"
                   label="Placeholder"
                   type="text"
-                  :error="getError(`inputs.${index}.placeholder`)"
+                  :error="getError(errors, `inputs.${index}.placeholder`)"
                 />
 
                 <FormInput
@@ -175,7 +175,7 @@
                   v-model="input.help_text"
                   label="Help Text"
                   type="text"
-                  :error="getError(`inputs.${index}.help_text`)"
+                  :error="getError(errors, `inputs.${index}.help_text`)"
                 />
 
                 <FormInput
@@ -184,7 +184,7 @@
                   label="Validation Rules"
                   type="text"
                   hint="e.g., email|max:255"
-                  :error="getError(`inputs.${index}.validation_rules`)"
+                  :error="getError(errors, `inputs.${index}.validation_rules`)"
                 />
               </div>
 
@@ -197,7 +197,7 @@
                   :rows="4"
                   placeholder="Option 1&#10;Option 2&#10;Option 3"
                   hint="Enter each option on a new line"
-                  :error="getError(`inputs.${index}.options`)"
+                  :error="getError(errors, `inputs.${index}.options`)"
                 />
               </div>
             </div>
@@ -221,7 +221,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useFormsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -348,12 +348,6 @@ const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
 const loading = computed(() => formsStore.loading);
 
-// Helper to get first error string from errors object
-const getError = (field: string): string | undefined => {
-  const error = errors.value[field];
-  if (!error) return undefined;
-  return Array.isArray(error) ? error[0] : error;
-};
 
 const loadForm = async (): Promise<void> => {
   try {
