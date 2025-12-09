@@ -6,7 +6,7 @@
     </label>
     <select
       :id="id"
-      :value="modelValue"
+      :value="stringValue"
       :required="required"
       :disabled="disabled"
       :class="[
@@ -16,11 +16,11 @@
       ]"
       @change="handleChange"
     >
-      <option v-if="placeholder !== false && !modelValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
+      <option v-if="placeholder !== false && !stringValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
       <option
         v-for="option in options"
         :key="getOptionValue(option)"
-        :value="getOptionValue(option)"
+        :value="String(getOptionValue(option))"
       >
         {{ getOptionLabel(option) }}
       </option>
@@ -31,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 interface Props {
   id: string;
   modelValue?: string | number | null;
@@ -69,12 +71,21 @@ const getOptionLabel = (option: Record<string, any> | string | number): string =
   return typeof option === 'object' ? option[props.optionLabel] : String(option);
 };
 
+// Convert modelValue to string for proper comparison with option values
+const stringValue = computed(() => {
+  if (props.modelValue === null || props.modelValue === undefined) {
+    return '';
+  }
+  return String(props.modelValue);
+});
+
 const handleChange = (event: Event): void => {
   const target = event.target as HTMLSelectElement;
   const value = target.value;
-  // Convert empty string to null for optional fields, preserve string values
+  // For required fields, don't emit null - keep as empty string for validation
+  // For optional fields, emit null to indicate no selection
   if (value === '') {
-    emit('update:modelValue', null);
+    emit('update:modelValue', props.required ? '' : null);
   } else {
     // Try to convert to number if it's a numeric string, otherwise keep as string
     const numValue = Number(value);
