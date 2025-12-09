@@ -28,39 +28,29 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LoadingSpinner from './LoadingSpinner.vue';
 
-defineProps({
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  submitText: {
-    type: String,
-    default: 'Save'
-  },
-  loadingText: {
-    type: String,
-    default: 'Saving...'
-  },
-  cancelRoute: {
-    type: String,
-    default: ''
-  },
-  showSubmit: {
-    type: Boolean,
-    default: true
-  },
-  submitVariant: {
-    type: String,
-    default: 'primary',
-    validator: (value) => ['primary', 'secondary'].includes(value)
-  }
+type SubmitVariant = 'primary' | 'secondary';
+
+interface Props {
+  loading?: boolean;
+  disabled?: boolean;
+  submitText?: string;
+  loadingText?: string;
+  cancelRoute?: string;
+  showSubmit?: boolean;
+  submitVariant?: SubmitVariant;
+}
+
+withDefaults(defineProps<Props>(), {
+  loading: false,
+  disabled: false,
+  submitText: 'Save',
+  loadingText: 'Saving...',
+  cancelRoute: '',
+  showSubmit: true,
+  submitVariant: 'primary',
 });
 </script>
 

@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // FormCard component - provides consistent card styling for forms
 </script>
 

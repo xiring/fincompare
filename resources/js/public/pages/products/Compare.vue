@@ -359,8 +359,8 @@
   </GuestLayout>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCompare, useCompareData, useSEO } from '../../composables';
 import { getImageUrl, TEXT, ERROR_MESSAGES, EMPTY_STATES } from '../../utils';
@@ -371,32 +371,45 @@ import GuestLayout from '../../layouts/GuestLayout.vue';
 
 const route = useRoute();
 const router = useRouter();
-const highlightDiff = ref(true);
-const showAddProductModal = ref(false);
-const showClearConfirmModal = ref(false);
-const removingProductId = ref(null);
-const clearingAll = ref(false);
+const highlightDiff = ref<boolean>(true);
+const showAddProductModal = ref<boolean>(false);
+const showClearConfirmModal = ref<boolean>(false);
+const removingProductId = ref<number | null>(null);
+const clearingAll = ref<boolean>(false);
 
 const { toggleCompare, clearAll: clearCompareList, compareIds } = useCompare();
 
 // Get product IDs from route or compareIds
-const getProductIds = () => {
+const getProductIds = (): number[] => {
   if (route.query.products) {
-    return route.query.products.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+    return (route.query.products as string)
+      .split(',')
+      .map((id) => parseInt(id))
+      .filter((id) => !isNaN(id));
   }
   return compareIds.value || [];
 };
 
 const initialProductIds = getProductIds();
-const { products, features, values, loading, error, fetchCompareData, updateProductIds, getProductImage, getValue, hasDifferentValues } = useCompareData(initialProductIds);
+const {
+  products,
+  features,
+  loading,
+  error,
+  fetchCompareData,
+  updateProductIds,
+  getProductImage,
+  getValue,
+  hasDifferentValues,
+} = useCompareData(initialProductIds);
 
 useSEO({
   title: 'Compare Products',
   description: 'Compare multiple financial products side-by-side. View features, rates, and eligibility criteria to make an informed decision.',
-  keywords: ['compare products', 'product comparison', 'financial comparison', 'compare loans', 'compare credit cards']
+  keywords: ['compare products', 'product comparison', 'financial comparison', 'compare loans', 'compare credit cards'],
 });
 
-const getCellClass = (productId, key) => {
+const getCellClass = (_productId: number, key: string): string => {
   if (!highlightDiff.value) return '';
   if (hasDifferentValues(key)) {
     return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)] font-semibold';
@@ -404,7 +417,7 @@ const getCellClass = (productId, key) => {
   return '';
 };
 
-const getMobileRowClass = (productId, key) => {
+const getMobileRowClass = (_productId: number, key: string): string => {
   if (!highlightDiff.value) return '';
   if (hasDifferentValues(key)) {
     return 'bg-gradient-to-r from-[color:var(--brand-primary)]/10 to-[color:var(--brand-primary)]/5 border-l-4 border-[color:var(--brand-primary)]';
@@ -415,14 +428,14 @@ const getMobileRowClass = (productId, key) => {
 /**
  * Format value for display
  */
-const formatValue = (value) => {
+const formatValue = (value: any): string => {
   if (value === '—' || value === null || value === undefined || value === '') {
     return '—';
   }
 
   // If it's a number, format it
-  if (typeof value === 'number' || !isNaN(parseFloat(value))) {
-    const num = parseFloat(value);
+  if (typeof value === 'number' || !isNaN(parseFloat(String(value)))) {
+    const num = parseFloat(String(value));
     // Format large numbers with commas
     if (num >= 1000) {
       return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -434,10 +447,10 @@ const formatValue = (value) => {
     return num.toString();
   }
 
-  return value;
+  return String(value);
 };
 
-const removeProduct = async (id) => {
+const removeProduct = async (id: number): Promise<void> => {
   removingProductId.value = id;
 
   try {
@@ -456,18 +469,18 @@ const removeProduct = async (id) => {
         router.replace({ query: {} });
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to remove product:', error);
   } finally {
     removingProductId.value = null;
   }
 };
 
-const clearAll = () => {
+const clearAll = (): void => {
   showClearConfirmModal.value = true;
 };
 
-const confirmClearAll = async () => {
+const confirmClearAll = async (): Promise<void> => {
   clearingAll.value = true;
 
   try {
@@ -479,14 +492,14 @@ const confirmClearAll = async () => {
 
     // Clear URL params and stay on page
     router.replace({ query: {} });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error clearing compare list:', error);
   } finally {
     clearingAll.value = false;
   }
 };
 
-const retryLoad = async () => {
+const retryLoad = async (): Promise<void> => {
   const ids = getProductIds();
   if (ids.length > 0) {
     await updateProductIds(ids);
@@ -496,22 +509,29 @@ const retryLoad = async () => {
 };
 
 // Watch for route changes (when navigating with query params)
-watch(() => route.query.products, async (newProducts) => {
-  if (newProducts) {
-    const ids = newProducts.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
-    await updateProductIds(ids);
-  }
-}, { immediate: false });
+watch(
+  () => route.query.products,
+  async (newProducts) => {
+    if (newProducts) {
+      const ids = (newProducts as string)
+        .split(',')
+        .map((id) => parseInt(id))
+        .filter((id) => !isNaN(id));
+      await updateProductIds(ids);
+    }
+  },
+  { immediate: false }
+);
 
-const openAddProductModal = () => {
+const openAddProductModal = (): void => {
   showAddProductModal.value = true;
 };
 
-const closeAddProductModal = () => {
+const closeAddProductModal = (): void => {
   showAddProductModal.value = false;
 };
 
-const handleProductsAdded = async (productIds) => {
+const handleProductsAdded = async (productIds: number[]): Promise<void> => {
   // Refresh compare data with new products
   const currentIds = compareIds.value || [];
   const allIds = [...new Set([...currentIds, ...productIds])];

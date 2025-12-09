@@ -17,8 +17,8 @@
           <div class="flex flex-col lg:grid lg:grid-cols-12 items-start gap-6 lg:gap-8">
             <div class="flex-shrink-0 lg:col-span-2">
               <img
-                v-if="product.image_url"
-                :src="productImageUrl"
+                v-if="product.image_url || product.image"
+                :src="productImageUrl || undefined"
                 :alt="product.name"
                 loading="lazy"
                 class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white/10 object-cover ring-4 ring-white/30 shadow-2xl"
@@ -38,7 +38,7 @@
                   <svg class="w-4 h-4 text-white/80 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
-                  <span class="text-white/90 font-medium">{{ product.partner?.name || TEXT.PARTNER }}</span>
+                  <span class="text-white/90 font-medium">{{ product.partner?.name || 'Partner' }}</span>
                 </div>
                 <span v-if="product.is_featured" class="px-3 py-1 text-xs rounded-full bg-amber-300 text-slate-900 font-bold shadow-sm whitespace-nowrap">{{ TEXT.FEATURED }}</span>
                 <span class="px-3 py-1 text-xs rounded-full bg-white/20 backdrop-blur-sm text-white font-medium whitespace-nowrap">{{ product.status || 'active' }}</span>
@@ -218,10 +218,10 @@
       <div class="fixed bottom-0 left-0 right-0 z-30 bg-white/98 backdrop-blur-md border-t border-gray-200 shadow-2xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0 flex-1">
-            <img
-              v-if="product.image_url"
-              :src="productImageUrl"
-              :alt="product.name"
+              <img
+                v-if="productImageUrl"
+                :src="productImageUrl"
+                :alt="product.name"
               loading="lazy"
               class="w-12 h-12 rounded-xl bg-gray-100 object-cover border border-gray-200 shadow-sm"
             />
@@ -305,7 +305,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiService } from '../../services/api';
@@ -314,46 +314,54 @@ import { getExcerpt, copyToClipboard, TEXT, ERROR_MESSAGES, SUCCESS_MESSAGES } f
 import { useToastStore } from '../../stores/toast';
 import { SearchIcon, CopyIcon } from '../../components/icons';
 import { ErrorState, HeroSection } from '../../components';
+// @ts-ignore - Vue component shim should handle this
 import GuestLayout from '../../layouts/GuestLayout.vue';
+import type { Product } from '../../types/index';
+
+interface ProductAttribute {
+  id: number;
+  name: string;
+  value?: string | number | boolean;
+  [key: string]: any;
+}
 
 const route = useRoute();
-const product = ref(null);
-const attributes = ref([]);
-const loading = ref(true);
-const activeTab = ref('overview');
-const featureQuery = ref('');
+const product = ref<Product | null>(null);
+const attributes = ref<ProductAttribute[]>([]);
+const loading = ref<boolean>(true);
+const activeTab = ref<'overview' | 'features' | 'eligibility' | 'documents' | string>('overview');
+const featureQuery = ref<string>('');
 
 const { toggleCompare: toggleCompareAction, isInCompare: checkInCompare } = useCompare();
 const { error, handleError, clearError } = useErrorHandling();
 const { productImageUrl, partnerLogoUrl } = useImageUrl(product);
 const toastStore = useToastStore();
 
-const inCompare = computed(() => product.value ? checkInCompare(product.value.id) : false);
+const inCompare = computed<boolean>(() => (product.value ? checkInCompare(product.value.id) : false));
 
 const tabs = [
   { key: 'overview', label: TEXT.TAB_OVERVIEW },
   { key: 'features', label: TEXT.TAB_FEATURES },
   { key: 'eligibility', label: TEXT.TAB_ELIGIBILITY },
-  { key: 'documents', label: TEXT.TAB_DOCUMENTS }
+  { key: 'documents', label: TEXT.TAB_DOCUMENTS },
 ];
 
-
-const filteredAttributes = computed(() => {
+const filteredAttributes = computed<ProductAttribute[]>(() => {
   if (!featureQuery.value) return attributes.value;
   const query = featureQuery.value.toLowerCase();
-  return attributes.value.filter(attr =>
-    (attr.name || '').toLowerCase().includes(query) ||
-    (attr.value || '').toLowerCase().includes(query)
+  return attributes.value.filter(
+    (attr: ProductAttribute) =>
+      (attr.name || '').toLowerCase().includes(query) || (String(attr.value || '')).toLowerCase().includes(query)
   );
 });
 
-const toggleCompare = () => {
+const toggleCompare = (): void => {
   if (product.value) {
     toggleCompareAction(product.value.id);
   }
 };
 
-const copyLink = async () => {
+const copyLink = async (): Promise<void> => {
   const success = await copyToClipboard(window.location.href);
   if (success) {
     toastStore.success(SUCCESS_MESSAGES.COPY_LINK);
@@ -362,23 +370,23 @@ const copyLink = async () => {
   }
 };
 
-const retryLoad = async () => {
+const retryLoad = async (): Promise<void> => {
   clearError();
   loading.value = true;
   await loadProduct();
 };
 
 // SEO setup - will be updated when product loads
-const getProductDescription = () => {
+const getProductDescription = (): string => {
   if (!product.value) return '';
   return getExcerpt(product.value.description || '', 160);
 };
 
-const getProductKeywords = () => {
+const getProductKeywords = (): string[] => {
   if (!product.value) return [];
-  const keywords = [product.value.name];
+  const keywords: string[] = [product.value.name];
   if (product.value.partner?.name) keywords.push(product.value.partner.name);
-  if (product.value.product_category?.name) keywords.push(product.value.product_category.name);
+  if ((product.value as any).product_category?.name) keywords.push((product.value as any).product_category.name);
   return keywords;
 };
 
@@ -386,31 +394,37 @@ const getProductKeywords = () => {
 useSEO({
   title: 'Product Details',
   description: 'View product details and compare financial products',
-  type: 'product'
+  type: 'product',
 });
 
 // Update SEO when product loads
-watch(product, (newProduct) => {
-  if (newProduct) {
-    useSEO({
-      title: newProduct.name || 'Product Details',
-      description: getProductDescription() || `Learn more about ${newProduct.name} and compare with other financial products.`,
-      image: newProduct.image_url || newProduct.partner?.logo_url,
-      keywords: getProductKeywords(),
-      type: 'product'
-    });
-  }
-}, { immediate: true });
+watch(
+  product,
+  (newProduct) => {
+    if (newProduct) {
+      useSEO({
+        title: newProduct.name || 'Product Details',
+        description: getProductDescription() || `Learn more about ${newProduct.name} and compare with other financial products.`,
+        image: newProduct.image_url || newProduct.partner?.logo_url,
+        keywords: getProductKeywords(),
+        type: 'product',
+      });
+    }
+  },
+  { immediate: true }
+);
 
-const loadProduct = async () => {
-  const slug = route.params.slug;
+const loadProduct = async (): Promise<void> => {
+  const slug = route.params.slug as string;
 
   try {
     const response = await apiService.getProduct(slug);
-    product.value = response.data.product;
-    attributes.value = response.data.attributes || [];
+    // Handle both response formats: { data: Product } or Product
+    const productData = (response.data as any).product || response.data;
+    product.value = productData as Product;
+    attributes.value = (response.data as any).attributes || [];
     clearError();
-  } catch (err) {
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.PRODUCT.LOAD_DETAIL);
   } finally {
     loading.value = false;

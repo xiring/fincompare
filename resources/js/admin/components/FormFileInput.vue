@@ -27,70 +27,57 @@
       <img
         v-if="previewType === 'image'"
         :src="previewUrl"
-        :alt="preview"
+        :alt="label || 'Preview'"
         class="h-32 w-32 object-cover rounded-lg border border-charcoal-200"
       />
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 
-const props = defineProps({
-  id: {
-    type: String,
-    required: true
-  },
-  modelValue: {
-    type: [File, null],
-    default: null
-  },
-  label: {
-    type: String,
-    default: ''
-  },
-  accept: {
-    type: String,
-    default: '*/*'
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-  error: {
-    type: String,
-    default: ''
-  },
-  hint: {
-    type: String,
-    default: ''
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  preview: {
-    type: Boolean,
-    default: false
-  }
+interface Props {
+  id: string;
+  modelValue?: File | null;
+  label?: string;
+  accept?: string;
+  required?: boolean;
+  error?: string;
+  hint?: string;
+  disabled?: boolean;
+  preview?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: null,
+  label: '',
+  accept: '*/*',
+  required: false,
+  error: '',
+  hint: '',
+  disabled: false,
+  preview: false,
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+  'update:modelValue': [file: File | null];
+}>();
 
-const previewUrl = ref(null);
-const previewType = ref(null);
+const previewUrl = ref<string | null>(null);
+const previewType = ref<string | null>(null);
 
-const handleFileChange = (event) => {
-  const file = event.target.files[0] || null;
+const handleFileChange = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0] || null;
   emit('update:modelValue', file);
 
   if (file && props.preview) {
     if (file.type.startsWith('image/')) {
-      previewType.value = 'image';
+      previewType.value = 'image' as string;
       const reader = new FileReader();
       reader.onload = (e) => {
-        previewUrl.value = e.target.result;
+        previewUrl.value = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     } else {

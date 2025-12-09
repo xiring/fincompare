@@ -99,7 +99,7 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                {{ new Date(page.created_at).toLocaleDateString() }}
+                {{ page.created_at ? new Date(page.created_at).toLocaleDateString() : '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
@@ -130,54 +130,151 @@
   </div>
 </template>
 
-<script setup>
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+<script setup lang="ts">
+import { reactive, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
-import { useIndexPage } from '../../composables/useIndexPage';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import { debounceRouteUpdate } from '../../utils/routeDebounce';
+import { debounce } from '../../utils/debounce';
+import type { CmsPage } from '../../types/index';
 
+const router = useRouter();
 const route = useRoute();
 const cmsPagesStore = useCmsPagesStore();
 
-// Use the composable with extra filters
-const {
-  items: pages,
-  loading,
-  pagination,
-  filters,
-  sortField,
-  sortDir,
-  hasFilters,
-  fetchItems,
-  applyFilters,
-  resetFilters,
-  sortBy,
-  loadPage,
-} = useIndexPage(cmsPagesStore, {
-  extraFilters: {
-    status: '',
-  },
+// Reactive state from store
+const pages = computed(() => cmsPagesStore.items);
+const loading = computed(() => cmsPagesStore.loading);
+const pagination = computed(() => cmsPagesStore.pagination);
+
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
+
+// Initialize filters from URL query params
+const filters = reactive<{ q: string; per_page: number; status: string }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
+  status: (route.query.status as string) || '',
 });
 
-const handleDelete = async (page) => {
+const hasFilters = computed(() => {
+  return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
+});
+
+// Update URL query parameters with debouncing
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
+    ...route.query,
+    page: page > 1 ? page.toString() : undefined,
+    q: filters.q || undefined,
+    per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
+    status: filters.status || undefined,
+    sort: sortField.value,
+    dir: sortDir.value,
+  };
+
+  // Remove undefined values
+  Object.keys(query).forEach((key) => {
+    if (query[key] === undefined) {
+      delete query[key];
+    }
+  });
+
+  // Debounce route updates to prevent rapid router.replace calls
+  debounceRouteUpdate(router, query);
+};
+
+// Debounced fetch function to prevent rapid API calls
+const debouncedFetchPages = debounce((page: number) => {
+  fetchPages(page);
+}, 300);
+
+// Watch for per_page changes and automatically fetch
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchPages(1);
+  }
+);
+
+const fetchPages = async (page: number = 1): Promise<void> => {
+  try {
+    const params: Record<string, any> = {
+      page,
+      per_page: filters.per_page,
+      q: filters.q,
+      status: filters.status,
+      sort: sortField.value,
+      dir: sortDir.value,
+    };
+    await cmsPagesStore.fetchItems(params);
+  } catch (error: any) {
+    console.error('Error fetching CMS pages:', error);
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+  }
+};
+
+const applyFilters = (): void => {
+  updateQueryParams(1);
+  debouncedFetchPages(1);
+};
+
+const resetFilters = (): void => {
+  filters.q = '';
+  filters.per_page = 5;
+  filters.status = '';
+  sortField.value = 'id';
+  sortDir.value = 'desc';
+  router.replace({ query: {} });
+  debouncedFetchPages(1);
+};
+
+const sortBy = (field: string): void => {
+  if (sortField.value === field) {
+    sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDir.value = 'asc';
+  }
+  const currentPage = pagination.value?.current_page || 1;
+  updateQueryParams(currentPage);
+  debouncedFetchPages(currentPage);
+};
+
+const loadPage = (page: number): void => {
+  updateQueryParams(page);
+  debouncedFetchPages(page);
+};
+
+const handleDelete = async (page: CmsPage): Promise<void> => {
   if (!confirm(`Delete CMS page "${page.title}"?`)) return;
 
   try {
     await cmsPagesStore.deleteItem(page.id);
+    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (pages.value.length === 0 && pagination.value.current_page > 1) {
-      fetchItems(pagination.value.current_page - 1);
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      fetchPages(newPage);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting CMS page:', error);
     alert('Failed to delete CMS page');
   }
 };
 
 onMounted(() => {
-  const page = parseInt(route.query.page) || 1;
-  fetchItems(page);
+  // Initialize from URL query params
+  const page = parseInt((route.query.page as string) || '1') || 1;
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  fetchPages(page);
 });
 </script>

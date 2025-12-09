@@ -16,7 +16,7 @@
         error ? 'border-red-300' : 'border-charcoal-300',
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       ]"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       @blur="$emit('blur', $event)"
     ></textarea>
     <p v-if="error" class="mt-1.5 text-sm text-red-600">{{ error }}</p>
@@ -24,46 +24,33 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  id: {
-    type: String,
-    required: true
-  },
-  modelValue: {
-    type: String,
-    default: ''
-  },
-  label: {
-    type: String,
-    default: ''
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-  placeholder: {
-    type: String,
-    default: ''
-  },
-  error: {
-    type: String,
-    default: ''
-  },
-  hint: {
-    type: String,
-    default: ''
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  rows: {
-    type: Number,
-    default: 4
-  }
+<script setup lang="ts">
+interface Props {
+  id: string;
+  modelValue?: string;
+  label?: string;
+  required?: boolean;
+  placeholder?: string;
+  error?: string;
+  hint?: string;
+  disabled?: boolean;
+  rows?: number;
+}
+
+withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  label: '',
+  required: false,
+  placeholder: '',
+  error: '',
+  hint: '',
+  disabled: false,
+  rows: 4,
 });
 
-defineEmits(['update:modelValue', 'blur']);
+defineEmits<{
+  'update:modelValue': [value: string];
+  blur: [event: FocusEvent];
+}>();
 </script>
 

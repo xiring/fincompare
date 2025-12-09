@@ -9,20 +9,15 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  count: {
-    type: Number,
-    default: 3
-  },
-  containerClass: {
-    type: String,
-    default: 'space-y-4'
-  },
-  itemClass: {
-    type: String,
-    default: ''
-  }
+<script setup lang="ts">
+withDefaults(defineProps<{
+  count?: number;
+  containerClass?: string;
+  itemClass?: string;
+}>(), {
+  count: 3,
+  containerClass: 'space-y-4',
+  itemClass: ''
 });
 </script>
 

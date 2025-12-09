@@ -119,11 +119,11 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="product.status === 'active'
+                  :class="product.status
                     ? 'bg-green-100 text-green-800'
                     : 'bg-charcoal-100 text-charcoal-800'"
                 >
-                  {{ product.status }}
+                  {{ product.status ? 'active' : 'inactive' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -152,7 +152,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useProductsStore } from '../../stores';
@@ -161,6 +161,7 @@ import PerPageSelector from '../../components/PerPageSelector.vue';
 import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import type { Product } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
@@ -171,13 +172,13 @@ const products = computed(() => productsStore.items);
 const loading = computed(() => productsStore.loading);
 const pagination = computed(() => productsStore.pagination);
 
-const sortField = reactive({ value: route.query.sort || 'id' });
-const sortDir = reactive({ value: route.query.dir || 'desc' });
+const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
+const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
 // Initialize filters from URL query params
-const filters = reactive({
-  q: route.query.q || '',
-  per_page: parseInt(route.query.per_page) || 5
+const filters = reactive<{ q: string; per_page: number }>({
+  q: (route.query.q as string) || '',
+  per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
 
 const hasFilters = computed(() => {
@@ -185,18 +186,18 @@ const hasFilters = computed(() => {
 });
 
 // Update URL query parameters with debouncing
-const updateQueryParams = (page = 1) => {
-  const query = {
+const updateQueryParams = (page: number = 1): void => {
+  const query: Record<string, any> = {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
-    dir: sortDir.value
+    dir: sortDir.value,
   };
 
   // Remove undefined values
-  Object.keys(query).forEach(key => {
+  Object.keys(query).forEach((key) => {
     if (query[key] === undefined) {
       delete query[key];
     }
@@ -207,27 +208,30 @@ const updateQueryParams = (page = 1) => {
 };
 
 // Debounced fetch function to prevent rapid API calls
-const debouncedFetchProducts = debounce((page) => {
+const debouncedFetchProducts = debounce((page: number) => {
   fetchProducts(page);
 }, 300);
 
 // Watch for per_page changes and automatically fetch
-watch(() => filters.per_page, () => {
-  updateQueryParams(1);
-  debouncedFetchProducts(1);
-});
+watch(
+  () => filters.per_page,
+  () => {
+    updateQueryParams(1);
+    debouncedFetchProducts(1);
+  }
+);
 
-const fetchProducts = async (page = 1) => {
+const fetchProducts = async (page: number = 1): Promise<void> => {
   try {
-    const params = {
+    const params: Record<string, any> = {
       page,
       per_page: filters.per_page,
       q: filters.q,
       sort: sortField.value,
-      dir: sortDir.value
+      dir: sortDir.value,
     };
     await productsStore.fetchItems(params);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
     if (error.response?.status === 401) {
       window.location.href = '/login';
@@ -235,12 +239,12 @@ const fetchProducts = async (page = 1) => {
   }
 };
 
-const applyFilters = () => {
+const applyFilters = (): void => {
   updateQueryParams(1);
   debouncedFetchProducts(1);
 };
 
-const resetFilters = () => {
+const resetFilters = (): void => {
   filters.q = '';
   filters.per_page = 5;
   sortField.value = 'id';
@@ -249,7 +253,7 @@ const resetFilters = () => {
   debouncedFetchProducts(1);
 };
 
-const sortBy = (field) => {
+const sortBy = (field: string): void => {
   if (sortField.value === field) {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
   } else {
@@ -261,12 +265,12 @@ const sortBy = (field) => {
   debouncedFetchProducts(currentPage);
 };
 
-const loadPage = (page) => {
+const loadPage = (page: number): void => {
   updateQueryParams(page);
   debouncedFetchProducts(page);
 };
 
-const handleDelete = async (product) => {
+const handleDelete = async (product: Product): Promise<void> => {
   if (!confirm(`Delete product "${product.name}"?`)) return;
 
   try {
@@ -277,7 +281,7 @@ const handleDelete = async (product) => {
       updateQueryParams(newPage);
       fetchProducts(newPage);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting product:', error);
     alert('Failed to delete product');
   }
@@ -285,9 +289,9 @@ const handleDelete = async (product) => {
 
 onMounted(() => {
   // Initialize from URL query params
-  const page = parseInt(route.query.page) || 1;
-  sortField.value = route.query.sort || 'id';
-  sortDir.value = route.query.dir || 'desc';
+  const page = parseInt((route.query.page as string) || '1') || 1;
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
   fetchProducts(page);
 });

@@ -23,7 +23,7 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSEO } from '../composables';
 import { TEXT } from '../utils';
 import { HeroSection } from '../components';
@@ -32,6 +32,6 @@ import GuestLayout from '../layouts/GuestLayout.vue';
 useSEO({
   title: TEXT.ABOUT_US,
   description: TEXT.SEO_ABOUT_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_ABOUT
+  keywords: TEXT.SEO_KEYWORDS_ABOUT,
 });
 </script>

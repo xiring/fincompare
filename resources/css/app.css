@@ -17,7 +17,7 @@
 .animate-fade-in-up { animation: fade-in-up 600ms ease-out both; }
 .animate-fade-in { animation: fade-in 600ms ease-out both; }
 
-/* Hide until Alpine initializes */
+/* Alpine.js is not used - this can be removed if not needed */
 [x-cloak] { display: none !important; }
 
 /* Public theme variables (Orange Finance) */

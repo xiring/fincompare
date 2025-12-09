@@ -10,63 +10,51 @@
       :name="name"
       :value="modelValue"
       class="hidden"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
     ></textarea>
     <p v-if="error" class="mt-1.5 text-sm text-red-600">{{ error }}</p>
     <p v-if="hint && !error" class="mt-1.5 text-xs text-charcoal-500">{{ hint }}</p>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { adminApi } from '../services/api';
 
-const props = defineProps({
-  id: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    default: 'content'
-  },
-  modelValue: {
-    type: String,
-    default: ''
-  },
-  label: {
-    type: String,
-    default: ''
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-  error: {
-    type: String,
-    default: ''
-  },
-  hint: {
-    type: String,
-    default: ''
-  },
-  height: {
-    type: String,
-    default: '300px'
-  }
+interface Props {
+  id: string;
+  name?: string;
+  modelValue?: string;
+  label?: string;
+  required?: boolean;
+  error?: string;
+  hint?: string;
+  height?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  name: 'content',
+  modelValue: '',
+  label: '',
+  required: false,
+  error: '',
+  hint: '',
+  height: '300px',
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+  'update:modelValue': [value: string];
+}>();
 
-const editorId = ref(`${props.id}_editor`);
-const quillInstance = ref(null);
-const hiddenTextarea = ref(null);
+const editorId = ref<string>(`${props.id}_editor`);
+const quillInstance: Ref<Quill | null> = ref<Quill | null>(null);
+const hiddenTextarea = ref<HTMLTextAreaElement | null>(null);
 
-const initQuill = () => {
+const initQuill = (): void => {
   const editorElement = document.getElementById(editorId.value);
-  hiddenTextarea.value = document.getElementById(props.id);
+  hiddenTextarea.value = document.getElementById(props.id) as HTMLTextAreaElement | null;
 
   if (!editorElement || !hiddenTextarea.value) {
     return;
@@ -101,11 +89,12 @@ const initQuill = () => {
   });
 
   // Set initial content
-  if (props.modelValue) {
+  if (props.modelValue && quillInstance.value) {
     quillInstance.value.clipboard.dangerouslyPasteHTML(props.modelValue);
   }
 
   // Handle image upload
+  if (!quillInstance.value) return;
   const toolbar = quillInstance.value.getModule('toolbar');
   toolbar.addHandler('image', () => {
     const input = document.createElement('input');
@@ -119,9 +108,11 @@ const initQuill = () => {
 
       try {
         const response = await adminApi.uploads.wysiwyg(file);
-        if (response.data?.url) {
+        if (response.data?.url && quillInstance.value) {
           const range = quillInstance.value.getSelection(true);
-          quillInstance.value.insertEmbed(range.index, 'image', response.data.url);
+          if (range) {
+            quillInstance.value.insertEmbed(range.index, 'image', response.data.url);
+          }
         }
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -131,23 +122,35 @@ const initQuill = () => {
   });
 
   // Sync changes back to textarea
-  quillInstance.value.on('text-change', () => {
-    const html = editorElement.querySelector('.ql-editor').innerHTML;
-    hiddenTextarea.value.value = html;
-    emit('update:modelValue', html);
-  });
+  if (quillInstance.value) {
+    quillInstance.value.on('text-change', () => {
+      const editor = editorElement.querySelector('.ql-editor') as HTMLElement;
+      if (editor && hiddenTextarea.value && hiddenTextarea.value instanceof HTMLTextAreaElement) {
+        const html = editor.innerHTML;
+        hiddenTextarea.value.value = html;
+        emit('update:modelValue', html);
+      }
+    });
+  }
 };
 
 // Watch for external changes to modelValue (e.g., when loading data in edit mode)
 watch(() => props.modelValue, (newValue) => {
-  if (quillInstance.value && hiddenTextarea.value) {
+  if (quillInstance.value) {
     const editorElement = document.getElementById(editorId.value);
     if (editorElement) {
-      const currentContent = editorElement.querySelector('.ql-editor').innerHTML;
-      // Only update if the content is actually different to avoid infinite loops
-      if (newValue !== currentContent && newValue !== hiddenTextarea.value.value) {
-        quillInstance.value.clipboard.dangerouslyPasteHTML(newValue || '');
-        hiddenTextarea.value.value = newValue || '';
+      const editor = editorElement.querySelector('.ql-editor') as HTMLElement;
+      if (editor) {
+        const currentContent = editor.innerHTML;
+        // Only update if the content is actually different to avoid infinite loops
+        if (hiddenTextarea.value && hiddenTextarea.value instanceof HTMLTextAreaElement) {
+          if (newValue !== currentContent && newValue !== hiddenTextarea.value.value) {
+            if (quillInstance.value) {
+              quillInstance.value.clipboard.dangerouslyPasteHTML(newValue || '');
+            }
+            hiddenTextarea.value.value = newValue || '';
+          }
+        }
       }
     }
   }

@@ -93,7 +93,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-charcoal-800 group-hover:text-primary-600">{{ lead.name || lead.email }}</p>
-              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.phone || 'No contact info' }}</p>
+              <p class="text-xs text-charcoal-500 mt-0.5">{{ lead.email || lead.mobile_number || lead.phone || (lead.data as any)?.phone || 'No contact info' }}</p>
             </div>
             <div class="flex items-center gap-2">
               <span
@@ -239,14 +239,15 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useProductsStore, useLeadsStore, usePartnersStore, useUsersStore, useActivityStore } from '../stores';
 import { adminApi } from '../services/api';
 import PageHeader from '../components/PageHeader.vue';
 import FormCard from '../components/FormCard.vue';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import { ProductsIcon, PartnersIcon, UsersIcon, LeadsIcon, FormsIcon, BlogsIcon, InfoIcon, ChevronRightIcon, PlusIcon } from '../components/icons';
+import type { Product, Lead, ActivityLog } from '../types/index';
 
 const productsStore = useProductsStore();
 const leadsStore = useLeadsStore();
@@ -254,27 +255,35 @@ const partnersStore = usePartnersStore();
 const usersStore = useUsersStore();
 const activityStore = useActivityStore();
 
-const userName = ref('Admin');
-const stats = ref({
+const userName = ref<string>('Admin');
+
+interface Stats {
+  products: number;
+  leads: number;
+  partners: number;
+  users: number;
+}
+
+const stats = ref<Stats>({
   products: 0,
   leads: 0,
   partners: 0,
-  users: 0
+  users: 0,
 });
 
-const recentProducts = ref([]);
-const recentLeads = ref([]);
-const recentActivities = ref([]);
+const recentProducts = ref<Product[]>([]);
+const recentLeads = ref<Lead[]>([]);
+const recentActivities = ref<ActivityLog[]>([]);
 
-const loadingProducts = ref(false);
-const loadingLeads = ref(false);
-const loadingActivity = ref(false);
+const loadingProducts = ref<boolean>(false);
+const loadingLeads = ref<boolean>(false);
+const loadingActivity = ref<boolean>(false);
 
-const formatTime = (dateString) => {
+const formatTime = (dateString: string | null | undefined): string => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const now = new Date();
-  const diffMs = now - date;
+  const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
@@ -286,62 +295,62 @@ const formatTime = (dateString) => {
   return date.toLocaleDateString();
 };
 
-const getInitials = (name) => {
-  if (!name) return '?';
+const getInitials = (name: string | null | undefined): string => {
+  if (!name) return '??';
   const parts = name.split(' ');
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    return (parts[0][0]! + parts[1][0]!).toUpperCase();
   }
   return name.substring(0, 2).toUpperCase();
 };
 
-const getStatusClass = (status) => {
-  const classes = {
+const getStatusClass = (status: string | null | undefined): string => {
+  const classes: Record<string, string> = {
     new: 'bg-blue-100 text-blue-800',
     contacted: 'bg-yellow-100 text-yellow-800',
     converted: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800'
+    rejected: 'bg-red-100 text-red-800',
   };
-  return classes[status?.toLowerCase()] || classes.new;
+  const statusLower = (status?.toLowerCase() || 'new') as string;
+  return (classes[statusLower] || classes.new) as string;
 };
 
-
-const getActivityIcon = (logName) => {
-  const icons = {
+const getActivityIcon = (logName: string | null | undefined): any => {
+  const icons: Record<string, any> = {
     products: ProductsIcon,
     partners: PartnersIcon,
     users: UsersIcon,
     leads: LeadsIcon,
     forms: FormsIcon,
-    blogs: BlogsIcon
+    blogs: BlogsIcon,
   };
-  return icons[logName] || InfoIcon;
+  return icons[logName || ''] || InfoIcon;
 };
 
-const getActivityIconClass = (logName) => {
-  const classes = {
+const getActivityIconClass = (logName: string | null | undefined): string => {
+  const classes: Record<string, string> = {
     products: 'bg-primary-50 text-primary-600',
     partners: 'bg-blue-50 text-blue-600',
     users: 'bg-purple-50 text-purple-600',
     leads: 'bg-green-50 text-green-600',
     forms: 'bg-yellow-50 text-yellow-600',
-    blogs: 'bg-indigo-50 text-indigo-600'
+    blogs: 'bg-indigo-50 text-indigo-600',
   };
-  return classes[logName] || 'bg-charcoal-50 text-charcoal-600';
+  return classes[logName || ''] || 'bg-charcoal-50 text-charcoal-600';
 };
 
-const fetchStats = async () => {
+const fetchStats = async (): Promise<void> => {
   try {
     // Optimized: Use dedicated stats endpoint for better performance
     // Single API call instead of 4 separate pagination queries
     const response = await adminApi.stats.index();
-    const statsData = response.data?.data || response.data;
+    const statsData = (response.data as any)?.data || response.data;
 
     stats.value.products = statsData.products || 0;
     stats.value.leads = statsData.leads || 0;
     stats.value.partners = statsData.partners || 0;
     stats.value.users = statsData.users || 0;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching stats:', error);
     // Fallback to individual store fetches if stats endpoint fails
     try {
@@ -349,51 +358,51 @@ const fetchStats = async () => {
         productsStore.fetchItems({ per_page: 1, page: 1 }),
         leadsStore.fetchItems({ per_page: 1, page: 1 }),
         partnersStore.fetchItems({ per_page: 1, page: 1 }),
-        usersStore.fetchItems({ per_page: 1, page: 1 })
+        usersStore.fetchItems({ per_page: 1, page: 1 }),
       ]);
       stats.value.products = productsStore.pagination.total || 0;
       stats.value.leads = leadsStore.pagination.total || 0;
       stats.value.partners = partnersStore.pagination.total || 0;
       stats.value.users = usersStore.pagination.total || 0;
-    } catch (fallbackError) {
+    } catch (fallbackError: any) {
       console.error('Error in fallback stats fetch:', fallbackError);
     }
   }
 };
 
-const fetchRecentProducts = async () => {
+const fetchRecentProducts = async (): Promise<void> => {
   loadingProducts.value = true;
   try {
     await productsStore.fetchItems({ per_page: 5, sort: 'created_at', dir: 'desc' });
     recentProducts.value = productsStore.items.slice(0, 5);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching recent products:', error);
   } finally {
     loadingProducts.value = false;
   }
 };
 
-const fetchRecentLeads = async () => {
+const fetchRecentLeads = async (): Promise<void> => {
   loadingLeads.value = true;
   try {
     await leadsStore.fetchItems({ per_page: 50, status: 'new' });
     // Filter to only show "new" leads and take first 5
     recentLeads.value = leadsStore.items
-      .filter(lead => (lead.status || 'new').toLowerCase() === 'new')
+      .filter((lead) => (lead.status || 'new').toLowerCase() === 'new')
       .slice(0, 5);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching recent leads:', error);
   } finally {
     loadingLeads.value = false;
   }
 };
 
-const fetchRecentActivity = async () => {
+const fetchRecentActivity = async (): Promise<void> => {
   loadingActivity.value = true;
   try {
     await activityStore.fetchItems({ per_page: 5 });
     recentActivities.value = activityStore.items.slice(0, 5);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching recent activity:', error);
   } finally {
     loadingActivity.value = false;
@@ -403,11 +412,6 @@ const fetchRecentActivity = async () => {
 onMounted(async () => {
   // Fetch user name from auth store or API
   // For now, using placeholder
-  await Promise.all([
-    fetchStats(),
-    fetchRecentProducts(),
-    fetchRecentLeads(),
-    fetchRecentActivity()
-  ]);
+  await Promise.all([fetchStats(), fetchRecentProducts(), fetchRecentLeads(), fetchRecentActivity()]);
 });
 </script>

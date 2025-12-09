@@ -12,16 +12,17 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSEO } from '../composables';
 import { TEXT } from '../utils';
 import { HeroSection } from '../components';
+// @ts-ignore - Vue component shim should handle this
 import GuestLayout from '../layouts/GuestLayout.vue';
 
 useSEO({
   title: 'Terms of Service',
   description: TEXT.SEO_TERMS_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_TERMS
+  keywords: TEXT.SEO_KEYWORDS_TERMS,
 });
 </script>
 

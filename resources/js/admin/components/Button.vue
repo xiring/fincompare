@@ -15,38 +15,37 @@
   </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import LoadingSpinner from './LoadingSpinner.vue';
 
-const props = defineProps({
-  type: {
-    type: String,
-    default: 'button'
-  },
-  variant: {
-    type: String,
-    default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'danger', 'success'].includes(value)
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  }
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
+type ButtonType = 'button' | 'submit' | 'reset';
+
+interface Props {
+  type?: ButtonType;
+  variant?: ButtonVariant;
+  disabled?: boolean;
+  loading?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'button',
+  variant: 'primary',
+  disabled: false,
+  loading: false,
 });
 
-defineEmits(['click']);
+defineEmits<{
+  click: [event: MouseEvent];
+}>();
 
 const variantClasses = computed(() => {
-  const variants = {
+  const variants: Record<ButtonVariant, string> = {
     primary: 'bg-primary-500 text-white hover:bg-primary-600',
     secondary: 'bg-white',
     danger: 'bg-red-600 text-white hover:bg-red-700',
-    success: 'bg-green-600 text-white hover:bg-green-700'
+    success: 'bg-green-600 text-white hover:bg-green-700',
   };
   return variants[props.variant] || variants.primary;
 });

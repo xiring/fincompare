@@ -18,7 +18,7 @@
           container-class="divide-y"
           item-class="p-5"
         >
-          <template #default="{ index }">
+          <template v-slot:default="{ index: _index }">
             <div class="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
             <div class="h-4 bg-gray-100 rounded w-full"></div>
           </template>
@@ -36,22 +36,22 @@
       <!-- FAQs List -->
       <div v-else class="bg-white border rounded-2xl divide-y">
         <div
-          v-for="(faq, index) in faqs"
-          :key="faq.id || index"
+          v-for="(faq, idx) in faqs"
+          :key="faq.id || idx"
           class="p-5 animate-fade-in-up"
         >
           <button
-            @click="toggleFaq(index)"
+            @click="toggleFaq(idx)"
             class="w-full flex items-center justify-between text-left"
           >
             <span class="font-medium text-gray-900">{{ faq.question }}</span>
             <ChevronDownIcon
-              :class="openFaqs[index] ? 'rotate-180' : ''"
+              :class="openFaqs[idx] ? 'rotate-180' : ''"
               className="h-5 w-5 text-gray-500 transition"
             />
           </button>
           <div
-            v-show="openFaqs[index]"
+            v-show="openFaqs[idx]"
             v-cloak
             class="mt-2 text-sm text-gray-600"
           >
@@ -90,38 +90,39 @@
   </GuestLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { apiService } from '../services/api';
 import { useSEO, useErrorHandling } from '../composables';
 import { TEXT, ERROR_MESSAGES } from '../utils';
 import { ChevronDownIcon } from '../components/icons';
-import { ErrorState, LoadingSkeleton, HeroSection } from '../components';
+import { ErrorState, LoadingSkeleton } from '../components';
 import GuestLayout from '../layouts/GuestLayout.vue';
+import type { Faq } from '../../types/index';
 
-const faqs = ref([]);
-const openFaqs = ref({});
-const loading = ref(true);
+const faqs = ref<Faq[]>([]);
+const openFaqs = ref<Record<number, boolean>>({});
+const loading = ref<boolean>(true);
 const { error, handleError, clearError } = useErrorHandling();
 
 useSEO({
   title: TEXT.FAQ,
   description: TEXT.SEO_FAQ_DESCRIPTION,
-  keywords: TEXT.SEO_KEYWORDS_FAQ
+  keywords: TEXT.SEO_KEYWORDS_FAQ,
 });
 
-const toggleFaq = (index) => {
+const toggleFaq = (index: number): void => {
   openFaqs.value[index] = !openFaqs.value[index];
 };
 
-const loadFaqs = async () => {
+const loadFaqs = async (): Promise<void> => {
   loading.value = true;
   clearError();
 
   try {
     const response = await apiService.getFaqs();
-    faqs.value = response.data || [];
-  } catch (err) {
+    faqs.value = ((response.data as any).data || response.data || []) as Faq[];
+  } catch (err: any) {
     handleError(err, ERROR_MESSAGES.FAQS.LOAD_DETAIL);
   } finally {
     loading.value = false;

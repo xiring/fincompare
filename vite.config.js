@@ -8,13 +8,17 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/js/app.js',
-                'resources/js/public/app.js',
-                'resources/js/admin/app.js',
+                'resources/js/app.ts',
+                'resources/js/public/app.ts',
+                'resources/js/admin/app.ts',
             ],
             refresh: true,
         }),
         vue({
+            script: {
+                defineModel: true,
+                propsDestructure: true,
+            },
             template: {
                 transformAssetUrls: {
                     base: null,
@@ -26,6 +30,8 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
+            '@admin': path.resolve(__dirname, './resources/js/admin'),
+            '@public': path.resolve(__dirname, './resources/js/public'),
             '@components': path.resolve(__dirname, './resources/js/public/components'),
             '@pages': path.resolve(__dirname, './resources/js/public/pages'),
             '@layouts': path.resolve(__dirname, './resources/js/public/layouts'),

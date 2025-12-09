@@ -6,7 +6,7 @@
     </label>
     <select
       :id="id"
-      :value="modelValue"
+      :value="stringValue"
       :required="required"
       :disabled="disabled"
       :class="[
@@ -14,13 +14,13 @@
         error ? 'border-red-300' : 'border-charcoal-300',
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       ]"
-      @change="$emit('update:modelValue', $event.target.value)"
+      @change="handleChange"
     >
-      <option v-if="placeholder && placeholder !== false && !modelValue" value="">{{ placeholder === true ? '-- Select --' : placeholder }}</option>
+      <option v-if="placeholder !== false && !stringValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
       <option
         v-for="option in options"
         :key="getOptionValue(option)"
-        :value="getOptionValue(option)"
+        :value="String(getOptionValue(option))"
       >
         {{ getOptionLabel(option) }}
       </option>
@@ -30,62 +30,67 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  id: {
-    type: String,
-    required: true
-  },
-  modelValue: {
-    type: [String, Number],
-    default: ''
-  },
-  label: {
-    type: String,
-    default: ''
-  },
-  options: {
-    type: Array,
-    required: true
-  },
-  optionValue: {
-    type: String,
-    default: 'id'
-  },
-  optionLabel: {
-    type: String,
-    default: 'name'
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-  placeholder: {
-    type: [String, Boolean],
-    default: '-- Select --'
-  },
-  error: {
-    type: String,
-    default: ''
-  },
-  hint: {
-    type: String,
-    default: ''
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  }
+<script setup lang="ts">
+import { computed } from 'vue';
+
+interface Props {
+  id: string;
+  modelValue?: string | number | null;
+  label?: string;
+  options: Array<Record<string, any> | string | number>;
+  optionValue?: string;
+  optionLabel?: string;
+  required?: boolean;
+  placeholder?: string | boolean;
+  error?: string;
+  hint?: string;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  label: '',
+  optionValue: 'id',
+  optionLabel: 'name',
+  required: false,
+  placeholder: '-- Select --',
+  error: '',
+  hint: '',
+  disabled: false,
 });
 
-defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+  'update:modelValue': [value: string | number | null];
+}>();
 
-const getOptionValue = (option) => {
+const getOptionValue = (option: Record<string, any> | string | number): string | number => {
   return typeof option === 'object' ? option[props.optionValue] : option;
 };
 
-const getOptionLabel = (option) => {
-  return typeof option === 'object' ? option[props.optionLabel] : option;
+const getOptionLabel = (option: Record<string, any> | string | number): string => {
+  return typeof option === 'object' ? option[props.optionLabel] : String(option);
+};
+
+// Convert modelValue to string for proper comparison with option values
+const stringValue = computed(() => {
+  if (props.modelValue === null || props.modelValue === undefined) {
+    return '';
+  }
+  return String(props.modelValue);
+});
+
+const handleChange = (event: Event): void => {
+  const target = event.target as HTMLSelectElement;
+  const value = target.value;
+  // For required fields, don't emit null - keep as empty string for validation
+  // For optional fields, emit null to indicate no selection
+  if (value === '') {
+    emit('update:modelValue', props.required ? '' : null);
+  } else {
+    // Try to convert to number if it's a numeric string, otherwise keep as string
+    const numValue = Number(value);
+    emit('update:modelValue', isNaN(numValue) ? value : numValue);
+  }
 };
 </script>
 

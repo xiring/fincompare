@@ -18,7 +18,7 @@
           label="CSV File"
           accept=".csv,.txt"
           required
-          :error="errors.file"
+          :error="getError(errors, 'file')"
           hint="Supported formats: CSV, TXT (max 20MB)"
           @update:modelValue="handleFileChange"
         />
@@ -90,11 +90,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProductsStore } from '../../stores';
-import { extractValidationErrors } from '../../utils/validation';
+import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
@@ -104,6 +104,7 @@ import FormActions from '../../components/FormActions.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import { DownloadIcon } from '../../components/icons';
+import type { FormErrors } from '../../types/index';
 
 const router = useRouter();
 const productsStore = useProductsStore();
@@ -111,24 +112,30 @@ const productsStore = useProductsStore();
 // Use store loading state
 const loading = computed(() => productsStore.loading);
 
-const form = reactive({
+interface ImportFormData {
+  file: File | null;
+  delimiter: string;
+  has_header: boolean;
+}
+
+const form = reactive<ImportFormData>({
   file: null,
   delimiter: ',',
-  has_header: true
+  has_header: true,
 });
 
 const delimiterOptions = [
   { value: ',', label: 'Comma (,)' },
   { value: ';', label: 'Semicolon (;)' },
   { value: '|', label: 'Pipe (|)' },
-  { value: '\t', label: 'Tab' }
+  { value: '\t', label: 'Tab' },
 ];
 
-const errors = ref({});
-const errorMessage = ref('');
-const successMessage = ref('');
+const errors = ref<FormErrors>({});
+const errorMessage = ref<string>('');
+const successMessage = ref<string>('');
 
-const handleFileChange = (file) => {
+const handleFileChange = (file: File | null): void => {
   if (file) {
     // Validate file size (20MB max)
     if (file.size > 20 * 1024 * 1024) {
@@ -139,7 +146,7 @@ const handleFileChange = (file) => {
     // Validate file type
     const validTypes = ['text/csv', 'text/plain', 'application/vnd.ms-excel'];
     const validExtensions = ['.csv', '.txt'];
-    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
       errors.value.file = 'Please upload a CSV or TXT file';
@@ -154,7 +161,7 @@ const handleFileChange = (file) => {
   }
 };
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
@@ -166,13 +173,13 @@ const handleSubmit = async () => {
 
   try {
     // Import using store
-    await productsStore.importProducts(form.file, form.delimiter, form.has_header);
+    await (productsStore as any).importProducts(form.file, form.delimiter, form.has_header);
 
     successMessage.value = 'Products import started successfully! The import is being processed in the background.';
     setTimeout(() => {
       router.push('/admin/products');
     }, 2000);
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
