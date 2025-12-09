@@ -16,7 +16,7 @@
       ]"
       @change="handleChange"
     >
-      <option v-if="placeholder && placeholder !== true && !modelValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
+      <option v-if="placeholder !== false && !modelValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
       <option
         v-for="option in options"
         :key="getOptionValue(option)"

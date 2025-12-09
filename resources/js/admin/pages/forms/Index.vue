@@ -80,11 +80,11 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="form.status
+                  :class="form.status === 'active'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-charcoal-100 text-charcoal-800'"
                 >
-                  {{ form.status ? 'active' : 'inactive' }}
+                  {{ form.status === 'active' ? 'active' : 'inactive' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
