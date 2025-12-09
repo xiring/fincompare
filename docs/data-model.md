@@ -7,15 +7,15 @@ Catalog & Partners
   - Relationships: hasMany products
 
 - product_categories
-  - id, name, slug, description?, is_active, timestamps, deleted_at
-  - Relationships: hasMany attributes, hasMany products
+  - id, name, slug, description?, image?, is_active, pre_form_id? (FK), post_form_id? (FK), timestamps, deleted_at
+  - Relationships: hasMany attributes, hasMany products, belongsTo preForm (Form), belongsTo postForm (Form)
 
 - attributes
   - id, product_category_id (FK), name, slug, data_type, unit?, is_filterable, is_required, sort_order, timestamps, deleted_at
   - Unique: [product_category_id, slug]
 
 - products
-  - id, partner_id (FK), product_category_id (FK), name, slug, description?, is_featured, status, timestamps, deleted_at
+  - id, partner_id (FK), product_category_id (FK), name, slug, description?, image?, is_featured, status, timestamps, deleted_at
   - Unique: slug
 
 - product_attribute_values
@@ -42,6 +42,15 @@ Users & RBAC
 
 - users
   - id, name, email (unique), email_verified_at?, password, remember_token, timestamps, deleted_at
+
+- Forms
+  - forms
+    - id, name, slug, description?, status, type (pre_form|post_form), timestamps, deleted_at
+    - Unique: slug
+    - Relationships: hasMany formInputs, hasMany productCategoriesAsPreForm, hasMany productCategoriesAsPostForm
+  - form_inputs
+    - id, form_id (FK), label, name, type (text|textarea|dropdown|checkbox), options (json)?, placeholder?, help_text?, is_required, validation_rules?, sort_order, timestamps, deleted_at
+    - Relationships: belongsTo form
 
 - Spatie Permission tables
   - permissions, roles, role_has_permissions, model_has_roles, model_has_permissions

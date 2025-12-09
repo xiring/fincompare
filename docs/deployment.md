@@ -3,7 +3,7 @@ Deployment & Operations
 Build artifacts
 
 - Composer prod install: composer install --no-dev --optimize-autoloader --no-interaction
-- Frontend build: npm ci && npm run build
+- Frontend build: pnpm install --frozen-lockfile && pnpm run build
 
 App bootstrap
 

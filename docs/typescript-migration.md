@@ -198,17 +198,17 @@ The `tsconfig.json` includes:
 
 ### Type Check
 ```bash
-npm run type-check
+pnpm run type-check
 ```
 
 ### Build (includes type checking)
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### Development (with type checking)
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ## Common Patterns
@@ -264,6 +264,61 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 router.push({ name: 'admin.products.index', query: { page: 1 } });
+```
+
+### 5. Form Submission with File Uploads
+
+**Important**: Always pass plain JavaScript objects to API modules, not `FormData`. The API modules use the `toFormData` utility to handle file uploads.
+
+**✅ Correct Pattern:**
+```typescript
+const handleSubmit = async (): Promise<void> => {
+  const data: any = {
+    name: form.name,
+    slug: form.slug,
+    description: form.description,
+    // ... other fields
+  };
+
+  // Only include file if a new file was selected
+  if (form.image) {
+    data.image = form.image; // File object
+  }
+
+  // API module will convert to FormData automatically
+  await store.createItem(data);
+};
+```
+
+**❌ Incorrect Pattern:**
+```typescript
+// Don't manually create FormData - API module expects plain object
+const formData = new FormData();
+formData.append('name', form.name);
+// ... API module will try to convert FormData again, causing issues
+await store.createItem(formData);
+```
+
+**API Module Pattern:**
+```typescript
+// resources/js/admin/services/api/modules/example.ts
+import { toFormData } from '../utils';
+
+export default {
+  create: (data: Partial<Entity>): Promise<AxiosResponse> => {
+    const formData = toFormData(data as Record<string, any>, ['image', 'logo']);
+    return apiClient.post('/endpoint', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  update: (id: number | string, data: Partial<Entity>): Promise<AxiosResponse> => {
+    const formData = toFormData(data as Record<string, any>, ['image', 'logo']);
+    formData.append('_method', 'PATCH');
+    return apiClient.post(`/endpoint/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
 ```
 
 ## Migration Checklist

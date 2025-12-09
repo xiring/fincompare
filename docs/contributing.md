@@ -18,6 +18,19 @@ Code style
 - Keep functions small and descriptive; avoid deep nesting
 - Add comments only for non-obvious rationale or caveats
 
+Frontend form submission
+
+- **Always pass plain JavaScript objects to API modules**, not `FormData`
+- API modules use `toFormData` utility to handle file uploads automatically
+- Include file fields in the data object only when a new file is selected
+- Example pattern:
+  ```typescript
+  const data = { name: form.name, ... };
+  if (form.image) data.image = form.image;
+  await store.createItem(data); // API module converts to FormData
+  ```
+- See `docs/typescript-migration.md` for detailed examples
+
 Testing
 
 - Add/adjust tests for new features and bug fixes

@@ -13,8 +13,11 @@ Partners (`Src/Partners`)
 Catalog (`Src/Catalog`)
 
 - Product Categories CRUD
+  - Image upload support
+  - Pre-form and post-form associations (links to Forms module)
 - Attributes per category (filterable/required flags, typed values)
 - Products CRUD and CSV import flow
+  - Image upload support
 - Product Attribute Values storage for typed attributes
 
 Content (`Src/Content`)
@@ -22,6 +25,13 @@ Content (`Src/Content`)
 - Blog posts CRUD (with SEO fields and tags)
 - CMS pages CRUD
 - WYSIWYG image upload endpoint
+
+Forms (`Src/Forms`)
+
+- Dynamic forms CRUD (pre-form and post-form types)
+- Form inputs management (text, textarea, dropdown, checkbox)
+- Forms can be associated with product categories as pre-form or post-form
+- Form validation rules and conditional logic
 
 Leads (`Src/Leads`)
 

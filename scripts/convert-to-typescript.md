@@ -89,5 +89,5 @@ export const use[Resource]Store = createBaseStore<[Resource]>('[resource]', admi
 2. Add type imports
 3. Add type annotations to function parameters and return types
 4. Update imports to use `.ts` extensions where needed
-5. Test with `npm run type-check`
+5. Test with `pnpm run type-check`
 

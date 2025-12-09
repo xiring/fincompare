@@ -32,6 +32,10 @@ Admin (prefix: /admin, name: admin.)
     - GET products/import → create (upload form)
     - POST products/import → store (queue job)
 
+- Forms — FormController
+  - Resource: index, create, store, show, edit, update, destroy
+  - POST forms/{id}/duplicate → duplicate
+
 - Uploads — UploadController
   - POST uploads/wysiwyg → storeWysiwygImage
 

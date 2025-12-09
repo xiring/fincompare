@@ -25,6 +25,12 @@ Common issues
 - WYSIWYG uploads failing
   - Confirm `FILESYSTEM_DISK=public` and storage symlink exists
 
+- Form submission not sending data (empty payload)
+  - **Issue**: Form data not appearing in network request
+  - **Cause**: Manually creating `FormData` and passing it to API module that expects plain object
+  - **Solution**: Pass plain JavaScript object to store methods; API modules handle `FormData` conversion automatically
+  - See `docs/typescript-migration.md` section "Form Submission with File Uploads" for correct pattern
+
 FAQ
 
 - How do I access the admin panel?

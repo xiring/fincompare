@@ -36,6 +36,10 @@ Admin (routes/admin.php) — prefix: /admin, name: admin.*, middleware: web, aut
   - POST /admin/products/import
   - /admin/products [...]
 
+- Forms — resource controller
+  - /admin/forms [index, create, store, show, edit, update, destroy]
+  - POST /admin/forms/{id}/duplicate — duplicate form
+
 - Uploads
   - POST /admin/uploads/wysiwyg — upload WYSIWYG image
 

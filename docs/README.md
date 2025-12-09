@@ -1,20 +1,18 @@
 FinCompare Documentation
 
-This folder contains project documentation for maintainers and contributors.
+This folder contains detailed project documentation for maintainers and contributors. For a quick start guide, see the main [README.md](../README.md).
 
 Quick links:
 
-- Getting Started: getting-started.md
 - Architecture Overview: architecture.md
 - Configuration & Environment: configuration.md
 - Database Schema: data-model.md
-- ERD Diagram: erd.md
 - API Routes: api.md
 - Modules & Admin Features: modules.md
 - Controllers Reference: controllers.md
 - CSV Import Guide: csv-import.md
-- Testing: testing.md
 - Deployment & Operations: deployment.md
+- TypeScript Migration Guide: typescript-migration.md
 - Contributing & Coding Standards: contributing.md
 - Troubleshooting & FAQ: troubleshooting.md
 
