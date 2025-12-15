@@ -21,9 +21,11 @@ class EloquentAdminUserRepository implements AdminUserRepositoryInterface
         $perPage = $criteria->getPerPage() ?? 20;
 
         return User::query()
+            ->with('roles')
             ->when($criteria->getSearch(), function ($q, $qStr) {
                 $q->where('name', 'like', '%'.$qStr.'%')->orWhere('email', 'like', '%'.$qStr.'%');
             })
+            ->when(($filters['role_id'] ?? null), fn ($q, $roleId) => $q->whereHas('roles', fn ($r) => $r->where('id', $roleId)))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }

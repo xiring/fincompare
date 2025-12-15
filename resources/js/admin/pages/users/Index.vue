@@ -24,6 +24,13 @@
           placeholder="Search by name or email"
           class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
+        <FormSelect
+          id="role_id"
+          v-model="filters.role_id"
+          :options="roleOptions"
+          :placeholder="false"
+          dense
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -127,9 +134,10 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useUsersStore } from '../../stores';
+import { useUsersStore, useRolesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormSelect from '../../components/FormSelect.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -138,23 +146,26 @@ import type { User } from '../../types/index';
 const router = useRouter();
 const route = useRoute();
 const usersStore = useUsersStore();
+const rolesStore = useRolesStore();
 
 // Reactive state from store
 const users = computed(() => usersStore.items);
 const loading = computed(() => usersStore.loading);
 const pagination = computed(() => usersStore.pagination);
+const roleOptions = computed(() => [{ id: '', name: 'All roles' }, ...rolesStore.items.map((r: any) => ({ id: r.id, name: r.name }))]);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
 // Initialize filters from URL query params
-const filters = reactive<{ q: string; per_page: number }>({
+const filters = reactive<{ q: string; role_id: string; per_page: number }>({
   q: (route.query.q as string) || '',
+  role_id: (route.query.role_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
+  return filters.q || filters.role_id || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
 });
 
 // Update URL query parameters with debouncing
@@ -163,6 +174,7 @@ const updateQueryParams = (page: number = 1): void => {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
+      role_id: filters.role_id || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
     dir: sortDir.value,
@@ -199,6 +211,7 @@ const fetchUsers = async (page: number = 1): Promise<void> => {
       page,
       per_page: filters.per_page,
       q: filters.q,
+      role_id: filters.role_id,
       sort: sortField.value,
       dir: sortDir.value,
     };
@@ -218,6 +231,7 @@ const applyFilters = (): void => {
 
 const resetFilters = (): void => {
   filters.q = '';
+  filters.role_id = '';
   filters.per_page = 5;
   sortField.value = 'id';
   sortDir.value = 'desc';
@@ -265,6 +279,7 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
+  rolesStore.fetchItems({ per_page: 100 });
   fetchUsers(page);
 });
 </script>

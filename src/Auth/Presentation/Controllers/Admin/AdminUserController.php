@@ -37,6 +37,9 @@ class AdminUserController extends Controller
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
             'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'role_id' => $request->integer('role_id') ?: null,
+            ],
         ]);
 
         $items = $list->execute($criteria);
