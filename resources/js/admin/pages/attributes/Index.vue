@@ -16,11 +16,11 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by name"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
         <FormSelect
           id="product_category_id"
@@ -150,6 +150,7 @@ import { useAttributesStore, useProductCategoriesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import FormInput from '../../components/FormInput.vue';
 import GroupBadge from '../../components/GroupBadge.vue';
 import ConfirmModal from '../../components/ConfirmModal.vue';
 import EmptyState from '../../components/EmptyState.vue';

@@ -16,20 +16,19 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by title"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
-        <select
+        <FormSelect
+          id="status"
           v-model="filters.status"
-          class="px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-        >
-          <option value="">All Statuses</option>
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
+          :options="statusOptions"
+          :placeholder="false"
+          dense
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -136,6 +135,8 @@ import { useRouter, useRoute } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormSelect from '../../components/FormSelect.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -149,6 +150,11 @@ const cmsPagesStore = useCmsPagesStore();
 const pages = computed(() => cmsPagesStore.items);
 const loading = computed(() => cmsPagesStore.loading);
 const pagination = computed(() => cmsPagesStore.pagination);
+const statusOptions = [
+  { id: '', name: 'All statuses' },
+  { id: 'draft', name: 'Draft' },
+  { id: 'published', name: 'Published' },
+];
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

@@ -5,7 +5,6 @@ namespace Src\Auth\Presentation\Controllers\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Spatie\Permission\Models\Role;
 use Src\Auth\Application\Actions\CreateAdminUserAction;
 use Src\Auth\Application\Actions\DeleteAdminUserAction;
 use Src\Auth\Application\Actions\ListAdminUsersAction;

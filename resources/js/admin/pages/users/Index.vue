@@ -18,11 +18,11 @@
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by name or email"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
         <FormSelect
           id="role_id"
@@ -138,6 +138,7 @@ import { useUsersStore, useRolesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import FormInput from '../../components/FormInput.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';

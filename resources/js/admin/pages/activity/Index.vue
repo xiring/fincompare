@@ -7,24 +7,19 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by description or causer"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
-        <select
+        <FormSelect
+          id="log_name"
           v-model="filters.log_name"
-          class="px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-        >
-          <option value="">All Logs</option>
-          <option value="products">Products</option>
-          <option value="partners">Partners</option>
-          <option value="users">Users</option>
-          <option value="leads">Leads</option>
-          <option value="forms">Forms</option>
-          <option value="blogs">Blogs</option>
-        </select>
+          :options="logOptions"
+          :placeholder="false"
+          dense
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -110,6 +105,8 @@ import { useRouter, useRoute } from 'vue-router';
 import { useActivityStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormInput from '../../components/FormInput.vue';
+import FormSelect from '../../components/FormSelect.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -122,6 +119,15 @@ const activityStore = useActivityStore();
 const activities = computed(() => activityStore.items);
 const loading = computed(() => activityStore.loading);
 const pagination = computed(() => activityStore.pagination);
+const logOptions = [
+  { id: '', name: 'All logs' },
+  { id: 'products', name: 'Products' },
+  { id: 'partners', name: 'Partners' },
+  { id: 'users', name: 'Users' },
+  { id: 'leads', name: 'Leads' },
+  { id: 'forms', name: 'Forms' },
+  { id: 'blogs', name: 'Blogs' },
+];
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

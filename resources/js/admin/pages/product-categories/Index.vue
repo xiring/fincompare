@@ -16,11 +16,11 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by name"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
         <GroupFilterSelect v-model="filters.group_id" />
         <PerPageSelector v-model="filters.per_page" />
@@ -125,6 +125,7 @@ import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import GroupFilterSelect from '../../components/GroupFilterSelect.vue';
 import GroupBadge from '../../components/GroupBadge.vue';
+import FormInput from '../../components/FormInput.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import type { ProductCategory } from '../../types/index';
