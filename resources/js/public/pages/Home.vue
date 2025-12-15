@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, nextTick, type ComponentPublicInstance } from 'vue';
+import { ref, onMounted, computed, nextTick, markRaw, type ComponentPublicInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReveal, useHomeData, useSEO } from '../composables';
 import { TEXT } from '../utils';
@@ -118,17 +118,17 @@ const benefits = ref<Benefit[]>([
   {
     title: TEXT.BENEFIT_TRANSPARENT_TITLE,
     description: TEXT.BENEFIT_TRANSPARENT_DESC,
-    icon: EyeIcon,
+    icon: markRaw(EyeIcon),
   },
   {
     title: TEXT.BENEFIT_GUIDANCE_TITLE,
     description: TEXT.BENEFIT_GUIDANCE_DESC,
-    icon: LightbulbIcon,
+    icon: markRaw(LightbulbIcon),
   },
   {
     title: TEXT.BENEFIT_NO_HIDDEN_TITLE,
     description: TEXT.BENEFIT_NO_HIDDEN_DESC,
-    icon: CheckCircleIcon,
+    icon: markRaw(CheckCircleIcon),
   },
 ]);
 
