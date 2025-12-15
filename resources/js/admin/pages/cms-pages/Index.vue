@@ -140,6 +140,8 @@ import FormSelect from '../../components/FormSelect.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import FormSelect from '../../components/FormSelect.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { CmsPage } from '../../types/index';
 
 const router = useRouter();
@@ -150,11 +152,7 @@ const cmsPagesStore = useCmsPagesStore();
 const pages = computed(() => cmsPagesStore.items);
 const loading = computed(() => cmsPagesStore.loading);
 const pagination = computed(() => cmsPagesStore.pagination);
-const statusOptions = [
-  { id: '', name: 'All statuses' },
-  { id: 'draft', name: 'Draft' },
-  { id: 'published', name: 'Published' },
-];
+const statusOptions = ConstantOptions.cmsStatuses();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

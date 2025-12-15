@@ -110,6 +110,7 @@ import FormSelect from '../../components/FormSelect.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -119,15 +120,7 @@ const activityStore = useActivityStore();
 const activities = computed(() => activityStore.items);
 const loading = computed(() => activityStore.loading);
 const pagination = computed(() => activityStore.pagination);
-const logOptions = [
-  { id: '', name: 'All logs' },
-  { id: 'products', name: 'Products' },
-  { id: 'partners', name: 'Partners' },
-  { id: 'users', name: 'Users' },
-  { id: 'leads', name: 'Leads' },
-  { id: 'forms', name: 'Forms' },
-  { id: 'blogs', name: 'Blogs' },
-];
+const logOptions = ConstantOptions.activityLogNames();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

@@ -126,6 +126,7 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
@@ -161,11 +162,7 @@ const form = reactive<FormData>({
   seo_keywords: '',
 });
 
-const statusOptions = [
-  { id: 'draft', name: 'Draft' },
-  { id: 'published', name: 'Published' },
-  { id: 'archived', name: 'Archived' },
-];
+const statusOptions = ConstantOptions.blogStatuses().filter((o) => o.id !== '');
 
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');

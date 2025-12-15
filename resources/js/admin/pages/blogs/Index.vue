@@ -158,6 +158,7 @@ import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../.
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import FormSelect from '../../components/FormSelect.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { BlogPost } from '../../types/index';
 
 const router = useRouter();
@@ -168,12 +169,7 @@ const blogsStore = useBlogsStore();
 const blogs = computed(() => blogsStore.items);
 const loading = computed(() => blogsStore.loading);
 const pagination = computed(() => blogsStore.pagination);
-const statusOptions = [
-  { id: '', name: 'All statuses' },
-  { id: 'draft', name: 'Draft' },
-  { id: 'published', name: 'Published' },
-  { id: 'archived', name: 'Archived' },
-];
+const statusOptions = ConstantOptions.blogStatuses();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

@@ -150,6 +150,7 @@ import FormSelect from '../../components/FormSelect.vue';
 import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -159,14 +160,7 @@ const leadsStore = useLeadsStore();
 const leads = computed(() => leadsStore.items);
 const loading = computed(() => leadsStore.loading);
 const pagination = computed(() => leadsStore.pagination);
-const statusOptions = [
-  { id: '', name: 'All statuses' },
-  { id: 'new', name: 'New' },
-  { id: 'contacted', name: 'Contacted' },
-  { id: 'qualified', name: 'Qualified' },
-  { id: 'converted', name: 'Converted' },
-  { id: 'rejected', name: 'Rejected' },
-];
+const statusOptions = ConstantOptions.leadStatuses();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });

@@ -232,6 +232,7 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { FormErrors, Form } from '../../types/index';
 
 const route = useRoute();
@@ -276,22 +277,9 @@ const form = reactive<FormData>({
   inputs: [],
 });
 
-const typeOptions = [
-  { id: 'pre_form', name: 'Pre Form' },
-  { id: 'post_form', name: 'Post Form' },
-];
-
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
-
-const inputTypeOptions = [
-  { id: 'text', name: 'Text' },
-  { id: 'textarea', name: 'Textarea' },
-  { id: 'dropdown', name: 'Dropdown' },
-  { id: 'checkbox', name: 'Checkbox' },
-];
+const typeOptions = ConstantOptions.formTypes();
+const statusOptions = ConstantOptions.formStatuses();
+const inputTypeOptions = ConstantOptions.formInputTypes();
 
 let inputIdCounter = 0;
 

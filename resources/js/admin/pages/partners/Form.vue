@@ -105,6 +105,7 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
@@ -136,10 +137,7 @@ const form = reactive<FormData>({
   logo: null,
 });
 
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
+const statusOptions = ConstantOptions.partnerStatuses();
 
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');

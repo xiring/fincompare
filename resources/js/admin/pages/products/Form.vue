@@ -147,6 +147,7 @@ import { usePartnersStore } from '../../stores';
 import { useProductCategoriesStore } from '../../stores';
 import { adminApi } from '../../services/api';
 import { extractValidationErrors, getError } from '../../utils/validation';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormSection from '../../components/FormSection.vue';
@@ -207,10 +208,7 @@ const successMessage = ref<string>('');
 const loadingAttributes = ref<boolean>(false);
 const imagePreview = ref<string | null>(null);
 
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
+const statusOptions = ConstantOptions.productStatuses();
 
 // Watch for image changes to show preview
 watch(() => form.image, (newFile) => {

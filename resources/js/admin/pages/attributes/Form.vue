@@ -75,6 +75,7 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
@@ -102,13 +103,7 @@ const form = reactive<FormData>({
   group_id: null,
 });
 
-const typeOptions = [
-  { id: 'text', name: 'Text' },
-  { id: 'number', name: 'Number' },
-  { id: 'percentage', name: 'Percentage' },
-  { id: 'boolean', name: 'Boolean' },
-  { id: 'json', name: 'JSON' },
-];
+const typeOptions = ConstantOptions.attributeDataTypes();
 
 const categories = computed(() => productCategoriesStore.items);
 const filteredCategories = computed(() => {
