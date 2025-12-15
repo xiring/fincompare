@@ -6,6 +6,7 @@ use Src\Auth\Presentation\Controllers\Admin\AdminUserController;
 use Src\Auth\Presentation\Controllers\Admin\PermissionController;
 use Src\Auth\Presentation\Controllers\Admin\RoleController;
 use Src\Catalog\Presentation\Controllers\Admin\AttributeController;
+use Src\Catalog\Presentation\Controllers\Admin\GroupController;
 use Src\Catalog\Presentation\Controllers\Admin\ProductCategoryController;
 use Src\Catalog\Presentation\Controllers\Admin\ProductController as AdminProductController;
 use Src\Catalog\Presentation\Controllers\Admin\ProductImportController;
@@ -63,6 +64,9 @@ Route::middleware(['auth', 'throttle:120,1', 'role:admin|editor|viewer'])
         });
 
         Route::resource('partners', PartnerController::class);
+
+        Route::resource('groups', GroupController::class)
+            ->scoped(['group' => 'id']);
 
         // Attributes
         Route::get('attributes/by-category/{id}', [AttributeController::class, 'byCategory'])->name('attributes.by-category');

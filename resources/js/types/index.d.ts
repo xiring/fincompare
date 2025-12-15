@@ -153,6 +153,16 @@ export interface ProductCategory extends BaseEntity {
   image?: string;
   image_url?: string;
   parent_id?: number;
+  group_id?: number | null;
+  group?: Group | null;
+}
+
+export interface Group extends BaseEntity {
+  name: string;
+  slug: string;
+  description?: string;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
 export interface Partner extends BaseEntity {

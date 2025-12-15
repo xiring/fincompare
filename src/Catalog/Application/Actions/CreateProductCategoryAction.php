@@ -16,6 +16,6 @@ class CreateProductCategoryAction
 
     public function execute(ProductCategoryDTO $dto): ProductCategory
     {
-        return $this->repo->create($dto)->load(['preForm', 'postForm']);
+        return $this->repo->create($dto)->load(['group', 'preForm', 'postForm']);
     }
 }

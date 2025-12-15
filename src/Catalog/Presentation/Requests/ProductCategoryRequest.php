@@ -25,6 +25,7 @@ class ProductCategoryRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('product_categories', 'slug')->ignore($id)],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'group_id' => ['nullable', 'integer', 'exists:groups,id'],
             'is_active' => ['sometimes', 'boolean'],
             'pre_form_id' => ['nullable', 'integer', 'exists:forms,id', function ($attribute, $value, $fail) use ($id) {
                 if ($value) {

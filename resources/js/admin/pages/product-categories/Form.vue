@@ -33,6 +33,17 @@
           :error="getError(errors, 'description')"
         />
 
+        <FormSelect
+          id="group_id"
+          v-model="form.group_id"
+          label="Group"
+          :options="groups"
+          option-value="value"
+          option-label="label"
+          placeholder="-- Select Group --"
+          :error="getError(errors, 'group_id')"
+        />
+
         <!-- Image with existing image display (Edit mode only) -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-charcoal-700 mb-2">
@@ -90,8 +101,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductCategoriesStore } from '../../stores';
-import { useFormsStore } from '../../stores';
+import { useProductCategoriesStore, useFormsStore, useGroupsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -120,6 +130,7 @@ interface FormData {
   slug: string;
   description: string;
   image: File | null;
+  group_id: string | null;
   pre_form_id: string | null;
   post_form_id: string | null;
 }
@@ -129,10 +140,13 @@ const form = reactive<FormData>({
   slug: '',
   description: '',
   image: null,
+  group_id: null,
   pre_form_id: null,
   post_form_id: null,
 });
 
+const groupsStore = useGroupsStore();
+const groups = ref<{ value: string; label: string }[]>([]);
 const preForms = ref<Form[]>([]);
 const postForms = ref<Form[]>([]);
 const errors = ref<FormErrors>({});
@@ -168,6 +182,18 @@ const loadForms = async (): Promise<void> => {
   }
 };
 
+const loadGroups = async (): Promise<void> => {
+  try {
+    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' });
+    groups.value = groupsStore.items.map((g: any) => ({
+      value: String(g.id),
+      label: g.name,
+    }));
+  } catch (error: any) {
+    console.error('Error loading groups:', error);
+  }
+};
+
 const loadCategory = async (): Promise<void> => {
   if (!categoryId) return;
 
@@ -178,6 +204,7 @@ const loadCategory = async (): Promise<void> => {
       form.name = cat.name || '';
       form.slug = cat.slug || '';
       form.description = cat.description || '';
+      form.group_id = cat.group_id ? String(cat.group_id) : null;
       form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
       form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
     }
@@ -206,6 +233,10 @@ const handleSubmit = async (): Promise<void> => {
       slug: form.slug,
       description: form.description,
     };
+
+    if (form.group_id) {
+      data.group_id = typeof form.group_id === 'string' ? parseInt(form.group_id) : form.group_id;
+    }
 
     // Add pre_form_id and post_form_id if they are set
     if (form.pre_form_id) {
@@ -244,6 +275,7 @@ onMounted(async () => {
   try {
     // Load forms for dropdowns
     await loadForms();
+    await loadGroups();
 
     // Load category if in edit mode
     if (isEdit.value) {

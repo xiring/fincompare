@@ -11,6 +11,7 @@ export type {
   Product,
   ProductAttributeValue,
   ProductCategory,
+  Group,
   Attribute,
   Partner,
   Form,

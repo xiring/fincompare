@@ -19,14 +19,16 @@ class EloquentProductCategoryRepository implements ProductCategoryRepositoryInte
         $dir = strtolower($filters['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
         return ProductCategory::query()
+            ->with(['group'])
             ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when(($filters['group_id'] ?? null), fn ($q, $groupId) => $q->where('group_id', $groupId))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }
 
     public function find(int $id): ?ProductCategory
     {
-        return ProductCategory::with(['preForm', 'postForm'])->find($id);
+        return ProductCategory::with(['group', 'preForm', 'postForm'])->find($id);
     }
 
     public function create(ProductCategoryDTO $dto): ProductCategory

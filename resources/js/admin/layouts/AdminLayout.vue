@@ -99,6 +99,16 @@
               Forms
             </router-link>
             <router-link
+              to="/admin/groups"
+              class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
+              :class="isActive('/admin/groups')
+                ? 'bg-primary-500/20 text-primary-300 font-medium'
+                : 'text-charcoal-400 hover:bg-charcoal-700 hover:text-white'"
+            >
+              <CategoriesIcon class="h-4 w-4 mr-2 flex-shrink-0" />
+              Groups
+            </router-link>
+            <router-link
               to="/admin/product-categories"
               class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors"
               :class="isActive('/admin/product-categories')
@@ -456,7 +466,7 @@ const isActive = (path) => {
 };
 
 const isCatalogActive = () => {
-  return isActive('/admin/forms') || isActive('/admin/product-categories') ||
+  return isActive('/admin/forms') || isActive('/admin/groups') || isActive('/admin/product-categories') ||
          isActive('/admin/products') || isActive('/admin/attributes');
 };
 

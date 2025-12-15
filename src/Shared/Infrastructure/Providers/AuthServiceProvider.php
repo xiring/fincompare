@@ -11,10 +11,12 @@ use Src\Auth\Domain\Policies\PermissionPolicy;
 use Src\Auth\Domain\Policies\RolePolicy;
 use Src\Auth\Domain\Policies\UserPolicy;
 use Src\Catalog\Domain\Entities\Attribute;
+use Src\Catalog\Domain\Entities\Group;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Entities\ProductAttributeValue;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Catalog\Domain\Policies\AttributePolicy;
+use Src\Catalog\Domain\Policies\GroupPolicy;
 use Src\Catalog\Domain\Policies\ProductAttributeValuePolicy;
 use Src\Catalog\Domain\Policies\ProductCategoryPolicy;
 use Src\Catalog\Domain\Policies\ProductPolicy;
@@ -41,6 +43,7 @@ class AuthServiceProvider extends ServiceProvider
         Role::class => RolePolicy::class,
         SpatiePermission::class => PermissionPolicy::class,
         Partner::class => PartnerPolicy::class,
+        Group::class => GroupPolicy::class,
         ProductCategory::class => ProductCategoryPolicy::class,
         Product::class => ProductPolicy::class,
         Attribute::class => AttributePolicy::class,

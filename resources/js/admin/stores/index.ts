@@ -6,6 +6,7 @@
 export { useAuthStore } from './auth';
 export { useProductsStore } from './products';
 export { usePartnersStore } from './partners';
+export { useGroupsStore } from './groups';
 export { useProductCategoriesStore } from './productCategories';
 export { useAttributesStore } from './attributes';
 export { useUsersStore } from './users';
