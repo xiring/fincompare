@@ -22,6 +22,13 @@
           placeholder="Search by name"
           class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
+        <GroupFilterSelect v-model="filters.group_id" />
+        <FormSelect
+          id="product_category_id"
+          v-model="filters.product_category_id"
+          :options="categoryOptions"
+          placeholder="All categories"
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -41,7 +48,7 @@
     </div>
 
     <!-- Pagination (Above Table) -->
-    <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
+<Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <div class="overflow-x-auto">
@@ -74,7 +81,19 @@
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="attributes.length === 0" class="text-center">
-              <td colspan="5" class="px-6 py-12 text-charcoal-500">No attributes found</td>
+              <td colspan="5" class="px-6 py-12 text-charcoal-500">
+                <EmptyState title="No attributes found" description="Try adjusting filters or create a new attribute.">
+                  <template #action>
+                    <router-link
+                      to="/admin/attributes/create"
+                      class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
+                    >
+                      <PlusIcon class="h-5 w-5 mr-2" />
+                      New Attribute
+                    </router-link>
+                  </template>
+                </EmptyState>
+              </td>
             </tr>
             <tr v-else v-for="attribute in attributes" :key="attribute.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ attribute.id }}</td>
@@ -85,8 +104,9 @@
                 </span>
                 <span v-else class="text-charcoal-400">-</span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                {{ attribute.product_category?.name || '-' }}
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600 flex items-center gap-2">
+                <span>{{ attribute.product_category?.name || '-' }}</span>
+                <GroupBadge v-if="attribute.product_category?.group" :name="(attribute.product_category as any).group?.name" />
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
@@ -114,15 +134,26 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete attribute"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAttributesStore } from '../../stores';
+import { useAttributesStore, useProductCategoriesStore, useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import GroupFilterSelect from '../../components/GroupFilterSelect.vue';
+import GroupBadge from '../../components/GroupBadge.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
+import EmptyState from '../../components/EmptyState.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -131,23 +162,35 @@ import type { Attribute } from '../../types/index';
 const router = useRouter();
 const route = useRoute();
 const attributesStore = useAttributesStore();
+const productCategoriesStore = useProductCategoriesStore();
+const groupsStore = useGroupsStore();
 
 // Reactive state from store
 const attributes = computed(() => attributesStore.items);
 const loading = computed(() => attributesStore.loading);
 const pagination = computed(() => attributesStore.pagination);
+const categoryOptions = computed(() => [{ id: '', name: 'All categories' }, ...productCategoriesStore.items.map((c: any) => ({ id: c.id, name: c.name, group: c.group }))]);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
 // Initialize filters from URL query params
-const filters = reactive<{ q: string; per_page: number }>({
+const filters = reactive<{ q: string; group_id: string; product_category_id: string; per_page: number }>({
   q: (route.query.q as string) || '',
+  group_id: (route.query.group_id as string) || '',
+  product_category_id: (route.query.product_category_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
+  return (
+    filters.q ||
+    filters.group_id ||
+    filters.product_category_id ||
+    filters.per_page !== 5 ||
+    sortField.value !== 'id' ||
+    sortDir.value !== 'desc'
+  );
 });
 
 // Update URL query parameters with debouncing
@@ -156,6 +199,8 @@ const updateQueryParams = (page: number = 1): void => {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
+    group_id: filters.group_id || undefined,
+    product_category_id: filters.product_category_id || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
     dir: sortDir.value,
@@ -192,6 +237,8 @@ const fetchAttributes = async (page: number = 1): Promise<void> => {
       page,
       per_page: filters.per_page,
       q: filters.q,
+      group_id: filters.group_id || undefined,
+      product_category_id: filters.product_category_id || undefined,
       sort: sortField.value,
       dir: sortDir.value,
     };
@@ -211,6 +258,8 @@ const applyFilters = (): void => {
 
 const resetFilters = (): void => {
   filters.q = '';
+  filters.group_id = '';
+  filters.product_category_id = '';
   filters.per_page = 5;
   sortField.value = 'id';
   sortDir.value = 'desc';
@@ -246,12 +295,22 @@ const formatDataType = (dataType: string): string => {
   return typeMap[dataType] || dataType;
 };
 
-const handleDelete = async (attribute: Attribute): Promise<void> => {
-  if (!confirm(`Delete attribute "${attribute.name}"?`)) return;
+const showConfirm = ref(false);
+const pendingDelete = ref<Attribute | null>(null);
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete attribute "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
+
+const handleDelete = (attribute: Attribute): void => {
+  pendingDelete.value = attribute;
+  showConfirm.value = true;
+};
+
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
 
   try {
-    await attributesStore.deleteItem(attribute.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
+    await attributesStore.deleteItem(pendingDelete.value.id);
     if (attributes.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -260,15 +319,19 @@ const handleDelete = async (attribute: Attribute): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting attribute:', error);
     alert('Failed to delete attribute');
+  } finally {
+    pendingDelete.value = null;
+    showConfirm.value = false;
   }
 };
 
 onMounted(() => {
-  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
+  productCategoriesStore.fetchItems({ per_page: 500 }).catch(() => {});
+  groupsStore.fetchItems({ per_page: 500 }).catch(() => {});
   fetchAttributes(page);
 });
 </script>

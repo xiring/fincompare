@@ -33,6 +33,20 @@
           placeholder="Search by name"
           class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
+        <FormSelect
+          id="product_category_id"
+          v-model="filters.product_category_id"
+          :options="categoryOptions"
+          placeholder="All categories"
+          dense
+        />
+        <FormSelect
+          id="partner_id"
+          v-model="filters.partner_id"
+          :options="partnerOptions"
+          placeholder="All partners"
+          dense
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -95,7 +109,19 @@
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="products.length === 0" class="text-center">
-              <td colspan="7" class="px-6 py-12 text-charcoal-500">No products found</td>
+              <td colspan="7" class="px-6 py-12 text-charcoal-500">
+                <EmptyState title="No products found" description="Try adjusting filters or create a new product.">
+                  <template #action>
+                    <router-link
+                      to="/admin/products/create"
+                      class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
+                    >
+                      <PlusIcon class="h-5 w-5 mr-2" />
+                      New Product
+                    </router-link>
+                  </template>
+                </EmptyState>
+              </td>
             </tr>
             <tr v-else v-for="product in products" :key="product.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.id }}</td>
@@ -117,14 +143,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.product_category?.name || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.partner?.name || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="product.status
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-charcoal-100 text-charcoal-800'"
-                >
-                  {{ product.status ? 'active' : 'inactive' }}
-                </span>
+                <StatusBadge :status="product.status ?? (product.status === false ? 'inactive' : 'active')" />
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
@@ -150,14 +169,24 @@
       </div>
     </div>
   </div>
+  <ConfirmModal
+    v-model="showConfirm"
+    title="Delete product"
+    :message="confirmMessage"
+    @confirm="confirmDelete"
+  />
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useProductsStore } from '../../stores';
+import { useProductsStore, useProductCategoriesStore, usePartnersStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormSelect from '../../components/FormSelect.vue';
+import StatusBadge from '../../components/StatusBadge.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
+import EmptyState from '../../components/EmptyState.vue';
 import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -166,23 +195,36 @@ import type { Product } from '../../types/index';
 const router = useRouter();
 const route = useRoute();
 const productsStore = useProductsStore();
+const categoriesStore = useProductCategoriesStore();
+const partnersStore = usePartnersStore();
 
 // Reactive state from store
 const products = computed(() => productsStore.items);
 const loading = computed(() => productsStore.loading);
 const pagination = computed(() => productsStore.pagination);
+const categoryOptions = computed(() => [{ id: '', name: 'All categories' }, ...categoriesStore.items.map((c: any) => ({ id: c.id, name: c.name }))]);
+const partnerOptions = computed(() => [{ id: '', name: 'All partners' }, ...partnersStore.items.map((p: any) => ({ id: p.id, name: p.name }))]);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
 // Initialize filters from URL query params
-const filters = reactive<{ q: string; per_page: number }>({
+const filters = reactive<{ q: string; product_category_id: string; partner_id: string; per_page: number }>({
   q: (route.query.q as string) || '',
+  product_category_id: (route.query.product_category_id as string) || '',
+  partner_id: (route.query.partner_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
 
 const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
+  return (
+    filters.q ||
+    filters.product_category_id ||
+    filters.partner_id ||
+    filters.per_page !== 5 ||
+    sortField.value !== 'id' ||
+    sortDir.value !== 'desc'
+  );
 });
 
 // Update URL query parameters with debouncing
@@ -191,6 +233,8 @@ const updateQueryParams = (page: number = 1): void => {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
+    product_category_id: filters.product_category_id || undefined,
+    partner_id: filters.partner_id || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
     dir: sortDir.value,
@@ -227,6 +271,8 @@ const fetchProducts = async (page: number = 1): Promise<void> => {
       page,
       per_page: filters.per_page,
       q: filters.q,
+      product_category_id: filters.product_category_id || undefined,
+      partner_id: filters.partner_id || undefined,
       sort: sortField.value,
       dir: sortDir.value,
     };
@@ -239,6 +285,15 @@ const fetchProducts = async (page: number = 1): Promise<void> => {
   }
 };
 
+onMounted(() => {
+  const page = parseInt((route.query.page as string) || '1') || 1;
+  sortField.value = (route.query.sort as string) || 'id';
+  sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
+
+  categoriesStore.fetchItems({ per_page: 500 }).catch(() => {});
+  partnersStore.fetchItems({ per_page: 500 }).catch(() => {});
+  fetchProducts(page);
+});
 const applyFilters = (): void => {
   updateQueryParams(1);
   debouncedFetchProducts(1);
@@ -246,6 +301,8 @@ const applyFilters = (): void => {
 
 const resetFilters = (): void => {
   filters.q = '';
+  filters.product_category_id = '';
+  filters.partner_id = '';
   filters.per_page = 5;
   sortField.value = 'id';
   sortDir.value = 'desc';
@@ -271,11 +328,15 @@ const loadPage = (page: number): void => {
 };
 
 const handleDelete = async (product: Product): Promise<void> => {
-  if (!confirm(`Delete product "${product.name}"?`)) return;
+  pendingDelete.value = product;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const product = pendingDelete.value;
   try {
     await productsStore.deleteItem(product.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (products.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -284,11 +345,19 @@ const handleDelete = async (product: Product): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting product:', error);
     alert('Failed to delete product');
+  } finally {
+    pendingDelete.value = null;
+    showConfirm.value = false;
   }
 };
 
+const showConfirm = ref(false);
+const pendingDelete = ref<Product | null>(null);
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete product "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
+
 onMounted(() => {
-  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';

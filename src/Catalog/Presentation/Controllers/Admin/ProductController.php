@@ -36,6 +36,8 @@ class ProductController extends Controller
     {
         $items = $list->execute([
             'q' => $request->get('q'),
+            'product_category_id' => $request->integer('product_category_id') ?: null,
+            'partner_id' => $request->integer('partner_id') ?: null,
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
         ], (int) $request->get('per_page', 20));

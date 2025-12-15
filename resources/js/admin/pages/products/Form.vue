@@ -311,6 +311,7 @@ watch(() => form.product_category_id, () => {
   loadAttributes();
 });
 
+
 const loadProduct = async (): Promise<void> => {
   if (!productId) return;
 

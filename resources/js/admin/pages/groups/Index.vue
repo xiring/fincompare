@@ -90,12 +90,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ group.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ group.slug }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
-                <span
-                  class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full"
-                  :class="group.is_active ? 'bg-green-100 text-green-700' : 'bg-charcoal-100 text-charcoal-600'"
-                >
-                  {{ group.is_active ? 'Active' : 'Inactive' }}
-                </span>
+                  <StatusBadge :status="group.is_active ? 'active' : 'inactive'" />
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ group.sort_order ?? 0 }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -133,6 +128,7 @@ import { useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import StatusBadge from '../../components/StatusBadge.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import type { Group } from '../../types/index';

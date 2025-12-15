@@ -20,6 +20,8 @@ class EloquentAdminProductRepository implements AdminProductRepositoryInterface
 
         return Product::with(['partner', 'productCategory'])
             ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when(($filters['product_category_id'] ?? null), fn ($q, $categoryId) => $q->where('product_category_id', $categoryId))
+            ->when(($filters['partner_id'] ?? null), fn ($q, $partnerId) => $q->where('partner_id', $partnerId))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }
