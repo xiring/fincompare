@@ -144,11 +144,18 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete blog post"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useBlogsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
@@ -159,6 +166,7 @@ import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import FormSelect from '../../components/FormSelect.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import type { BlogPost } from '../../types/index';
 
 const router = useRouter();
@@ -170,6 +178,8 @@ const blogs = computed(() => blogsStore.items);
 const loading = computed(() => blogsStore.loading);
 const pagination = computed(() => blogsStore.pagination);
 const statusOptions = ConstantOptions.blogStatuses();
+const showConfirm = ref(false);
+const pendingDelete = ref<BlogPost | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -273,12 +283,16 @@ const loadPage = (page: number): void => {
   debouncedFetchBlogs(page);
 };
 
-const handleDelete = async (blog: BlogPost): Promise<void> => {
-  if (!confirm(`Delete blog post "${blog.title}"?`)) return;
+const handleDelete = (blog: BlogPost): void => {
+  pendingDelete.value = blog;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const blog = pendingDelete.value;
   try {
     await blogsStore.deleteItem(blog.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (blogs.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -287,8 +301,15 @@ const handleDelete = async (blog: BlogPost): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting blog:', error);
     alert('Failed to delete blog post');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete blog post "${pendingDelete.value.title}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params

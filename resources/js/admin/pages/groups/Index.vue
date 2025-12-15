@@ -118,16 +118,24 @@
     </div>
 
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete group"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import StatusBadge from '../../components/StatusBadge.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
@@ -141,6 +149,8 @@ const groupsStore = useGroupsStore();
 const groups = computed(() => groupsStore.items);
 const loading = computed(() => groupsStore.loading);
 const pagination = computed(() => groupsStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Group | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -227,15 +237,27 @@ const loadPage = (page: number): void => {
   debouncedFetchGroups(page);
 };
 
-const handleDelete = async (group: Group): Promise<void> => {
-  if (!confirm(`Delete group "${group.name}"?`)) return;
+const handleDelete = (group: Group): void => {
+  pendingDelete.value = group;
+  showConfirm.value = true;
+};
+
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const group = pendingDelete.value;
   await groupsStore.deleteItem(group.id);
   if (groups.value.length === 0 && pagination.value.current_page > 1) {
     const newPage = pagination.value.current_page - 1;
     updateQueryParams(newPage);
     fetchGroups(newPage);
   }
+  showConfirm.value = false;
+  pendingDelete.value = null;
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete group "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   const page = parseInt((route.query.page as string) || '1') || 1;

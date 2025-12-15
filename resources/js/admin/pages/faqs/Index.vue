@@ -103,16 +103,24 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete FAQ"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useFaqsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -126,6 +134,8 @@ const faqsStore = useFaqsStore();
 const faqs = computed(() => faqsStore.items);
 const loading = computed(() => faqsStore.loading);
 const pagination = computed(() => faqsStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Faq | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -225,12 +235,16 @@ const loadPage = (page: number): void => {
   debouncedFetchFaqs(page);
 };
 
-const handleDelete = async (faq: Faq): Promise<void> => {
-  if (!confirm(`Delete FAQ "${faq.question}"?`)) return;
+const handleDelete = (faq: Faq): void => {
+  pendingDelete.value = faq;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const faq = pendingDelete.value;
   try {
     await faqsStore.deleteItem(faq.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (faqs.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -239,8 +253,15 @@ const handleDelete = async (faq: Faq): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting FAQ:', error);
     alert('Failed to delete FAQ');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete FAQ "${pendingDelete.value.question}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params

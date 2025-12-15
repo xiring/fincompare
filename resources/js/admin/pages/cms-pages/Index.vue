@@ -126,22 +126,29 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete CMS page"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useCmsPagesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
-import FormSelect from '../../components/FormSelect.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import FormSelect from '../../components/FormSelect.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import type { CmsPage } from '../../types/index';
 
 const router = useRouter();
@@ -153,6 +160,8 @@ const pages = computed(() => cmsPagesStore.items);
 const loading = computed(() => cmsPagesStore.loading);
 const pagination = computed(() => cmsPagesStore.pagination);
 const statusOptions = ConstantOptions.cmsStatuses();
+const showConfirm = ref(false);
+const pendingDelete = ref<CmsPage | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -256,12 +265,16 @@ const loadPage = (page: number): void => {
   debouncedFetchPages(page);
 };
 
-const handleDelete = async (page: CmsPage): Promise<void> => {
-  if (!confirm(`Delete CMS page "${page.title}"?`)) return;
+const handleDelete = (page: CmsPage): void => {
+  pendingDelete.value = page;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const page = pendingDelete.value;
   try {
     await cmsPagesStore.deleteItem(page.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (pages.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -270,8 +283,15 @@ const handleDelete = async (page: CmsPage): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting CMS page:', error);
     alert('Failed to delete CMS page');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete CMS page "${pendingDelete.value.title}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params

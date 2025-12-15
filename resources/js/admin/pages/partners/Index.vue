@@ -148,11 +148,18 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete partner"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { usePartnersStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
@@ -161,6 +168,7 @@ import FormInput from '../../components/FormInput.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import type { Partner } from '../../types/index';
 
 const router = useRouter();
@@ -171,6 +179,8 @@ const partnersStore = usePartnersStore();
 const partners = computed(() => partnersStore.items);
 const loading = computed(() => partnersStore.loading);
 const pagination = computed(() => partnersStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Partner | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -270,12 +280,16 @@ const loadPage = (page: number): void => {
   debouncedFetchPartners(page);
 };
 
-const handleDelete = async (partner: Partner): Promise<void> => {
-  if (!confirm(`Delete partner "${partner.name}"?`)) return;
+const handleDelete = (partner: Partner): void => {
+  pendingDelete.value = partner;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const partner = pendingDelete.value;
   try {
     await partnersStore.deleteItem(partner.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (partners.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -284,8 +298,15 @@ const handleDelete = async (partner: Partner): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting partner:', error);
     alert('Failed to delete partner');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete partner "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params

@@ -113,11 +113,18 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete category"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useProductCategoriesStore, useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
@@ -126,6 +133,7 @@ import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../.
 import GroupFilterSelect from '../../components/GroupFilterSelect.vue';
 import GroupBadge from '../../components/GroupBadge.vue';
 import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import type { ProductCategory } from '../../types/index';
@@ -148,6 +156,8 @@ const filters = reactive<{ q: string; group_id: string; per_page: number }>({
   group_id: (route.query.group_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
+const showConfirm = ref(false);
+const pendingDelete = ref<ProductCategory | null>(null);
 
 const hasFilters = computed(() => {
   return filters.q || filters.group_id || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -241,12 +251,16 @@ const loadPage = (page: number): void => {
   debouncedFetchCategories(page);
 };
 
-const handleDelete = async (category: ProductCategory): Promise<void> => {
-  if (!confirm(`Delete category "${category.name}"?`)) return;
+const handleDelete = (category: ProductCategory): void => {
+  pendingDelete.value = category;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const category = pendingDelete.value;
   try {
     await productCategoriesStore.deleteItem(category.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (categories.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -255,8 +269,15 @@ const handleDelete = async (category: ProductCategory): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting category:', error);
     alert('Failed to delete category');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete category "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});

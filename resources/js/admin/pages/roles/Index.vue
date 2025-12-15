@@ -116,15 +116,23 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete role"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useRolesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -138,6 +146,8 @@ const rolesStore = useRolesStore();
 const roles = computed(() => rolesStore.items);
 const loading = computed(() => rolesStore.loading);
 const pagination = computed(() => rolesStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Role | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -237,12 +247,16 @@ const loadPage = (page: number): void => {
   debouncedFetchRoles(page);
 };
 
-const handleDelete = async (role: Role): Promise<void> => {
-  if (!confirm(`Delete role "${role.name}"?`)) return;
+const handleDelete = (role: Role): void => {
+  pendingDelete.value = role;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const role = pendingDelete.value;
   try {
     await rolesStore.deleteItem(role.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (roles.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -251,8 +265,15 @@ const handleDelete = async (role: Role): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting role:', error);
     alert('Failed to delete role');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete role "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params

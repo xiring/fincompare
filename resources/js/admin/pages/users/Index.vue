@@ -128,17 +128,25 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete user"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUsersStore, useRolesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
 import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
@@ -154,6 +162,8 @@ const users = computed(() => usersStore.items);
 const loading = computed(() => usersStore.loading);
 const pagination = computed(() => usersStore.pagination);
 const roleOptions = computed(() => [{ id: '', name: 'All roles' }, ...rolesStore.items.map((r: any) => ({ id: r.id, name: r.name }))]);
+const showConfirm = ref(false);
+const pendingDelete = ref<User | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -257,12 +267,16 @@ const loadPage = (page: number): void => {
   debouncedFetchUsers(page);
 };
 
-const handleDelete = async (user: User): Promise<void> => {
-  if (!confirm(`Delete user "${user.name}"?`)) return;
+const handleDelete = (user: User): void => {
+  pendingDelete.value = user;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const user = pendingDelete.value;
   try {
     await usersStore.deleteItem(user.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
     if (users.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
@@ -271,8 +285,15 @@ const handleDelete = async (user: User): Promise<void> => {
   } catch (error: any) {
     console.error('Error deleting user:', error);
     alert('Failed to delete user');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete user "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params
