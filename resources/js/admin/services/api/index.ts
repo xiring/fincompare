@@ -6,6 +6,7 @@
 import products from './modules/products';
 import partners from './modules/partners';
 import productCategories from './modules/productCategories';
+import groups from './modules/groups';
 import attributes from './modules/attributes';
 import users from './modules/users';
 import roles from './modules/roles';
@@ -25,6 +26,7 @@ import stats from './modules/stats';
 export const adminApi = {
   products,
   partners,
+  groups,
   productCategories,
   attributes,
   users,

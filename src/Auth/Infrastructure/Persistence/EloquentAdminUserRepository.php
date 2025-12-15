@@ -6,21 +6,26 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Auth\Application\DTOs\AdminUserDTO;
 use Src\Auth\Domain\Entities\User;
 use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentAdminUserRepository repository.
  */
 class EloquentAdminUserRepository implements AdminUserRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'email', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'name', 'email', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return User::query()
-            ->when(($filters['q'] ?? null), function ($q, $qStr) {
+            ->with('roles')
+            ->when($criteria->getSearch(), function ($q, $qStr) {
                 $q->where('name', 'like', '%'.$qStr.'%')->orWhere('email', 'like', '%'.$qStr.'%');
             })
+            ->when(($filters['role_id'] ?? null), fn ($q, $roleId) => $q->whereHas('roles', fn ($r) => $r->where('id', $roleId)))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }

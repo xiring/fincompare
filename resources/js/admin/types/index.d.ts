@@ -68,10 +68,21 @@ export interface ProductCategory extends BaseEntity {
   name: string;
   slug: string;
   description?: string;
+  group_id?: number | null;
+  group?: Group | null;
   parent_id?: number;
   parent?: ProductCategory;
   children?: ProductCategory[];
   is_active?: boolean;
+}
+
+// Group types
+export interface Group extends BaseEntity {
+  name: string;
+  slug: string;
+  description?: string;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
 // Attribute types

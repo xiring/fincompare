@@ -25,12 +25,17 @@ class LeadController extends Controller
      */
     public function index(Request $request, ListLeadsAction $list)
     {
-        $items = $list->execute([
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
-            'status' => $request->get('status'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ], (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'status' => $request->get('status'),
+            ],
+        ]);
+
+        $items = $list->execute($criteria);
 
         return response()->json($items);
     }

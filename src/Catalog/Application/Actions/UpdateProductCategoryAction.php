@@ -16,6 +16,6 @@ class UpdateProductCategoryAction
 
     public function execute(ProductCategory $category, ProductCategoryDTO $dto): ProductCategory
     {
-        return $this->repo->update($category, $dto)->load(['preForm', 'postForm']);
+        return $this->repo->update($category, $dto)->load(['group', 'preForm', 'postForm']);
     }
 }

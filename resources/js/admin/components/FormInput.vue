@@ -1,6 +1,6 @@
 <template>
-  <div class="mb-6">
-    <label v-if="label" :for="id" class="block text-sm font-medium text-charcoal-700 mb-2">
+  <div :class="wrapperClass">
+    <label v-if="label" :for="id" :class="['block text-sm font-medium text-charcoal-700', dense ? 'mb-1' : 'mb-2']">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -12,7 +12,8 @@
       :placeholder="placeholder"
       :disabled="disabled"
       :class="[
-        'block w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors',
+        'border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors',
+        dense ? 'px-3 py-2 min-w-[200px]' : 'block w-full px-4 py-2.5',
         error ? 'border-red-300' : 'border-charcoal-300',
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       ]"
@@ -25,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 interface Props {
   id: string;
   modelValue?: string | number;
@@ -35,9 +37,10 @@ interface Props {
   error?: string;
   hint?: string;
   disabled?: boolean;
+  dense?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   label: '',
   type: 'text',
@@ -46,11 +49,14 @@ withDefaults(defineProps<Props>(), {
   error: '',
   hint: '',
   disabled: false,
+  dense: false,
 });
 
 defineEmits<{
   'update:modelValue': [value: string | number];
   blur: [event: FocusEvent];
 }>();
+
+const wrapperClass = computed(() => (props.dense ? 'mb-0 inline-block' : 'mb-6'));
 </script>
 

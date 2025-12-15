@@ -1,6 +1,6 @@
 <template>
-  <div class="mb-6">
-    <label v-if="label" :for="id" class="block text-sm font-medium text-charcoal-700 mb-2">
+  <div :class="wrapperClass">
+    <label v-if="label" :for="id" :class="['block text-sm font-medium text-charcoal-700', dense ? 'mb-1' : 'mb-2']">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -9,11 +9,7 @@
       :value="stringValue"
       :required="required"
       :disabled="disabled"
-      :class="[
-        'block w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900 transition-colors',
-        error ? 'border-red-300' : 'border-charcoal-300',
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      ]"
+      :class="selectClass"
       @change="handleChange"
     >
       <option v-if="placeholder !== false && !stringValue" value="">{{ typeof placeholder === 'string' ? placeholder : '-- Select --' }}</option>
@@ -45,6 +41,7 @@ interface Props {
   error?: string;
   hint?: string;
   disabled?: boolean;
+  dense?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -57,6 +54,7 @@ const props = withDefaults(defineProps<Props>(), {
   error: '',
   hint: '',
   disabled: false,
+  dense: false,
 });
 
 const emit = defineEmits<{
@@ -92,5 +90,28 @@ const handleChange = (event: Event): void => {
     emit('update:modelValue', isNaN(numValue) ? value : numValue);
   }
 };
+
+const wrapperClass = computed(() => (props.dense ? 'mb-0 inline-block' : 'mb-6'));
+
+const selectClass = computed(() => {
+  const base = [
+    'border',
+    'rounded-lg',
+    'focus:ring-2',
+    'focus:ring-primary-500',
+    'focus:border-primary-500',
+    'bg-white',
+    'text-charcoal-900',
+    'transition-colors',
+  ];
+  if (props.dense) {
+    base.push('px-3', 'py-2', 'min-w-[160px]');
+  } else {
+    base.push('block', 'w-full', 'px-4', 'py-2.5');
+  }
+  base.push(props.error ? 'border-red-300' : 'border-charcoal-300');
+  if (props.disabled) base.push('opacity-50', 'cursor-not-allowed');
+  return base.join(' ');
+});
 </script>
 

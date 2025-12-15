@@ -156,8 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { adminApi } from '../../services/api';
+import { ref, reactive, watchEffect, computed } from 'vue';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -169,27 +168,8 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { useSettingsQuery, useSettingsUpdateMutation } from '../../queries/settings';
 import type { FormErrors } from '../../types/index';
-
-interface Settings {
-  site_name?: string;
-  site_slogon?: string;
-  email_address?: string;
-  contact_number?: string;
-  address?: string;
-  map_url?: string;
-  logo?: string;
-  favicon?: string;
-  seo_titl?: string;
-  seo_title?: string;
-  seo_keyword?: string;
-  seo_keywords?: string;
-  seo_description?: string;
-  facebook_url?: string;
-  instgram_url?: string;
-  instagram_url?: string;
-  twitter_url?: string;
-}
 
 interface SettingsFormData {
   site_name: string;
@@ -208,7 +188,6 @@ interface SettingsFormData {
   twitter_url: string;
 }
 
-const settings = ref<Settings | null>(null);
 const form = reactive<SettingsFormData>({
   site_name: '',
   site_slogon: '',
@@ -229,44 +208,34 @@ const form = reactive<SettingsFormData>({
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
-const loading = ref<boolean>(false);
+const { data: settings, isLoading, error } = useSettingsQuery();
+const updateMutation = useSettingsUpdateMutation();
+const loading = computed(() => isLoading.value || updateMutation.isPending.value);
 
-const loadSettings = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    const response = await adminApi.settings.show();
-    // API returns { data: { ...settings } }, so we need response.data.data
-    settings.value = (response.data as any).data || response.data;
-
-    // Populate form with settings data
-    if (settings.value) {
-      form.site_name = settings.value.site_name || '';
-      form.site_slogon = settings.value.site_slogon || '';
-      form.email_address = settings.value.email_address || '';
-      form.contact_number = settings.value.contact_number || '';
-      form.address = settings.value.address || '';
-      form.map_url = settings.value.map_url || '';
-      form.seo_titl = settings.value.seo_titl || settings.value.seo_title || '';
-      form.seo_keyword = settings.value.seo_keyword || settings.value.seo_keywords || '';
-      form.seo_description = settings.value.seo_description || '';
-      form.facebook_url = settings.value.facebook_url || '';
-      form.instgram_url = settings.value.instgram_url || settings.value.instagram_url || '';
-      form.twitter_url = settings.value.twitter_url || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading settings:', error);
-    errorMessage.value = 'Failed to load settings';
-  } finally {
-    loading.value = false;
+watchEffect(() => {
+  if (settings.value) {
+    form.site_name = settings.value.site_name || '';
+    form.site_slogon = settings.value.site_slogon || '';
+    form.email_address = settings.value.email_address || '';
+    form.contact_number = settings.value.contact_number || '';
+    form.address = settings.value.address || '';
+    form.map_url = settings.value.map_url || '';
+    form.seo_titl = settings.value.seo_titl || settings.value.seo_title || '';
+    form.seo_keyword = settings.value.seo_keyword || settings.value.seo_keywords || '';
+    form.seo_description = settings.value.seo_description || '';
+    form.facebook_url = settings.value.facebook_url || '';
+    form.instgram_url = settings.value.instgram_url || settings.value.instagram_url || '';
+    form.twitter_url = settings.value.twitter_url || '';
   }
-};
+  if (error?.value) {
+    errorMessage.value = 'Failed to load settings';
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
   errorMessage.value = '';
   successMessage.value = '';
-  loading.value = true;
-
   try {
     // Only include logo/favicon if they're files (new uploads)
     const data: any = { ...form };
@@ -277,18 +246,18 @@ const handleSubmit = async (): Promise<void> => {
       delete data.favicon;
     }
 
-    const response = await adminApi.settings.update(data);
-    // Update settings from response if available
-    if ((response.data as any)?.data) {
-      settings.value = (response.data as any).data;
+    const response = await updateMutation.mutateAsync(data);
+    const updated = (response?.data as any)?.data || response?.data;
+    if (updated) {
+      settings.value = updated;
     }
     successMessage.value = 'Settings updated successfully!';
     setTimeout(() => {
       successMessage.value = '';
-      loadSettings(); // Reload to get updated file paths
+      // Reload cached settings (will use updated value if set above)
+      settings.value = updated ?? settings.value;
     }, 1500);
   } catch (error: any) {
-    loading.value = false;
     if (error.response?.status === 422) {
       errors.value = extractValidationErrors(error);
     } else {
@@ -296,8 +265,4 @@ const handleSubmit = async (): Promise<void> => {
     }
   }
 };
-
-onMounted(() => {
-  loadSettings();
-});
 </script>

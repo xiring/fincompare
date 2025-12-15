@@ -9,6 +9,7 @@ use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
 use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
 use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
 use Src\Auth\Domain\Repositories\AdminUserRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 class DashboardStatsController extends Controller
 {
@@ -27,11 +28,18 @@ class DashboardStatsController extends Controller
     {
         try {
             // Use paginate with per_page: 1 to get total counts efficiently
-            // This is faster than count() queries and reuses existing repository methods
-            $productsPaginator = $this->productRepository->paginate([], 1);
-            $leadsPaginator = $this->leadRepository->paginate([], 1);
-            $partnersPaginator = $this->partnerRepository->paginate([], 1);
-            $usersPaginator = $this->userRepository->paginate([], 1);
+            $criteria = new ListCriteria(
+                search: null,
+                sort: 'id',
+                dir: 'desc',
+                perPage: 1,
+                filters: [],
+            );
+
+            $productsPaginator = $this->productRepository->paginate($criteria);
+            $leadsPaginator = $this->leadRepository->paginate($criteria);
+            $partnersPaginator = $this->partnerRepository->paginate($criteria);
+            $usersPaginator = $this->userRepository->paginate($criteria);
 
             $stats = [
                 'products' => $productsPaginator->total(),

@@ -16,11 +16,11 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by question"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
         <PerPageSelector v-model="filters.per_page" />
         <button
@@ -103,28 +103,33 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete FAQ"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useFaqsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { useFaqListQuery, useDeleteFaqMutation } from '../../queries/faqs';
 import type { Faq } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const faqsStore = useFaqsStore();
-
-// Reactive state from store
-const faqs = computed(() => faqsStore.items);
-const loading = computed(() => faqsStore.loading);
-const pagination = computed(() => faqsStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Faq | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -134,6 +139,7 @@ const filters = reactive<{ q: string; per_page: number }>({
   q: (route.query.q as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -163,7 +169,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchFaqs = debounce((page: number) => {
-  fetchFaqs(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -174,24 +180,6 @@ watch(
     debouncedFetchFaqs(1);
   }
 );
-
-const fetchFaqs = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await faqsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching FAQs:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -224,29 +212,61 @@ const loadPage = (page: number): void => {
   debouncedFetchFaqs(page);
 };
 
-const handleDelete = async (faq: Faq): Promise<void> => {
-  if (!confirm(`Delete FAQ "${faq.question}"?`)) return;
+const handleDelete = (faq: Faq): void => {
+  pendingDelete.value = faq;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const faq = pendingDelete.value;
   try {
-    await faqsStore.deleteItem(faq.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
+    await deleteMutation.mutateAsync(faq.id);
     if (faqs.value.length === 0 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchFaqs(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting FAQ:', error);
     alert('Failed to delete FAQ');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete FAQ "${pendingDelete.value.question}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
-
-  fetchFaqs(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useFaqListQuery(listParams);
+const deleteMutation = useDeleteFaqMutation();
+const faqs = computed(() => data.value?.items || []);
+const pagination = computed(() => data.value?.pagination || {
+  current_page: 1,
+  last_page: 1,
+  per_page: filters.per_page,
+  total: 0,
+  from: 0,
+  to: 0,
+  prev_page_url: null,
+  next_page_url: null,
+});
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

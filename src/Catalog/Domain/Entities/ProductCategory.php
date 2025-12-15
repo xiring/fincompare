@@ -18,7 +18,7 @@ class ProductCategory extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'description', 'image', 'is_active', 'pre_form_id', 'post_form_id'];
+    protected $fillable = ['group_id', 'name', 'slug', 'description', 'image', 'is_active', 'pre_form_id', 'post_form_id'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -28,6 +28,11 @@ class ProductCategory extends Model
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function products(): HasMany

@@ -7,19 +7,24 @@ use Illuminate\Support\Str;
 use Src\Catalog\Application\DTOs\ProductDTO;
 use Src\Catalog\Domain\Entities\Product;
 use Src\Catalog\Domain\Repositories\AdminProductRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentAdminProductRepository repository.
  */
 class EloquentAdminProductRepository implements AdminProductRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'status', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'name', 'status', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return Product::with(['partner', 'productCategory'])
-            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when($criteria->getSearch(), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when(($filters['product_category_id'] ?? null), fn ($q, $categoryId) => $q->where('product_category_id', $categoryId))
+            ->when(($filters['partner_id'] ?? null), fn ($q, $partnerId) => $q->where('partner_id', $partnerId))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }

@@ -7,19 +7,22 @@ use Illuminate\Support\Str;
 use Src\Partners\Application\DTOs\PartnerDTO;
 use Src\Partners\Domain\Entities\Partner;
 use Src\Partners\Domain\Repositories\PartnerRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentPartnerRepository repository.
  */
 class EloquentPartnerRepository implements PartnerRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'status', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'name', 'status', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return Partner::query()
-            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when($criteria->getSearch(), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }

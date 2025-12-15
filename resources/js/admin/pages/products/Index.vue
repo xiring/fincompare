@@ -24,14 +24,31 @@
       </div>
     </div>
 
+    <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-4" />
+    <ErrorMessage v-if="errorMessage" :message="errorMessage" class="mb-4" />
+
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by name"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
+        />
+        <FormSelect
+          id="product_category_id"
+          v-model="filters.product_category_id"
+          :options="categoryOptions"
+          :placeholder="false"
+          dense
+        />
+        <FormSelect
+          id="partner_id"
+          v-model="filters.partner_id"
+          :options="partnerOptions"
+          :placeholder="false"
+          dense
         />
         <PerPageSelector v-model="filters.per_page" />
         <button
@@ -95,7 +112,19 @@
               <td class="px-6 py-4 whitespace-nowrap text-right"><div class="h-8 bg-charcoal-200"></div></td>
             </tr>
             <tr v-else-if="products.length === 0" class="text-center">
-              <td colspan="7" class="px-6 py-12 text-charcoal-500">No products found</td>
+              <td colspan="7" class="px-6 py-12 text-charcoal-500">
+                <EmptyState title="No products found" description="Try adjusting filters or create a new product.">
+                  <template #action>
+                    <router-link
+                      to="/admin/products/create"
+                      class="inline-flex items-center justify-center px-4 py-2.5 bg-primary-500 text-white rounded-lg font-medium text-sm hover:bg-primary-600 transition-colors"
+                    >
+                      <PlusIcon class="h-5 w-5 mr-2" />
+                      New Product
+                    </router-link>
+                  </template>
+                </EmptyState>
+              </td>
             </tr>
             <tr v-else v-for="product in products" :key="product.id" class="hover:bg-charcoal-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.id }}</td>
@@ -117,17 +146,18 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.product_category?.name || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ product.partner?.name || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="product.status
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-charcoal-100 text-charcoal-800'"
-                >
-                  {{ product.status ? 'active' : 'inactive' }}
-                </span>
+                <StatusBadge :status="product.status ?? (product.status === false ? 'inactive' : 'active')" />
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
+                  <button
+                    @click="handleDuplicate(product)"
+                    title="Duplicate"
+                    class="inline-flex items-center justify-center p-2 text-amber-600 hover:text-amber-800 hover:bg-amber-50 disabled:opacity-50"
+                    :disabled="duplicatingId === product.id || duplicateMutation.isPending.value"
+                  >
+                    <CopyIcon class="h-5 w-5" />
+                  </button>
                   <router-link
                     :to="`/admin/products/${product.id}/edit`"
                     title="Edit"
@@ -150,107 +180,151 @@
       </div>
     </div>
   </div>
+  <ConfirmModal
+    v-model="showConfirm"
+    title="Delete product"
+    :message="confirmMessage"
+    @confirm="confirmDelete"
+  />
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useProductsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
-import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import FormSelect from '../../components/FormSelect.vue';
+import FormInput from '../../components/FormInput.vue';
+import StatusBadge from '../../components/StatusBadge.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
+import EmptyState from '../../components/EmptyState.vue';
+import SuccessMessage from '../../components/SuccessMessage.vue';
+import ErrorMessage from '../../components/ErrorMessage.vue';
+import { UploadIcon, PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon, CopyIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { useProductListQuery, useProductDeleteMutation, useProductDuplicateMutation } from '../../queries/products';
+import { useProductCategoryListQuery } from '../../queries/productCategories';
+import { usePartnerListQuery } from '../../queries/partners';
 import type { Product } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const productsStore = useProductsStore();
-
-// Reactive state from store
-const products = computed(() => productsStore.items);
-const loading = computed(() => productsStore.loading);
-const pagination = computed(() => productsStore.pagination);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
-// Initialize filters from URL query params
-const filters = reactive<{ q: string; per_page: number }>({
+const filters = reactive<{ q: string; product_category_id: string; partner_id: string; per_page: number }>({
   q: (route.query.q as string) || '',
+  product_category_id: (route.query.product_category_id as string) || '',
+  partner_id: (route.query.partner_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
 
-const hasFilters = computed(() => {
-  return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
-});
+const hasFilters = computed(
+  () =>
+    filters.q ||
+    filters.product_category_id ||
+    filters.partner_id ||
+    filters.per_page !== 5 ||
+    sortField.value !== 'id' ||
+    sortDir.value !== 'desc'
+);
 
-// Update URL query parameters with debouncing
 const updateQueryParams = (page: number = 1): void => {
   const query: Record<string, any> = {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
+    product_category_id: filters.product_category_id || undefined,
+    partner_id: filters.partner_id || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
     dir: sortDir.value,
   };
 
-  // Remove undefined values
   Object.keys(query).forEach((key) => {
     if (query[key] === undefined) {
       delete query[key];
     }
   });
 
-  // Debounce route updates to prevent rapid router.replace calls
   debounceRouteUpdate(router, query);
 };
 
-// Debounced fetch function to prevent rapid API calls
-const debouncedFetchProducts = debounce((page: number) => {
-  fetchProducts(page);
+const debouncedSetPage = debounce((page: number) => {
+  currentPage.value = page;
 }, 300);
 
-// Watch for per_page changes and automatically fetch
 watch(
   () => filters.per_page,
   () => {
     updateQueryParams(1);
-    debouncedFetchProducts(1);
+    debouncedSetPage(1);
   }
 );
 
-const fetchProducts = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  product_category_id: filters.product_category_id || undefined,
+  partner_id: filters.partner_id || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useProductListQuery(listParams);
+const deleteMutation = useProductDeleteMutation();
+const duplicateMutation = useProductDuplicateMutation();
+const products = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
       per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await productsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching products:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
     }
-  }
-};
+);
+const loading = computed(() => isLoading.value || isFetching.value);
+
+const { data: categoriesData } = useProductCategoryListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const { data: partnersData } = usePartnerListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const categoryOptions = computed(() => [
+  { id: '', name: 'All categories' },
+  ...((categoriesData?.value?.items || []) as any[]).map((c: any) => ({
+    id: c.id,
+    name: c.name,
+  })),
+]);
+const partnerOptions = computed(() => [
+  { id: '', name: 'All partners' },
+  ...((partnersData?.value?.items || []) as any[]).map((p: any) => ({
+    id: p.id,
+    name: p.name,
+  })),
+]);
 
 const applyFilters = (): void => {
   updateQueryParams(1);
-  debouncedFetchProducts(1);
+  debouncedSetPage(1);
 };
 
 const resetFilters = (): void => {
   filters.q = '';
+  filters.product_category_id = '';
+  filters.partner_id = '';
   filters.per_page = 5;
   sortField.value = 'id';
   sortDir.value = 'desc';
   router.replace({ query: {} });
-  debouncedFetchProducts(1);
+  debouncedSetPage(1);
 };
 
 const sortBy = (field: string): void => {
@@ -260,40 +334,73 @@ const sortBy = (field: string): void => {
     sortField.value = field;
     sortDir.value = 'asc';
   }
-  const currentPage = pagination.value?.current_page || 1;
-  updateQueryParams(currentPage);
-  debouncedFetchProducts(currentPage);
+  const page = pagination.value?.current_page || 1;
+  updateQueryParams(page);
+  debouncedSetPage(page);
 };
 
 const loadPage = (page: number): void => {
   updateQueryParams(page);
-  debouncedFetchProducts(page);
+  debouncedSetPage(page);
 };
 
-const handleDelete = async (product: Product): Promise<void> => {
-  if (!confirm(`Delete product "${product.name}"?`)) return;
+const showConfirm = ref(false);
+const pendingDelete = ref<Product | null>(null);
+const duplicatingId = ref<number | string | null>(null);
+const successMessage = ref('');
+const errorMessage = ref('');
 
+const handleDelete = async (product: Product): Promise<void> => {
+  pendingDelete.value = product;
+  showConfirm.value = true;
+};
+
+const handleDuplicate = async (product: Product): Promise<void> => {
   try {
-    await productsStore.deleteItem(product.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
-    if (products.value.length === 0 && pagination.value.current_page > 1) {
+    duplicatingId.value = product.id;
+    successMessage.value = '';
+    errorMessage.value = '';
+    await duplicateMutation.mutateAsync(product.id);
+    successMessage.value = 'Product duplicated successfully.';
+  } catch (error: any) {
+    console.error('Error duplicating product:', error);
+    errorMessage.value =
+      error?.response?.data?.message ||
+      error?.message ||
+      'Failed to duplicate product. Please try again or check permissions.';
+  } finally {
+    duplicatingId.value = null;
+  }
+};
+
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const product = pendingDelete.value;
+  try {
+    await deleteMutation.mutateAsync(product.id);
+    if (products.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchProducts(newPage);
+      debouncedSetPage(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting product:', error);
     alert('Failed to delete product');
+  } finally {
+    pendingDelete.value = null;
+    showConfirm.value = false;
   }
 };
 
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete product "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
+
 onMounted(() => {
-  // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
-
-  fetchProducts(page);
+  currentPage.value = page;
 });
 </script>
 

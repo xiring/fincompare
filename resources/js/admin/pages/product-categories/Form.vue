@@ -33,6 +33,14 @@
           :error="getError(errors, 'description')"
         />
 
+        <GroupSelect
+          id="group_id"
+          v-model="form.group_id"
+          label="Group"
+          placeholder="-- Select Group --"
+          :error="getError(errors, 'group_id')"
+        />
+
         <!-- Image with existing image display (Edit mode only) -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-charcoal-700 mb-2">
@@ -88,38 +96,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductCategoriesStore } from '../../stores';
-import { useFormsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import GroupSelect from '../../components/GroupSelect.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import {
+  useProductCategoryCreateMutation,
+  useProductCategoryDetailQuery,
+  useProductCategoryUpdateMutation,
+} from '../../queries/productCategories';
+import { useFormListQuery } from '../../queries/forms';
 import type { Form, FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const categoryId = route.params.id as string | undefined;
 
-const productCategoriesStore = useProductCategoriesStore();
-const formsStore = useFormsStore();
 const isEdit = computed(() => !!categoryId);
-const loading = computed(() => productCategoriesStore.loading);
-const category = computed(() => productCategoriesStore.currentItem);
+const {
+  data: category,
+  isLoading: detailLoading,
+  error: detailError,
+} = useProductCategoryDetailQuery(computed(() => (isEdit.value ? categoryId : undefined)));
+const createMutation = useProductCategoryCreateMutation();
+const updateMutation = useProductCategoryUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   name: string;
   slug: string;
   description: string;
   image: File | null;
+  group_id: string | number | null;
   pre_form_id: string | null;
   post_form_id: string | null;
 }
@@ -129,67 +150,55 @@ const form = reactive<FormData>({
   slug: '',
   description: '',
   image: null,
+  group_id: null,
   pre_form_id: null,
   post_form_id: null,
 });
 
-const preForms = ref<Form[]>([]);
-const postForms = ref<Form[]>([]);
+const { data: formsData } = useFormListQuery({ per_page: 1000 });
+const preForms = computed<Form[]>(() => (formsData.value?.items || []).filter((f: any) => f.type === 'pre_form'));
+const postForms = computed<Form[]>(() => (formsData.value?.items || []).filter((f: any) => f.type === 'post_form'));
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
 const imagePreview = ref<string | null>(null);
 
 // Watch for image changes to show preview
-watch(() => form.image, (newFile) => {
-  if (newFile) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(newFile);
-  } else {
-    imagePreview.value = null;
+watch(
+  () => form.image,
+  (newFile) => {
+    if (newFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.value = e.target?.result as string;
+      };
+      reader.readAsDataURL(newFile);
+    } else {
+      imagePreview.value = null;
+    }
   }
+);
+
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load category';
 });
 
-const loadForms = async (): Promise<void> => {
-  try {
-    // Load all forms and filter by type
-    await formsStore.fetchItems({ per_page: 1000 });
-    const allForms = formsStore.items;
-
-    // Filter forms by type
-    preForms.value = allForms.filter((form: Form) => form.type === 'pre_form');
-    postForms.value = allForms.filter((form: Form) => form.type === 'post_form');
-  } catch (error: any) {
-    console.error('Error loading forms:', error);
-    // Don't show error for forms, just log it
+watchEffect(() => {
+  if (category.value) {
+    const cat = category.value as any;
+    form.name = cat.name || '';
+    form.slug = cat.slug || '';
+    form.description = cat.description || '';
+    form.group_id = cat.group_id ?? null;
+    form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
+    form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
   }
-};
-
-const loadCategory = async (): Promise<void> => {
-  if (!categoryId) return;
-
-  try {
-    await productCategoriesStore.fetchItem(categoryId);
-    if (category.value) {
-      const cat = category.value as any;
-      form.name = cat.name || '';
-      form.slug = cat.slug || '';
-      form.description = cat.description || '';
-      form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
-      form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
-    }
-  } catch (error: any) {
-    console.error('Error loading category:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Category not found';
-    } else {
-      errorMessage.value = 'Failed to load category';
-    }
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
   }
-};
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -207,6 +216,10 @@ const handleSubmit = async (): Promise<void> => {
       description: form.description,
     };
 
+    if (form.group_id !== null && form.group_id !== '') {
+      data.group_id = typeof form.group_id === 'string' ? parseInt(form.group_id) : form.group_id;
+    }
+
     // Add pre_form_id and post_form_id if they are set
     if (form.pre_form_id) {
       data.pre_form_id = typeof form.pre_form_id === 'string' ? parseInt(form.pre_form_id) : form.pre_form_id;
@@ -221,38 +234,28 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && categoryId) {
-      await productCategoriesStore.updateItem(categoryId, data);
+      await updateMutation.mutateAsync({ id: categoryId, payload: data });
       successMessage.value = 'Category updated successfully!';
     } else {
-      await productCategoriesStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Category created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/product-categories');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update category' : 'Failed to create category');
+      errorMessage.value = err.response?.data?.message || (isEdit.value ? 'Failed to update category' : 'Failed to create category');
     }
   }
 };
 
-onMounted(async () => {
-  try {
-    // Load forms for dropdowns
-    await loadForms();
-
-    // Load category if in edit mode
-    if (isEdit.value) {
-      await loadCategory();
-    }
-  } catch (error: any) {
-    console.error('Error loading form data:', error);
-    errorMessage.value = 'Failed to load form data';
-  }
+onMounted(() => {
+  // queries auto-load; detail handled by hook
 });
 </script>
 

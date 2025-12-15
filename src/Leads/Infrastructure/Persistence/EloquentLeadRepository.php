@@ -7,20 +7,23 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Leads\Domain\Entities\Lead;
 use Src\Leads\Domain\Repositories\LeadRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentLeadRepository repository.
  */
 class EloquentLeadRepository implements LeadRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'full_name', 'email', 'status', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'full_name', 'email', 'status', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return Lead::with(['product', 'productCategory'])
             ->when(($filters['status'] ?? null), fn ($q, $status) => $q->where('status', $status))
-            ->when(($filters['q'] ?? null), function ($q, $qStr) {
+            ->when($criteria->getSearch(), function ($q, $qStr) {
                 $q->where(function ($qq) use ($qStr) {
                     $qq->where('full_name', 'like', '%'.$qStr.'%')
                         ->orWhere('email', 'like', '%'.$qStr.'%')

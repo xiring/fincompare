@@ -34,14 +34,17 @@ class FormController extends Controller
      */
     public function index(Request $request, ListFormsAction $list)
     {
-        $filters = [
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
-            'status' => $request->get('status'),
-            'type' => $request->get('type'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ];
-        $items = $list->execute($filters, (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'status' => $request->get('status'),
+                'type' => $request->get('type'),
+            ],
+        ]);
+        $items = $list->execute($criteria);
 
         return response()->json($items);
     }

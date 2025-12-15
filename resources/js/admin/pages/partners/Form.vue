@@ -92,9 +92,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { usePartnersStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -105,16 +104,26 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
+import { usePartnerCreateMutation, usePartnerDetailQuery, usePartnerUpdateMutation } from '../../queries/partners';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const partnerId = route.params.id as string | undefined;
 
-const partnersStore = usePartnersStore();
 const isEdit = computed(() => !!partnerId);
-const loading = computed(() => partnersStore.loading);
-const partner = computed(() => partnersStore.currentItem);
+const {
+  data: partner,
+  isLoading: detailLoading,
+  error: detailError,
+} = usePartnerDetailQuery(computed(() => (isEdit.value ? partnerId : undefined)));
+const createMutation = usePartnerCreateMutation();
+const updateMutation = usePartnerUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   name: string;
@@ -136,14 +145,16 @@ const form = reactive<FormData>({
   logo: null,
 });
 
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
+const statusOptions = ConstantOptions.partnerStatuses();
 
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load partner';
+});
 
 // Clear errors when user starts typing/changing fields
 watch(() => form.name, () => {
@@ -164,30 +175,20 @@ watch(() => form.slug, () => {
   }
 });
 
-const loadPartner = async (): Promise<void> => {
-  if (!partnerId) return;
-
-  try {
-    await partnersStore.fetchItem(partnerId);
-    if (partner.value) {
-      form.name = partner.value.name || '';
-      form.slug = partner.value.slug || '';
-      form.website_url = (partner.value as any).website_url || partner.value.website || '';
-      form.contact_email = (partner.value as any).contact_email || '';
-      form.contact_phone = (partner.value as any).contact_phone || '';
-      // Ensure status is always set to a valid value
-      const statusValue = (partner.value as any).status || (partner.value.is_active ? 'active' : 'inactive');
-      form.status = (statusValue === 'active' || statusValue === 'inactive' ? statusValue : 'active') as 'active' | 'inactive';
-    }
-  } catch (error: any) {
-    console.error('Error loading partner:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Partner not found';
-    } else {
-      errorMessage.value = 'Failed to load partner';
-    }
+watchEffect(() => {
+  if (partner.value) {
+    form.name = partner.value.name || '';
+    form.slug = partner.value.slug || '';
+    form.website_url = (partner.value as any).website_url || partner.value.website || '';
+    form.contact_email = (partner.value as any).contact_email || '';
+    form.contact_phone = (partner.value as any).contact_phone || '';
+    const statusValue = (partner.value as any).status || (partner.value as any).is_active ? 'active' : 'inactive';
+    form.status = (statusValue === 'active' || statusValue === 'inactive' ? statusValue : 'active') as 'active' | 'inactive';
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -228,29 +229,25 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && partnerId) {
-      await partnersStore.updateItem(partnerId, data);
+      await updateMutation.mutateAsync({ id: partnerId, payload: data });
       successMessage.value = 'Partner updated successfully!';
     } else {
-      await partnersStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Partner created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/partners');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update partner' : 'Failed to create partner');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update partner' : 'Failed to create partner');
     }
   }
 };
-
-onMounted(() => {
-  if (isEdit.value) {
-    loadPartner();
-  }
-});
 </script>
 

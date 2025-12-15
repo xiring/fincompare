@@ -16,20 +16,19 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by title"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
-        <select
+        <FormSelect
+          id="status"
           v-model="filters.status"
-          class="px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-        >
-          <option value="">All Statuses</option>
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
+          :options="statusOptions"
+          :placeholder="false"
+          dense
+        />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -127,28 +126,36 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete CMS page"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useCmsPagesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import FormInput from '../../components/FormInput.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import FormSelect from '../../components/FormSelect.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
+import ConfirmModal from '../../components/ConfirmModal.vue';
+import { useCmsPageListQuery, useCmsPageDeleteMutation } from '../../queries/cmsPages';
 import type { CmsPage } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const cmsPagesStore = useCmsPagesStore();
-
-// Reactive state from store
-const pages = computed(() => cmsPagesStore.items);
-const loading = computed(() => cmsPagesStore.loading);
-const pagination = computed(() => cmsPagesStore.pagination);
+const statusOptions = ConstantOptions.cmsStatuses();
+const showConfirm = ref(false);
+const pendingDelete = ref<CmsPage | null>(null);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -159,6 +166,7 @@ const filters = reactive<{ q: string; per_page: number; status: string }>({
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
   status: (route.query.status as string) || '',
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -189,7 +197,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchPages = debounce((page: number) => {
-  fetchPages(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -200,25 +208,6 @@ watch(
     debouncedFetchPages(1);
   }
 );
-
-const fetchPages = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      status: filters.status,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await cmsPagesStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching CMS pages:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -252,22 +241,33 @@ const loadPage = (page: number): void => {
   debouncedFetchPages(page);
 };
 
-const handleDelete = async (page: CmsPage): Promise<void> => {
-  if (!confirm(`Delete CMS page "${page.title}"?`)) return;
+const handleDelete = (page: CmsPage): void => {
+  pendingDelete.value = page;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const page = pendingDelete.value;
   try {
-    await cmsPagesStore.deleteItem(page.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
-    if (pages.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(page.id);
+    if (pages.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchPages(newPage);
+      debouncedFetchPages(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting CMS page:', error);
     alert('Failed to delete CMS page');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete CMS page "${pendingDelete.value.title}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params
@@ -275,6 +275,33 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchPages(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  status: filters.status || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useCmsPageListQuery(listParams);
+const deleteMutation = useCmsPageDeleteMutation();
+const pages = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

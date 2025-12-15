@@ -9,6 +9,7 @@ class ProductCategoryDTO
 {
     public function __construct(
         public string $name,
+        public ?int $group_id = null,
         public ?string $slug = null,
         public ?string $description = null,
         public ?string $image = null,
@@ -21,6 +22,7 @@ class ProductCategoryDTO
     {
         return new self(
             name: $data['name'],
+            group_id: isset($data['group_id']) && $data['group_id'] ? (int) $data['group_id'] : null,
             slug: $data['slug'] ?? null,
             description: $data['description'] ?? null,
             image: $data['image'] ?? null,
@@ -34,6 +36,7 @@ class ProductCategoryDTO
     {
         return [
             'name' => $this->name,
+            'group_id' => $this->group_id,
             'slug' => $this->slug,
             'description' => $this->description,
             'image' => $this->image,

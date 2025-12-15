@@ -16,11 +16,11 @@
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
-        <input
+        <FormInput
+          id="q"
           v-model="filters.q"
-          type="text"
           placeholder="Search by name"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
+          dense
         />
         <PerPageSelector v-model="filters.per_page" />
         <button
@@ -44,6 +44,9 @@
     <Pagination :pagination="pagination" @page-change="loadPage" class="mb-4" />
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
+      <p v-if="successMessage" class="mb-4 px-4 py-3 rounded bg-green-50 text-green-800 text-sm">
+        {{ successMessage }}
+      </p>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-charcoal-200">
           <thead class="bg-charcoal-50">
@@ -97,9 +100,7 @@
                     title="Duplicate"
                     class="inline-flex items-center justify-center p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50"
                   >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                    <CopyIcon class="h-5 w-5" />
                   </button>
                   <router-link
                     :to="`/admin/forms/${form.id}/edit`"
@@ -125,28 +126,43 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      :title="confirmAction === 'delete' ? 'Delete form' : 'Duplicate form'"
+      :message="confirmMessage"
+      @confirm="confirmModalAction"
+    />
+    <ErrorMessage v-if="errorMessage" :message="errorMessage" class="mt-4" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useFormsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
-import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import FormInput from '../../components/FormInput.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
+import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon, CopyIcon } from '../../components/icons';
+import ErrorMessage from '../../components/ErrorMessage.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import {
+  useFormListQuery,
+  useFormDeleteMutation,
+  useFormDuplicateMutation,
+} from '../../queries/forms';
 import type { Form } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const formsStore = useFormsStore();
-
-// Reactive state from store
-const forms = computed(() => formsStore.items);
-const loading = computed(() => formsStore.loading);
-const pagination = computed(() => formsStore.pagination);
+const showConfirm = ref(false);
+const confirmAction = ref<'delete' | 'duplicate' | null>(null);
+const pendingForm = ref<Form | null>(null);
+const successMessage = ref('');
+const errorMessage = ref('');
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -185,7 +201,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchForms = debounce((page: number) => {
-  fetchForms(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -196,24 +212,6 @@ watch(
     debouncedFetchForms(1);
   }
 );
-
-const fetchForms = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await formsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching forms:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -246,33 +244,56 @@ const loadPage = (page: number): void => {
   debouncedFetchForms(page);
 };
 
-const handleDelete = async (form: Form): Promise<void> => {
-  if (!confirm(`Delete form "${form.name}"?`)) return;
-
-  try {
-    await formsStore.deleteItem(form.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
-    if (forms.value.length === 0 && pagination.value.current_page > 1) {
-      const newPage = pagination.value.current_page - 1;
-      updateQueryParams(newPage);
-      fetchForms(newPage);
-    }
-  } catch (error: any) {
-    console.error('Error deleting form:', error);
-    alert('Failed to delete form');
-  }
+const handleDelete = (form: Form): void => {
+  pendingForm.value = form;
+  confirmAction.value = 'delete';
+  showConfirm.value = true;
 };
 
-const handleDuplicate = async (form: Form): Promise<void> => {
-  if (!confirm(`Duplicate form "${form.name}"?`)) return;
+const handleDuplicate = (form: Form): void => {
+  pendingForm.value = form;
+  confirmAction.value = 'duplicate';
+  showConfirm.value = true;
+};
 
+const confirmMessage = computed(() => {
+  if (!pendingForm.value || !confirmAction.value) return '';
+  const verb = confirmAction.value === 'delete' ? 'Delete' : 'Duplicate';
+  const suffix = confirmAction.value === 'delete' ? ' This cannot be undone.' : '';
+  return `${verb} form "${pendingForm.value.name}"?${suffix}`;
+});
+
+const confirmModalAction = async (): Promise<void> => {
+  if (!pendingForm.value || !confirmAction.value) return;
+  const form = pendingForm.value;
   try {
-    await (formsStore as any).duplicateItem(form.id);
-    const currentPage = pagination.value?.current_page || 1;
-    fetchForms(currentPage);
+    if (confirmAction.value === 'delete') {
+      await deleteMutation.mutateAsync(form.id);
+      if (forms.value.length <= 1 && pagination.value.current_page > 1) {
+        const newPage = pagination.value.current_page - 1;
+        updateQueryParams(newPage);
+        debouncedFetchForms(newPage);
+      }
+    } else {
+      await duplicateMutation.mutateAsync(form.id);
+      const currentPageValue = pagination.value?.current_page || 1;
+      updateQueryParams(currentPageValue);
+    }
+    successMessage.value =
+      confirmAction.value === 'delete'
+        ? `Form "${form.name}" deleted.`
+        : `Form "${form.name}" duplicated.`;
+    setTimeout(() => (successMessage.value = ''), 3000);
   } catch (error: any) {
-    console.error('Error duplicating form:', error);
-    alert('Failed to duplicate form');
+    console.error('Error processing form action:', error);
+    errorMessage.value =
+      error?.response?.data?.message ||
+      error?.message ||
+      `Failed to ${confirmAction.value} form. Please try again or check permissions.`;
+  } finally {
+    showConfirm.value = false;
+    pendingForm.value = null;
+    confirmAction.value = null;
   }
 };
 
@@ -282,6 +303,33 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchForms(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useFormListQuery(listParams);
+const deleteMutation = useFormDeleteMutation();
+const duplicateMutation = useFormDuplicateMutation();
+const forms = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

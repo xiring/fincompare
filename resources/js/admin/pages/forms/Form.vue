@@ -218,9 +218,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useFormsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -232,16 +231,26 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
-import type { FormErrors, Form } from '../../types/index';
+import { ConstantOptions } from '../../constants/ConstantOptions';
+import { useFormCreateMutation, useFormDetailQuery, useFormUpdateMutation } from '../../queries/forms';
+import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const formId = route.params.id as string | undefined;
 
-const formsStore = useFormsStore();
 const isEdit = computed(() => !!formId);
-const loading = computed(() => formsStore.loading);
-const formData = computed<Form | null>(() => formsStore.currentItem);
+const {
+  data: formData,
+  isLoading: detailLoading,
+  error: detailError,
+} = useFormDetailQuery(computed(() => (isEdit.value ? formId : undefined)));
+const createMutation = useFormCreateMutation();
+const updateMutation = useFormUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormInputData {
   _id?: string;
@@ -276,22 +285,9 @@ const form = reactive<FormData>({
   inputs: [],
 });
 
-const typeOptions = [
-  { id: 'pre_form', name: 'Pre Form' },
-  { id: 'post_form', name: 'Post Form' },
-];
-
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
-
-const inputTypeOptions = [
-  { id: 'text', name: 'Text' },
-  { id: 'textarea', name: 'Textarea' },
-  { id: 'dropdown', name: 'Dropdown' },
-  { id: 'checkbox', name: 'Checkbox' },
-];
+const typeOptions = ConstantOptions.formTypes();
+const statusOptions = ConstantOptions.formStatuses();
+const inputTypeOptions = ConstantOptions.formInputTypes();
 
 let inputIdCounter = 0;
 
@@ -348,56 +344,49 @@ const moveInput = (index: number, direction: 'up' | 'down'): void => {
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load form';
+});
 
-const loadForm = async (): Promise<void> => {
-  if (!formId) return;
+watchEffect(() => {
+  if (formData.value) {
+    form.name = formData.value.name || '';
+    form.slug = formData.value.slug || '';
+    form.description = formData.value.description || '';
+    form.type = (formData.value.type as 'pre_form' | 'post_form') || 'pre_form';
+    form.status = ((formData.value as any).status as 'active' | 'inactive') || 'active';
 
-  try {
-    await formsStore.fetchItem(formId);
-    if (formData.value) {
-      form.name = formData.value.name || '';
-      form.slug = formData.value.slug || '';
-      form.description = formData.value.description || '';
-      form.type = (formData.value.type as 'pre_form' | 'post_form') || 'pre_form';
-      form.status = ((formData.value as any).status as 'active' | 'inactive') || 'active';
+    const inputs = formData.value.inputs || [];
+    form.inputs = inputs.map((input: any, index: number) => {
+      let options_text = '';
+      if (input.type === 'dropdown' && input.options && Array.isArray(input.options)) {
+        options_text = input.options.join('\n');
+      }
 
-      // Load existing inputs
-      const inputs = formData.value.inputs || [];
-      form.inputs = inputs.map((input: any, index: number) => {
-        // Convert options array to text for dropdown inputs
-        let options_text = '';
-        if (input.type === 'dropdown' && input.options && Array.isArray(input.options)) {
-          options_text = input.options.join('\n');
-        }
+      return {
+        id: input.id,
+        _id: input.id ? `input-${input.id}` : `input-${++inputIdCounter}`,
+        label: input.label || '',
+        name: input.name || '',
+        type: (input.type as 'text' | 'textarea' | 'dropdown' | 'checkbox') || 'text',
+        options: input.options || null,
+        options_text,
+        placeholder: input.placeholder || '',
+        help_text: input.help_text || '',
+        is_required: input.is_required || false,
+        validation_rules: input.validation_rules || '',
+        sort_order: input.sort_order !== undefined ? input.sort_order : index,
+      };
+    });
 
-        return {
-          id: input.id,
-          _id: input.id ? `input-${input.id}` : `input-${++inputIdCounter}`,
-          label: input.label || '',
-          name: input.name || '',
-          type: (input.type as 'text' | 'textarea' | 'dropdown' | 'checkbox') || 'text',
-          options: input.options || null,
-          options_text: options_text,
-          placeholder: input.placeholder || '',
-          help_text: input.help_text || '',
-          is_required: input.is_required || false,
-          validation_rules: input.validation_rules || '',
-          sort_order: input.sort_order !== undefined ? input.sort_order : index,
-        };
-      });
-
-      // Update counter to avoid conflicts
-      inputIdCounter = Math.max(inputIdCounter, inputs.length);
-    }
-  } catch (error: any) {
-    console.error('Error loading form:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Form not found';
-    } else {
-      errorMessage.value = 'Failed to load form';
-    }
+    inputIdCounter = Math.max(inputIdCounter, inputs.length);
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -441,29 +430,29 @@ const handleSubmit = async (): Promise<void> => {
     };
 
     if (isEdit.value && formId) {
-      await formsStore.updateItem(formId, submitData);
+      await updateMutation.mutateAsync({ id: formId, payload: submitData });
       successMessage.value = 'Form updated successfully!';
     } else {
-      await formsStore.createItem(submitData);
+      await createMutation.mutateAsync(submitData);
       successMessage.value = 'Form created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/forms');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update form' : 'Failed to create form');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update form' : 'Failed to create form');
     }
   }
 };
 
 onMounted(() => {
-  if (isEdit.value) {
-    loadForm();
-  }
+  // detail query auto-loads via hook
 });
 </script>
 

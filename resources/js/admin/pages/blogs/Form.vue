@@ -110,9 +110,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useBlogsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -126,16 +125,26 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { ConstantOptions } from '../../constants/ConstantOptions';
+import { useBlogCreateMutation, useBlogDetailQuery, useBlogUpdateMutation } from '../../queries/blogs';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const blogId = route.params.id as string | undefined;
 
-const blogsStore = useBlogsStore();
 const isEdit = computed(() => !!blogId);
-const loading = computed(() => blogsStore.loading);
-const blog = computed(() => blogsStore.currentItem);
+const {
+  data: blog,
+  isLoading: detailLoading,
+  error: detailError,
+} = useBlogDetailQuery(computed(() => (isEdit.value ? blogId : undefined)));
+const createMutation = useBlogCreateMutation();
+const updateMutation = useBlogUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   title: string;
@@ -161,40 +170,32 @@ const form = reactive<FormData>({
   seo_keywords: '',
 });
 
-const statusOptions = [
-  { id: 'draft', name: 'Draft' },
-  { id: 'published', name: 'Published' },
-  { id: 'archived', name: 'Archived' },
-];
+const statusOptions = ConstantOptions.blogStatuses().filter((o) => o.id !== '');
 
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load blog post';
+});
 
-const loadBlog = async (): Promise<void> => {
-  if (!blogId) return;
-
-  try {
-    await blogsStore.fetchItem(blogId);
-    if (blog.value) {
-      form.title = blog.value.title || '';
-      form.slug = blog.value.slug || '';
-      form.category = blog.value.category || '';
-      form.content = blog.value.content || '';
-      form.status = (blog.value.status as 'draft' | 'published' | 'archived') || 'draft';
-      form.seo_title = blog.value.seo_title || '';
-      form.seo_description = blog.value.seo_description || '';
-      form.seo_keywords = blog.value.seo_keywords || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading blog:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Blog post not found';
-    } else {
-      errorMessage.value = 'Failed to load blog post';
-    }
+watchEffect(() => {
+  if (blog.value) {
+    form.title = blog.value.title || '';
+    form.slug = blog.value.slug || '';
+    form.category = blog.value.category || '';
+    form.content = blog.value.content || '';
+    form.status = (blog.value.status as 'draft' | 'published' | 'archived') || 'draft';
+    form.seo_title = blog.value.seo_title || '';
+    form.seo_description = blog.value.seo_description || '';
+    form.seo_keywords = blog.value.seo_keywords || '';
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -224,29 +225,25 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && blogId) {
-      await blogsStore.updateItem(blogId, data);
+      await updateMutation.mutateAsync({ id: blogId, payload: data });
       successMessage.value = 'Blog post updated successfully!';
     } else {
-      await blogsStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Blog post created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/blogs');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update blog post' : 'Failed to create blog post');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update blog post' : 'Failed to create blog post');
     }
   }
 };
-
-onMounted(() => {
-  if (isEdit.value) {
-    loadBlog();
-  }
-});
 </script>
 

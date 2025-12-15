@@ -34,12 +34,17 @@ class AttributeController extends Controller
      */
     public function index(Request $request, ListAttributesAction $list)
     {
-        $items = $list->execute([
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
-            'product_category_id' => $request->get('product_category_id'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ], (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'product_category_id' => $request->integer('product_category_id') ?: null,
+            ],
+        ]);
+
+        $items = $list->execute($criteria);
 
         return response()->json($items);
     }

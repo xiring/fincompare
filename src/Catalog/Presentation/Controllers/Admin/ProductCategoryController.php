@@ -35,11 +35,17 @@ class ProductCategoryController extends Controller
      */
     public function index(Request $request, ListProductCategoriesAction $list)
     {
-        $items = $list->execute([
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ], (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'group_id' => $request->integer('group_id') ?: null,
+            ],
+        ]);
+
+        $items = $list->execute($criteria);
 
         return response()->json($items);
     }

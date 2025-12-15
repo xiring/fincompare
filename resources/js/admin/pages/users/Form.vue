@@ -66,9 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUsersStore, useRolesStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -78,18 +77,28 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { useUserCreateMutation, useUserDetailQuery, useUserUpdateMutation } from '../../queries/users';
+import { useRoleListQuery } from '../../queries/roles';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const userId = route.params.id as string | undefined;
 
-const usersStore = useUsersStore();
-const rolesStore = useRolesStore();
 const isEdit = computed(() => !!userId);
-const loading = computed(() => usersStore.loading);
-const user = computed(() => usersStore.currentItem);
-const roles = computed(() => rolesStore.items);
+const {
+  data: user,
+  isLoading: detailLoading,
+  error: detailError,
+} = useUserDetailQuery(computed(() => (isEdit.value ? userId : undefined)));
+const createMutation = useUserCreateMutation();
+const updateMutation = useUserUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
+const { data: rolesData } = useRoleListQuery({ per_page: 1000 });
+const roles = computed(() => (rolesData.value?.items || []) as any[]);
 
 interface FormData {
   name: string;
@@ -110,28 +119,24 @@ const form = reactive<FormData>({
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load user';
+});
 
-const loadUser = async (): Promise<void> => {
-  if (!userId) return;
-
-  try {
-    await usersStore.fetchItem(userId);
-    if (user.value) {
-      form.name = user.value.name || '';
-      form.email = user.value.email || '';
-      form.password = '';
-      form.password_confirmation = '';
-      form.roles = (user.value.roles || []).map((role: any) => role.id || role);
-    }
-  } catch (error: any) {
-    console.error('Error loading user:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'User not found';
-    } else {
-      errorMessage.value = 'Failed to load user';
-    }
+watchEffect(() => {
+  if (user.value) {
+    form.name = user.value.name || '';
+    form.email = user.value.email || '';
+    form.password = '';
+    form.password_confirmation = '';
+    form.roles = (user.value.roles || []).map((role: any) => role.id || role);
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -152,35 +157,28 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && userId) {
-      await usersStore.updateItem(userId, data);
+      await updateMutation.mutateAsync({ id: userId, payload: data });
       successMessage.value = 'User updated successfully!';
     } else {
-      await usersStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'User created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/users');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update user' : 'Failed to create user');
+      errorMessage.value = err?.response?.data?.message || (isEdit.value ? 'Failed to update user' : 'Failed to create user');
     }
   }
 };
 
-onMounted(async () => {
-  try {
-    await rolesStore.fetchItems({ per_page: 1000 });
-    if (isEdit.value) {
-      await loadUser();
-    }
-  } catch (error: any) {
-    console.error('Error loading form data:', error);
-    errorMessage.value = 'Failed to load form data';
-  }
+onMounted(() => {
+  // roles query auto-loads; user detail query handled by hook
 });
 </script>
 

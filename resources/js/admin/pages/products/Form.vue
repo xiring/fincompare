@@ -2,11 +2,11 @@
   <div>
     <PageHeader :title="isEdit ? 'Edit Product' : 'Create Product'" :description="isEdit ? 'Update product information' : 'Add a new product to the catalog'" />
 
-    <LoadingSpinner v-if="isEdit && loading && !productsStore.currentItem" text="Loading product..." />
+    <LoadingSpinner v-if="isEdit && loading && !product" text="Loading product..." />
     <ErrorMessage v-else-if="errorMessage" :message="errorMessage" class="mb-6" />
     <SuccessMessage v-if="successMessage" :message="successMessage" class="mb-6" />
 
-    <FormCard v-if="!isEdit || productsStore.currentItem">
+    <FormCard v-if="!isEdit || product">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Left Column: Basic Product Information -->
@@ -80,19 +80,12 @@
                 </div>
               </div>
 
-              <div class="mb-6">
-                <div class="flex items-center gap-3">
-                  <input
-                    id="is_featured"
-                    v-model="form.is_featured"
-                    type="checkbox"
-                    class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
-                  />
-                  <label for="is_featured" class="block text-sm font-medium text-charcoal-700">
-                    Featured
-                  </label>
-                </div>
-              </div>
+              <FormCheckbox
+                id="is_featured"
+                v-model="form.is_featured"
+                label="Featured"
+                :options="[{ id: true, name: 'Featured' }]"
+              />
 
               <FormSelect
                 id="status"
@@ -147,19 +140,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, watch, watchEffect, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductsStore } from '../../stores';
-import { usePartnersStore } from '../../stores';
-import { useProductCategoriesStore } from '../../stores';
-import { adminApi } from '../../services/api';
 import { extractValidationErrors, getError } from '../../utils/validation';
+import { ConstantOptions } from '../../constants/ConstantOptions';
+import {
+  useProductCreateMutation,
+  useProductDetailQuery,
+  useProductUpdateMutation,
+} from '../../queries/products';
+import { usePartnerListQuery } from '../../queries/partners';
+import { useProductCategoryListQuery } from '../../queries/productCategories';
+import { useAttributeListQuery } from '../../queries/attributes';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormSection from '../../components/FormSection.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import FormCheckbox from '../../components/FormCheckbox.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import AttributeInput from '../../components/AttributeInput.vue';
@@ -172,13 +171,19 @@ const route = useRoute();
 const router = useRouter();
 const productId = route.params.id as string | undefined;
 
-const productsStore = useProductsStore();
-const partnersStore = usePartnersStore();
-const productCategoriesStore = useProductCategoriesStore();
-
 const isEdit = computed(() => !!productId);
-const loading = computed(() => productsStore.loading);
-const product = computed(() => productsStore.currentItem);
+const {
+  data: productData,
+  isLoading: detailLoading,
+  error: detailError,
+} = useProductDetailQuery(computed(() => (isEdit.value ? productId : undefined)));
+const createMutation = useProductCreateMutation();
+const updateMutation = useProductUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
+const product = computed(() => productData.value || null);
 
 interface ProductFormData {
   name: string;
@@ -204,19 +209,18 @@ const form = reactive<ProductFormData>({
   attributes: {},
 });
 
-const partners = ref<Partner[]>([]);
-const categories = ref<ProductCategory[]>([]);
+const { data: partnersData } = usePartnerListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const { data: categoriesData } = useProductCategoryListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const partners = computed<Partner[]>(() => (partnersData.value?.items || []) as Partner[]);
+const categories = computed<ProductCategory[]>(() => (categoriesData.value?.items || []) as ProductCategory[]);
 const attributes = ref<Attribute[]>([]);
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
-const loadingAttributes = ref<boolean>(false);
+const loadingAttributes = computed(() => attributesLoading.value || attributesFetching.value);
 const imagePreview = ref<string | null>(null);
 
-const statusOptions = [
-  { id: 'active', name: 'Active' },
-  { id: 'inactive', name: 'Inactive' },
-];
+const statusOptions = ConstantOptions.productStatuses();
 
 // Watch for image changes to show preview
 watch(() => form.image, (newFile) => {
@@ -266,65 +270,70 @@ const getScalarValue = (attributeValue: AttributeValue | null | undefined): any 
   return null;
 };
 
-const loadAttributes = async (): Promise<void> => {
-  const categoryId = form.product_category_id;
-  if (!categoryId) {
-    attributes.value = [];
-    return;
-  }
+const attributesParams = computed(() => ({
+  product_category_id: form.product_category_id || undefined,
+  per_page: 500,
+  sort: 'id',
+  dir: 'asc',
+}));
 
-  loadingAttributes.value = true;
-  try {
-    const categoryIdStr = String(categoryId);
-    const response = await adminApi.attributes.byCategory(categoryIdStr);
-    attributes.value = (Array.isArray(response.data) ? response.data : response.data?.data || []) as Attribute[];
+const { data: attributesData, isLoading: attributesLoading, isFetching: attributesFetching } = useAttributeListQuery(
+  attributesParams,
+  { enabled: computed(() => !!form.product_category_id) }
+);
 
-    // Initialize attribute values from existing product or empty
-    if (isEdit.value) {
-      const currentItem = productsStore.currentItem as any;
-      const attributeValues: AttributeValue[] = currentItem?.attributeValues || currentItem?.attribute_values || [];
-      attributes.value.forEach((attr) => {
-        if (!(attr.id in form.attributes)) {
-          // Try to get existing value from product
-          const existingValue = attributeValues.find((av) => av.attribute_id === attr.id);
+watchEffect(() => {
+  const attrs = (attributesData.value?.items || []) as Attribute[];
+  attributes.value = attrs;
+});
 
-          if (existingValue) {
-            const scalarValue = getScalarValue(existingValue);
-            form.attributes[attr.id] = scalarValue !== null && scalarValue !== undefined ? scalarValue : '';
-          } else {
-            form.attributes[attr.id] = '';
-          }
-        }
-      });
-    } else {
-      // Initialize attribute values for create mode
-      attributes.value.forEach((attr) => {
-        if (!(attr.id in form.attributes)) {
+const loadAttributesFromProduct = () => {
+  const attrs = attributes.value;
+  const currentItem = product.value as any;
+  const attributeValues: AttributeValue[] = currentItem?.attributeValues || currentItem?.attribute_values || [];
+
+  if (isEdit.value) {
+    attrs.forEach((attr) => {
+      if (!(attr.id in form.attributes)) {
+        const existingValue = attributeValues.find((av) => av.attribute_id === attr.id);
+        if (existingValue) {
+          const scalarValue = getScalarValue(existingValue);
+          form.attributes[attr.id] = scalarValue !== null && scalarValue !== undefined ? scalarValue : '';
+        } else {
           form.attributes[attr.id] = '';
         }
-      });
-    }
-  } catch (error: any) {
-    console.error('Error loading attributes:', error);
-    errorMessage.value = 'Failed to load attributes';
-  } finally {
-    loadingAttributes.value = false;
+      }
+    });
+  } else {
+    attrs.forEach((attr) => {
+      if (!(attr.id in form.attributes)) {
+        form.attributes[attr.id] = '';
+      }
+    });
   }
 };
 
-// Watch for category changes to load attributes
-watch(() => form.product_category_id, () => {
-  loadAttributes();
+watchEffect(() => {
+  if (attributes.value.length === 0) return;
+  loadAttributesFromProduct();
 });
 
-const loadProduct = async (): Promise<void> => {
-  if (!productId) return;
+watch(
+  () => form.product_category_id,
+  () => {
+    form.attributes = {};
+  }
+);
 
-  try {
-    await productsStore.fetchItem(productId);
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load product';
+});
 
-    // Populate form
-    const currentItem = productsStore.currentItem as any;
+watchEffect(() => {
+  if (product.value) {
+    const currentItem = product.value as any;
     form.name = currentItem?.name || '';
     form.slug = currentItem?.slug || '';
     form.partner_id = String(currentItem?.partner_id || '');
@@ -333,30 +342,29 @@ const loadProduct = async (): Promise<void> => {
     form.is_featured = currentItem?.is_featured || false;
     form.status = currentItem?.status || 'active';
 
-    // Initialize attribute values from existing product data
     const attributeValues: AttributeValue[] = currentItem?.attributeValues || currentItem?.attribute_values || [];
-    if (attributeValues.length > 0) {
-      attributeValues.forEach((av) => {
-        const scalarValue = getScalarValue(av);
-        if (scalarValue !== null && scalarValue !== undefined) {
-          form.attributes[av.attribute_id] = scalarValue;
-        }
-      });
-    }
-
-    // Load attributes if category is set (this will also populate any missing attribute values)
-    if (form.product_category_id) {
-      await loadAttributes();
-    }
-  } catch (error: any) {
-    console.error('Error loading product:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Product not found';
-    } else {
-      errorMessage.value = 'Failed to load product';
-    }
+    attributeValues.forEach((av) => {
+      const scalarValue = getScalarValue(av);
+      if (scalarValue !== null && scalarValue !== undefined) {
+        form.attributes[av.attribute_id] = scalarValue;
+      }
+    });
+    loadAttributesFromProduct();
+  } else {
+    form.name = '';
+    form.slug = '';
+    form.partner_id = '';
+    form.product_category_id = '';
+    form.description = '';
+    form.is_featured = false;
+    form.status = 'active';
+    form.attributes = {};
   }
-};
+
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -386,42 +394,29 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && productId) {
-      await productsStore.updateItem(productId, data);
+      await updateMutation.mutateAsync({ id: productId, payload: data });
       successMessage.value = 'Product updated successfully!';
     } else {
-      await productsStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Product created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/products');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update product' : 'Failed to create product');
+      errorMessage.value = err.response?.data?.message || (isEdit.value ? 'Failed to update product' : 'Failed to create product');
     }
   }
 };
 
-onMounted(async () => {
-  try {
-    // Load partners and categories using stores (fetch all items for dropdowns)
-    await Promise.all([
-      partnersStore.fetchItems({ per_page: 1000 }),
-      productCategoriesStore.fetchItems({ per_page: 1000 }),
-    ]);
-    partners.value = partnersStore.items;
-    categories.value = productCategoriesStore.items;
-
-    // Load product if in edit mode
-    if (isEdit.value) {
-      await loadProduct();
-    }
-  } catch (error: any) {
-    console.error('Error loading form data:', error);
-    errorMessage.value = 'Failed to load form data';
+onMounted(() => {
+  if (!isEdit.value && form.product_category_id) {
+    loadAttributesFromProduct();
   }
 });
 </script>

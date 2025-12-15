@@ -31,9 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { usePermissionsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -42,16 +41,29 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import {
+  usePermissionCreateMutation,
+  usePermissionDetailQuery,
+  usePermissionUpdateMutation,
+} from '../../queries/permissions';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const permissionId = route.params.id as string | undefined;
 
-const permissionsStore = usePermissionsStore();
 const isEdit = computed(() => !!permissionId);
-const loading = computed(() => permissionsStore.loading);
-const permission = computed(() => permissionsStore.currentItem);
+const {
+  data: permission,
+  isLoading: detailLoading,
+  error: detailError,
+} = usePermissionDetailQuery(computed(() => (isEdit.value ? permissionId : undefined)));
+const createMutation = usePermissionCreateMutation();
+const updateMutation = usePermissionUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   name: string;
@@ -64,24 +76,20 @@ const form = reactive<FormData>({
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load permission';
+});
 
-const loadPermission = async (): Promise<void> => {
-  if (!permissionId) return;
-
-  try {
-    await permissionsStore.fetchItem(permissionId);
-    if (permission.value) {
-      form.name = permission.value.name || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading permission:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Permission not found';
-    } else {
-      errorMessage.value = 'Failed to load permission';
-    }
+watchEffect(() => {
+  if (permission.value) {
+    form.name = permission.value.name || '';
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -90,29 +98,25 @@ const handleSubmit = async (): Promise<void> => {
 
   try {
     if (isEdit.value && permissionId) {
-      await permissionsStore.updateItem(permissionId, form);
+      await updateMutation.mutateAsync({ id: permissionId, payload: form });
       successMessage.value = 'Permission updated successfully!';
     } else {
-      await permissionsStore.createItem(form);
+      await createMutation.mutateAsync(form);
       successMessage.value = 'Permission created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/permissions');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update permission' : 'Failed to create permission');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update permission' : 'Failed to create permission');
     }
   }
 };
-
-onMounted(() => {
-  if (isEdit.value) {
-    loadPermission();
-  }
-});
 </script>
 

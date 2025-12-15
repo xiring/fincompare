@@ -5,13 +5,14 @@ namespace Src\Catalog\Domain\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
 use Src\Catalog\Domain\Entities\ProductCategory;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * ProductCategoryRepositoryInterface interface.
  */
 interface ProductCategoryRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?ProductCategory;
 

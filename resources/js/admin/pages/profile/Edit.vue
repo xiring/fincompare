@@ -87,8 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { adminApi } from '../../services/api';
+import { ref, reactive, watchEffect } from 'vue';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
@@ -97,10 +96,12 @@ import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormActions from '../../components/FormActions.vue';
-import type { User, FormErrors } from '../../types/index';
+import type { FormErrors } from '../../types/index';
+import { useProfileQuery, useProfileUpdateMutation, usePasswordUpdateMutation } from '../../queries/profile';
 
-const user = ref<User | null>(null);
-const loading = ref<boolean>(false);
+const { data: user, error } = useProfileQuery();
+const updateProfileMutation = useProfileUpdateMutation();
+const updatePasswordMutation = usePasswordUpdateMutation();
 const profileLoading = ref<boolean>(false);
 const passwordLoading = ref<boolean>(false);
 const errorMessage = ref<string>('');
@@ -131,23 +132,15 @@ const passwordForm = reactive<PasswordFormData>({
 const profileErrors = ref<FormErrors>({});
 const passwordErrors = ref<FormErrors>({});
 
-const loadUser = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    const response = await adminApi.profile.show();
-    user.value = ((response.data as any).data || response.data) as User | null;
-
-    if (user.value) {
-      profileForm.name = user.value.name || '';
-      profileForm.email = user.value.email || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading user:', error);
-    errorMessage.value = 'Failed to load profile';
-  } finally {
-    loading.value = false;
+watchEffect(() => {
+  if (user.value) {
+    profileForm.name = user.value.name || '';
+    profileForm.email = user.value.email || '';
   }
-};
+  if (error?.value) {
+    errorMessage.value = 'Failed to load profile';
+  }
+});
 
 const handleProfileUpdate = async (): Promise<void> => {
   profileErrors.value = {};
@@ -156,11 +149,11 @@ const handleProfileUpdate = async (): Promise<void> => {
   profileLoading.value = true;
 
   try {
-    await adminApi.profile.update(profileForm);
+    await updateProfileMutation.mutateAsync(profileForm);
     successMessage.value = 'Profile updated successfully!';
     setTimeout(() => {
       successMessage.value = '';
-      loadUser();
+      // refetch happens via cache invalidation in mutation
     }, 2000);
   } catch (error: any) {
     profileLoading.value = false;
@@ -179,7 +172,7 @@ const handlePasswordUpdate = async (): Promise<void> => {
   passwordLoading.value = true;
 
   try {
-    await adminApi.profile.updatePassword(passwordForm);
+    await updatePasswordMutation.mutateAsync(passwordForm);
     successMessage.value = 'Password updated successfully!';
 
     passwordForm.current_password = '';
@@ -199,7 +192,5 @@ const handlePasswordUpdate = async (): Promise<void> => {
   }
 };
 
-onMounted(() => {
-  loadUser();
-});
+// queries handle loading; no manual load needed
 </script>

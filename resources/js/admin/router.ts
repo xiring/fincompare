@@ -56,6 +56,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Import Products' },
       },
       {
+        path: 'groups',
+        name: 'admin.groups.index',
+        component: () => import('./pages/groups/Index.vue'),
+        meta: { title: 'Groups' },
+      },
+      {
+        path: 'groups/create',
+        name: 'admin.groups.create',
+        component: () => import('./pages/groups/Create.vue'),
+        meta: { title: 'Create Group' },
+      },
+      {
+        path: 'groups/:id/edit',
+        name: 'admin.groups.edit',
+        component: () => import('./pages/groups/Edit.vue'),
+        meta: { title: 'Edit Group' },
+      },
+      {
         path: 'partners',
         name: 'admin.partners.index',
         component: () => import('./pages/partners/Index.vue'),

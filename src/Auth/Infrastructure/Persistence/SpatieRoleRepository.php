@@ -6,19 +6,21 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Role;
 use Src\Auth\Application\DTOs\RoleDTO;
 use Src\Auth\Domain\Repositories\RoleRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * SpatieRoleRepository repository.
  */
 class SpatieRoleRepository implements RoleRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'name', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return Role::query()
-            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when($criteria->getSearch(), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();
     }

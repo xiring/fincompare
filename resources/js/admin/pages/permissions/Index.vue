@@ -101,28 +101,33 @@
 
     <!-- Pagination (Below Table) -->
     <Pagination :pagination="pagination" @page-change="loadPage" />
+
+    <ConfirmModal
+      v-model="showConfirm"
+      title="Delete permission"
+      :message="confirmMessage"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { usePermissionsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
+import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { usePermissionListQuery, usePermissionDeleteMutation } from '../../queries/permissions';
 import type { Permission } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const permissionsStore = usePermissionsStore();
-
-// Reactive state from store
-const permissions = computed(() => permissionsStore.items);
-const loading = computed(() => permissionsStore.loading);
-const pagination = computed(() => permissionsStore.pagination);
+const showConfirm = ref(false);
+const pendingDelete = ref<Permission | null>(null);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -161,7 +166,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchPermissions = debounce((page: number) => {
-  fetchPermissions(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -172,24 +177,6 @@ watch(
     debouncedFetchPermissions(1);
   }
 );
-
-const fetchPermissions = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await permissionsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching permissions:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -222,22 +209,33 @@ const loadPage = (page: number): void => {
   debouncedFetchPermissions(page);
 };
 
-const handleDelete = async (permission: Permission): Promise<void> => {
-  if (!confirm(`Delete permission "${permission.name}"?`)) return;
+const handleDelete = (permission: Permission): void => {
+  pendingDelete.value = permission;
+  showConfirm.value = true;
+};
 
+const confirmDelete = async (): Promise<void> => {
+  if (!pendingDelete.value) return;
+  const permission = pendingDelete.value;
   try {
-    await permissionsStore.deleteItem(permission.id);
-    // Store automatically updates the list, but we may need to refresh if pagination changed
-    if (permissions.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(permission.id);
+    if (permissions.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchPermissions(newPage);
+      debouncedFetchPermissions(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting permission:', error);
     alert('Failed to delete permission');
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
 };
+
+const confirmMessage = computed(() =>
+  pendingDelete.value ? `Delete permission "${pendingDelete.value.name}"? This cannot be undone.` : ''
+);
 
 onMounted(() => {
   // Initialize from URL query params
@@ -245,6 +243,32 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchPermissions(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = usePermissionListQuery(listParams);
+const deleteMutation = usePermissionDeleteMutation();
+const permissions = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

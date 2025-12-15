@@ -7,7 +7,7 @@
     <div class="space-y-2">
       <label
         v-for="option in options"
-        :key="getOptionValue(option)"
+        :key="String(getOptionValue(option))"
         :class="[
           'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors',
           'hover:bg-charcoal-50',
@@ -15,8 +15,8 @@
         ]"
       >
         <input
-          :id="`${id}-${getOptionValue(option)}`"
-          :type="multiple ? 'checkbox' : 'radio'"
+          :id="`${id}-${String(getOptionValue(option))}`"
+          :type="isCheckbox ? 'checkbox' : 'radio'"
           :value="getOptionValue(option)"
           :checked="isChecked(option)"
           :disabled="disabled"
@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-
+import { computed } from 'vue';
 interface Props {
   id: string;
-  modelValue?: string | number | Array<string | number>;
+  modelValue?: string | number | boolean | Array<string | number | boolean>;
   label?: string;
-  options: Array<Record<string, any> | string | number>;
+  options: Array<Record<string, any> | string | number | boolean>;
   optionValue?: string;
   optionLabel?: string;
   multiple?: boolean;
@@ -61,18 +61,20 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number | Array<string | number>];
+  'update:modelValue': [value: string | number | boolean | Array<string | number | boolean> | null];
 }>();
 
-const getOptionValue = (option: Record<string, any> | string | number): string | number => {
+const isCheckbox = computed(() => props.multiple || props.options.length === 1);
+
+const getOptionValue = (option: Record<string, any> | string | number | boolean): string | number | boolean => {
   return typeof option === 'object' ? option[props.optionValue] : option;
 };
 
-const getOptionLabel = (option: Record<string, any> | string | number): string => {
+const getOptionLabel = (option: Record<string, any> | string | number | boolean): string => {
   return typeof option === 'object' ? option[props.optionLabel] : String(option);
 };
 
-const isChecked = (option: Record<string, any> | string | number): boolean => {
+const isChecked = (option: Record<string, any> | string | number | boolean): boolean => {
   const value = getOptionValue(option);
   if (props.multiple) {
     return Array.isArray(props.modelValue) && props.modelValue.includes(value);
@@ -80,7 +82,7 @@ const isChecked = (option: Record<string, any> | string | number): boolean => {
   return props.modelValue === value;
 };
 
-const handleChange = (option: Record<string, any> | string | number, event: Event): void => {
+const handleChange = (option: Record<string, any> | string | number | boolean, event: Event): void => {
   const target = event.target as HTMLInputElement;
   const value = getOptionValue(option);
   if (props.multiple) {
@@ -95,7 +97,12 @@ const handleChange = (option: Record<string, any> | string | number, event: Even
     }
     emit('update:modelValue', currentValues);
   } else {
-    emit('update:modelValue', target.checked ? value : '');
+    if (target.checked) {
+      emit('update:modelValue', value);
+    } else {
+      // For boolean options, emit false; otherwise emit null to indicate cleared
+      emit('update:modelValue', typeof value === 'boolean' ? false : null);
+    }
   }
 };
 </script>

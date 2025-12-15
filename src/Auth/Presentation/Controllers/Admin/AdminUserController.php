@@ -5,7 +5,6 @@ namespace Src\Auth\Presentation\Controllers\Admin;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Spatie\Permission\Models\Role;
 use Src\Auth\Application\Actions\CreateAdminUserAction;
 use Src\Auth\Application\Actions\DeleteAdminUserAction;
 use Src\Auth\Application\Actions\ListAdminUsersAction;
@@ -32,11 +31,17 @@ class AdminUserController extends Controller
      */
     public function index(Request $request, ListAdminUsersAction $list)
     {
-        $items = $list->execute([
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ], (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+            'filters' => [
+                'role_id' => $request->integer('role_id') ?: null,
+            ],
+        ]);
+
+        $items = $list->execute($criteria);
 
         return response()->json($items);
     }
