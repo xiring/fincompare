@@ -6,13 +6,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Src\Catalog\Application\DTOs\AttributeDTO;
 use Src\Catalog\Domain\Entities\Attribute;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * AttributeRepositoryInterface interface.
  */
 interface AttributeRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Attribute;
 

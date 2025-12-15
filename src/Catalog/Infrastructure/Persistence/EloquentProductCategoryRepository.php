@@ -7,20 +7,23 @@ use Illuminate\Support\Str;
 use Src\Catalog\Application\DTOs\ProductCategoryDTO;
 use Src\Catalog\Domain\Entities\ProductCategory;
 use Src\Catalog\Domain\Repositories\ProductCategoryRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentProductCategoryRepository repository.
  */
 class EloquentProductCategoryRepository implements ProductCategoryRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator
     {
-        $sort = in_array(($filters['sort'] ?? ''), ['id', 'name', 'is_active', 'created_at']) ? $filters['sort'] : 'id';
-        $dir = strtolower($filters['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+        $sort = in_array(($criteria->getSort() ?? ''), ['id', 'name', 'is_active', 'created_at']) ? $criteria->getSort() : 'id';
+        $dir = $criteria->getDir();
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
 
         return ProductCategory::query()
             ->with(['group'])
-            ->when(($filters['q'] ?? null), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
+            ->when($criteria->getSearch(), fn ($q, $qStr) => $q->where('name', 'like', '%'.$qStr.'%'))
             ->when(($filters['group_id'] ?? null), fn ($q, $groupId) => $q->where('group_id', $groupId))
             ->orderBy($sort, $dir)
             ->paginate($perPage)->withQueryString();

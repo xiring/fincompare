@@ -4,6 +4,7 @@ namespace Src\Content\Domain\Repositories;
 
 use Src\Content\Application\DTOs\CmsPageDTO;
 use Src\Content\Domain\Entities\CmsPage;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * CmsPageRepositoryInterface interface.
@@ -15,7 +16,7 @@ interface CmsPageRepositoryInterface
      *
      * @return mixed
      */
-    public function paginate(array $filters = [], int $perPage = 20);
+    public function paginate(ListCriteria $criteria);
 
     public function find(int $id): ?CmsPage;
 

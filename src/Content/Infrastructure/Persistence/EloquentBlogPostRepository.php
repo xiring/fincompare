@@ -5,6 +5,7 @@ namespace Src\Content\Infrastructure\Persistence;
 use Src\Content\Application\DTOs\BlogPostDTO;
 use Src\Content\Domain\Entities\BlogPost;
 use Src\Content\Domain\Repositories\BlogPostRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentBlogPostRepository repository.
@@ -16,22 +17,24 @@ class EloquentBlogPostRepository implements BlogPostRepositoryInterface
      *
      * @return mixed
      */
-    public function paginate(array $filters = [], int $perPage = 20)
+    public function paginate(ListCriteria $criteria)
     {
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
         $query = BlogPost::query()
-            ->when($filters['q'] ?? null, fn ($q, $s) => $q->where('title', 'like', '%'.$s.'%'))
+            ->when($criteria->getSearch(), fn ($q, $s) => $q->where('title', 'like', '%'.$s.'%'))
             ->when($filters['status'] ?? null, fn ($q, $s) => $q->where('status', $s));
 
         // Sorting
-        $sort = $filters['sort'] ?? 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = $criteria->getSort() ?? 'id';
+        $dir = $criteria->getDir();
         $allowed = ['id', 'created_at', 'title', 'status'];
         if (! in_array($sort, $allowed, true)) {
             $sort = 'id';
         }
         $query->orderBy($sort, $dir);
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function find(int $id): ?BlogPost

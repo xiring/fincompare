@@ -22,12 +22,12 @@
           placeholder="Search by name"
           class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
-        <GroupFilterSelect v-model="filters.group_id" />
         <FormSelect
           id="product_category_id"
           v-model="filters.product_category_id"
           :options="categoryOptions"
-          placeholder="All categories"
+          :placeholder="false"
+          dense
         />
         <PerPageSelector v-model="filters.per_page" />
         <button
@@ -146,11 +146,10 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAttributesStore, useProductCategoriesStore, useGroupsStore } from '../../stores';
+import { useAttributesStore, useProductCategoriesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
-import GroupFilterSelect from '../../components/GroupFilterSelect.vue';
 import GroupBadge from '../../components/GroupBadge.vue';
 import ConfirmModal from '../../components/ConfirmModal.vue';
 import EmptyState from '../../components/EmptyState.vue';
@@ -163,7 +162,6 @@ const router = useRouter();
 const route = useRoute();
 const attributesStore = useAttributesStore();
 const productCategoriesStore = useProductCategoriesStore();
-const groupsStore = useGroupsStore();
 
 // Reactive state from store
 const attributes = computed(() => attributesStore.items);
@@ -185,7 +183,6 @@ const filters = reactive<{ q: string; group_id: string; product_category_id: str
 const hasFilters = computed(() => {
   return (
     filters.q ||
-    filters.group_id ||
     filters.product_category_id ||
     filters.per_page !== 5 ||
     sortField.value !== 'id' ||
@@ -199,7 +196,6 @@ const updateQueryParams = (page: number = 1): void => {
     ...route.query,
     page: page > 1 ? page.toString() : undefined,
     q: filters.q || undefined,
-    group_id: filters.group_id || undefined,
     product_category_id: filters.product_category_id || undefined,
     per_page: filters.per_page !== 5 ? filters.per_page.toString() : undefined,
     sort: sortField.value,
@@ -258,7 +254,6 @@ const applyFilters = (): void => {
 
 const resetFilters = (): void => {
   filters.q = '';
-  filters.group_id = '';
   filters.product_category_id = '';
   filters.per_page = 5;
   sortField.value = 'id';
@@ -331,7 +326,6 @@ onMounted(() => {
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
   productCategoriesStore.fetchItems({ per_page: 500 }).catch(() => {});
-  groupsStore.fetchItems({ per_page: 500 }).catch(() => {});
   fetchAttributes(page);
 });
 </script>

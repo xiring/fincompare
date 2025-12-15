@@ -37,14 +37,14 @@
           id="product_category_id"
           v-model="filters.product_category_id"
           :options="categoryOptions"
-          placeholder="All categories"
+          :placeholder="false"
           dense
         />
         <FormSelect
           id="partner_id"
           v-model="filters.partner_id"
           :options="partnerOptions"
-          placeholder="All partners"
+          :placeholder="false"
           dense
         />
         <PerPageSelector v-model="filters.per_page" />

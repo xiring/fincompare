@@ -5,13 +5,14 @@ namespace Src\Auth\Domain\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Role;
 use Src\Auth\Application\DTOs\RoleDTO;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * RoleRepositoryInterface interface.
  */
 interface RoleRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Role;
 

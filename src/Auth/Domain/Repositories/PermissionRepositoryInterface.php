@@ -5,13 +5,14 @@ namespace Src\Auth\Domain\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Permission;
 use Src\Auth\Application\DTOs\PermissionDTO;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * PermissionRepositoryInterface interface.
  */
 interface PermissionRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Permission;
 

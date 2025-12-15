@@ -5,13 +5,14 @@ namespace Src\Catalog\Domain\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Catalog\Application\DTOs\GroupDTO;
 use Src\Catalog\Domain\Entities\Group;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * GroupRepositoryInterface interface.
  */
 interface GroupRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Group;
 

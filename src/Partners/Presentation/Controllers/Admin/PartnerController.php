@@ -34,11 +34,14 @@ class PartnerController extends Controller
      */
     public function index(Request $request, ListPartnersAction $list)
     {
-        $partners = $list->execute([
+        $criteria = \Src\Shared\Application\Criteria\ListCriteria::fromArray([
             'q' => $request->get('q'),
             'sort' => $request->get('sort'),
             'dir' => $request->get('dir'),
-        ], (int) $request->get('per_page', 20));
+            'per_page' => $request->get('per_page', 20),
+        ]);
+
+        $partners = $list->execute($criteria);
 
         return response()->json($partners);
     }

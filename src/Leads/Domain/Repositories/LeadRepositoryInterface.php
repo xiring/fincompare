@@ -6,13 +6,14 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Leads\Application\DTOs\LeadDTO;
 use Src\Leads\Domain\Entities\Lead;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * LeadRepositoryInterface interface.
  */
 interface LeadRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Lead;
 

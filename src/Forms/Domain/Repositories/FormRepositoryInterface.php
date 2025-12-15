@@ -5,13 +5,14 @@ namespace Src\Forms\Domain\Repositories;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Forms\Application\DTOs\FormDTO;
 use Src\Forms\Domain\Entities\Form;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * FormRepositoryInterface interface.
  */
 interface FormRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator;
+    public function paginate(ListCriteria $criteria): LengthAwarePaginator;
 
     public function find(int $id): ?Form;
 

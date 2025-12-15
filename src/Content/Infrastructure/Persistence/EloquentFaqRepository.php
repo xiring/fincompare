@@ -5,6 +5,7 @@ namespace Src\Content\Infrastructure\Persistence;
 use Src\Content\Application\DTOs\FaqDTO;
 use Src\Content\Domain\Entities\Faq;
 use Src\Content\Domain\Repositories\FaqRepositoryInterface;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * EloquentFaqRepository repository.
@@ -16,21 +17,23 @@ class EloquentFaqRepository implements FaqRepositoryInterface
      *
      * @return mixed
      */
-    public function paginate(array $filters = [], int $perPage = 20)
+    public function paginate(ListCriteria $criteria)
     {
+        $filters = $criteria->filters();
+        $perPage = $criteria->getPerPage() ?? 20;
         $query = Faq::query()
-            ->when($filters['q'] ?? null, fn ($q, $s) => $q->where('question', 'like', '%'.$s.'%'));
+            ->when($criteria->getSearch(), fn ($q, $s) => $q->where('question', 'like', '%'.$s.'%'));
 
         // Sorting
-        $sort = $filters['sort'] ?? 'id';
-        $dir = strtolower($filters['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sort = $criteria->getSort() ?? 'id';
+        $dir = $criteria->getDir();
         $allowed = ['id', 'created_at', 'question'];
         if (! in_array($sort, $allowed, true)) {
             $sort = 'id';
         }
         $query->orderBy($sort, $dir);
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Src\Content\Domain\Repositories;
 
 use Src\Content\Application\DTOs\BlogPostDTO;
 use Src\Content\Domain\Entities\BlogPost;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * BlogPostRepositoryInterface interface.
@@ -15,7 +16,7 @@ interface BlogPostRepositoryInterface
      *
      * @return mixed
      */
-    public function paginate(array $filters = [], int $perPage = 20);
+    public function paginate(ListCriteria $criteria);
 
     public function find(int $id): ?BlogPost;
 

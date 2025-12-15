@@ -4,6 +4,7 @@ namespace Src\Content\Domain\Repositories;
 
 use Src\Content\Application\DTOs\FaqDTO;
 use Src\Content\Domain\Entities\Faq;
+use Src\Shared\Application\Criteria\ListCriteria;
 
 /**
  * FaqRepositoryInterface interface.
@@ -15,7 +16,7 @@ interface FaqRepositoryInterface
      *
      * @return mixed
      */
-    public function paginate(array $filters = [], int $perPage = 20);
+    public function paginate(ListCriteria $criteria);
 
     /**
      * Handle List.
