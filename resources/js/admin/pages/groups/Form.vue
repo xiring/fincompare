@@ -64,9 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useGroupsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -77,16 +76,25 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { useGroupCreateMutation, useGroupDetailQuery, useGroupUpdateMutation } from '../../queries/groups';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const groupId = route.params.id as string | undefined;
 
-const groupsStore = useGroupsStore();
 const isEdit = computed(() => !!groupId);
-const loading = computed(() => groupsStore.loading);
-const group = computed(() => groupsStore.currentItem);
+const {
+  data: group,
+  isLoading: detailLoading,
+  error: detailError,
+} = useGroupDetailQuery(computed(() => (isEdit.value ? groupId : undefined)));
+const createMutation = useGroupCreateMutation();
+const updateMutation = useGroupUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   name: string;
@@ -107,10 +115,13 @@ const form = reactive<FormData>({
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load group';
+});
 
-const loadGroup = async (): Promise<void> => {
-  if (!groupId) return;
-  await groupsStore.fetchItem(groupId);
+watchEffect(() => {
   if (group.value) {
     const g: any = group.value;
     form.name = g.name || '';
@@ -119,7 +130,10 @@ const loadGroup = async (): Promise<void> => {
     form.is_active = g.is_active ?? true;
     form.sort_order = g.sort_order ?? 0;
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -140,29 +154,28 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && groupId) {
-      await groupsStore.updateItem(groupId, payload);
+      await updateMutation.mutateAsync({ id: groupId, payload });
       successMessage.value = 'Group updated successfully!';
     } else {
-      await groupsStore.createItem(payload);
+      await createMutation.mutateAsync(payload);
       successMessage.value = 'Group created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/groups');
     }, 1200);
-  } catch (error: any) {
-    if (error?.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error?.response?.data?.message || (isEdit.value ? 'Failed to update group' : 'Failed to create group');
+      errorMessage.value = err?.response?.data?.message || (isEdit.value ? 'Failed to update group' : 'Failed to create group');
     }
   }
 };
 
-onMounted(async () => {
-  if (isEdit.value) {
-    await loadGroup();
-  }
+onMounted(() => {
+  // detail query auto-loads via hook
 });
 </script>
 

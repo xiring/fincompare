@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useGroupsStore } from '../stores';
+import { computed } from 'vue';
+import { useGroupListQuery } from '../queries/groups';
 import FormSelect from './FormSelect.vue';
 
 interface Props {
@@ -49,11 +49,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number | null];
 }>();
 
-const groupsStore = useGroupsStore();
-const loading = computed(() => groupsStore.loading);
+const { data, isLoading, isFetching } = useGroupListQuery({ per_page: 1000, sort: 'name', dir: 'asc' });
+const loading = computed(() => isLoading.value || isFetching.value);
 
 const options = computed(() =>
-  groupsStore.items.map((g: any) => ({
+  ((data.value?.items || []) as any[]).map((g: any) => ({
     value: g.id,
     label: g.name,
   }))
@@ -62,12 +62,6 @@ const options = computed(() =>
 const internalValue = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val),
-});
-
-onMounted(async () => {
-  if (!groupsStore.items.length) {
-    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});
-  }
 });
 </script>
 

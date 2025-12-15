@@ -139,7 +139,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useCmsPagesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -149,16 +148,11 @@ import { debounce } from '../../utils/debounce';
 import FormSelect from '../../components/FormSelect.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
 import ConfirmModal from '../../components/ConfirmModal.vue';
+import { useCmsPageListQuery, useCmsPageDeleteMutation } from '../../queries/cmsPages';
 import type { CmsPage } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const cmsPagesStore = useCmsPagesStore();
-
-// Reactive state from store
-const pages = computed(() => cmsPagesStore.items);
-const loading = computed(() => cmsPagesStore.loading);
-const pagination = computed(() => cmsPagesStore.pagination);
 const statusOptions = ConstantOptions.cmsStatuses();
 const showConfirm = ref(false);
 const pendingDelete = ref<CmsPage | null>(null);
@@ -172,6 +166,7 @@ const filters = reactive<{ q: string; per_page: number; status: string }>({
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
   status: (route.query.status as string) || '',
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -202,7 +197,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchPages = debounce((page: number) => {
-  fetchPages(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -213,25 +208,6 @@ watch(
     debouncedFetchPages(1);
   }
 );
-
-const fetchPages = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      status: filters.status,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await cmsPagesStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching CMS pages:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -274,11 +250,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const page = pendingDelete.value;
   try {
-    await cmsPagesStore.deleteItem(page.id);
-    if (pages.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(page.id);
+    if (pages.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchPages(newPage);
+      debouncedFetchPages(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting CMS page:', error);
@@ -299,6 +275,33 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchPages(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  status: filters.status || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useCmsPageListQuery(listParams);
+const deleteMutation = useCmsPageDeleteMutation();
+const pages = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

@@ -38,9 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useFaqsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -50,16 +49,25 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import { useFaqCreateMutation, useFaqDetailQuery, useFaqUpdateMutation } from '../../queries/faqs';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const faqId = route.params.id as string | undefined;
 
-const faqsStore = useFaqsStore();
 const isEdit = computed(() => !!faqId);
-const loading = computed(() => faqsStore.loading);
-const faq = computed(() => faqsStore.currentItem);
+const {
+  data: faq,
+  isLoading: detailLoading,
+  error: detailError,
+} = useFaqDetailQuery(computed(() => (isEdit.value ? faqId : undefined)));
+const createMutation = useFaqCreateMutation();
+const updateMutation = useFaqUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   question: string;
@@ -74,25 +82,21 @@ const form = reactive<FormData>({
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load FAQ';
+});
 
-const loadFaq = async (): Promise<void> => {
-  if (!faqId) return;
-
-  try {
-    await faqsStore.fetchItem(faqId);
-    if (faq.value) {
-      form.question = faq.value.question || '';
-      form.answer = faq.value.answer || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading FAQ:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'FAQ not found';
-    } else {
-      errorMessage.value = 'Failed to load FAQ';
-    }
+watchEffect(() => {
+  if (faq.value) {
+    form.question = faq.value.question || '';
+    form.answer = faq.value.answer || '';
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -101,29 +105,25 @@ const handleSubmit = async (): Promise<void> => {
 
   try {
     if (isEdit.value && faqId) {
-      await faqsStore.updateItem(faqId, form);
+      await updateMutation.mutateAsync({ id: faqId, payload: form });
       successMessage.value = 'FAQ updated successfully!';
     } else {
-      await faqsStore.createItem(form);
+      await createMutation.mutateAsync(form);
       successMessage.value = 'FAQ created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/faqs');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update FAQ' : 'Failed to create FAQ');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update FAQ' : 'Failed to create FAQ');
     }
   }
 };
-
-onMounted(() => {
-  if (isEdit.value) {
-    loadFaq();
-  }
-});
 </script>
 

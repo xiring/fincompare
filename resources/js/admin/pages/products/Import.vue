@@ -93,7 +93,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useProductsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -105,12 +104,11 @@ import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import { DownloadIcon } from '../../components/icons';
 import type { FormErrors } from '../../types/index';
+import { useProductImportMutation } from '../../queries/products';
 
 const router = useRouter();
-const productsStore = useProductsStore();
-
-// Use store loading state
-const loading = computed(() => productsStore.loading);
+const importMutation = useProductImportMutation();
+const loading = computed(() => importMutation.isPending.value);
 
 interface ImportFormData {
   file: File | null;
@@ -172,18 +170,22 @@ const handleSubmit = async (): Promise<void> => {
   }
 
   try {
-    // Import using store
-    await (productsStore as any).importProducts(form.file, form.delimiter, form.has_header);
+    await importMutation.mutateAsync({
+      file: form.file,
+      delimiter: form.delimiter,
+      has_header: form.has_header,
+    });
 
     successMessage.value = 'Products import started successfully! The import is being processed in the background.';
     setTimeout(() => {
       router.push('/admin/products');
     }, 2000);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || 'Failed to import products';
+      errorMessage.value = err?.response?.data?.message || 'Failed to import products';
     }
   }
 };

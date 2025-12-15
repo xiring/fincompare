@@ -17,6 +17,9 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-charcoal-200 p-6 mb-6">
+      <p v-if="successMessage" class="mb-4 px-4 py-3 rounded bg-green-50 text-green-800 text-sm">
+        {{ successMessage }}
+      </p>
       <form @submit.prevent="applyFilters" class="flex flex-wrap items-center gap-3">
         <FormInput
           id="q"
@@ -141,9 +144,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useLeadsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
@@ -151,15 +153,12 @@ import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import { useLeadListQuery, useLeadExportMutation } from '../../queries/leads';
 
 const router = useRouter();
 const route = useRoute();
-const leadsStore = useLeadsStore();
-
-// Reactive state from store
-const leads = computed(() => leadsStore.items);
-const loading = computed(() => leadsStore.loading);
-const pagination = computed(() => leadsStore.pagination);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
+const successMessage = ref('');
 const statusOptions = ConstantOptions.leadStatuses();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
@@ -201,7 +200,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchLeads = debounce((page: number) => {
-  fetchLeads(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -212,25 +211,6 @@ watch(
     debouncedFetchLeads(1);
   }
 );
-
-const fetchLeads = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      status: filters.status,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await leadsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching leads:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -264,21 +244,50 @@ const loadPage = (page: number): void => {
   debouncedFetchLeads(page);
 };
 
-const exportLeads = async (): Promise<void> => {
-  try {
-    await (leadsStore as any).exportLeads();
-  } catch (error: any) {
-    console.error('Error exporting leads:', error);
-    alert('Failed to export leads');
-  }
-};
-
 onMounted(() => {
   // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchLeads(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  status: filters.status || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useLeadListQuery(listParams);
+const exportMutation = useLeadExportMutation();
+const leads = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
+
+const exportLeads = async (): Promise<void> => {
+  try {
+    await exportMutation.mutateAsync();
+    successMessage.value = 'Export started. You will receive the file shortly.';
+    setTimeout(() => (successMessage.value = ''), 3000);
+  } catch (error: any) {
+    console.error('Error exporting leads:', error);
+    alert('Failed to export leads');
+  }
+};
 </script>

@@ -100,9 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useActivityStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -111,15 +110,11 @@ import { ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import { useActivityListQuery } from '../../queries/activity';
 
 const router = useRouter();
 const route = useRoute();
-const activityStore = useActivityStore();
-
-// Reactive state from store
-const activities = computed(() => activityStore.items);
-const loading = computed(() => activityStore.loading);
-const pagination = computed(() => activityStore.pagination);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 const logOptions = ConstantOptions.activityLogNames();
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
@@ -161,7 +156,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchActivities = debounce((page: number) => {
-  fetchActivities(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -172,25 +167,6 @@ watch(
     debouncedFetchActivities(1);
   }
 );
-
-const fetchActivities = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      log_name: filters.log_name,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await activityStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching activities:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -230,6 +206,32 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchActivities(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  log_name: filters.log_name || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useActivityListQuery(listParams);
+const activities = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

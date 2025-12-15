@@ -80,9 +80,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useCmsPagesStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -96,16 +95,25 @@ import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import { useCmsPageCreateMutation, useCmsPageDetailQuery, useCmsPageUpdateMutation } from '../../queries/cmsPages';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const pageId = route.params.id as string | undefined;
 
-const cmsPagesStore = useCmsPagesStore();
 const isEdit = computed(() => !!pageId);
-const loading = computed(() => cmsPagesStore.loading);
-const page = computed(() => cmsPagesStore.currentItem);
+const {
+  data: page,
+  isLoading: detailLoading,
+  error: detailError,
+} = useCmsPageDetailQuery(computed(() => (isEdit.value ? pageId : undefined)));
+const createMutation = useCmsPageCreateMutation();
+const updateMutation = useCmsPageUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   title: string;
@@ -132,30 +140,26 @@ const statusOptions = ConstantOptions.cmsStatuses().filter((o) => o.id !== '');
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load CMS page';
+});
 
-const loadPage = async (): Promise<void> => {
-  if (!pageId) return;
-
-  try {
-    await cmsPagesStore.fetchItem(pageId);
-    if (page.value) {
-      form.title = page.value.title || '';
-      form.slug = page.value.slug || '';
-      form.content = page.value.content || '';
-      form.status = (page.value.status as 'draft' | 'published') || 'draft';
-      form.seo_title = page.value.seo_title || '';
-      form.seo_description = page.value.seo_description || '';
-      form.seo_keywords = page.value.seo_keywords || '';
-    }
-  } catch (error: any) {
-    console.error('Error loading CMS page:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'CMS page not found';
-    } else {
-      errorMessage.value = 'Failed to load CMS page';
-    }
+watchEffect(() => {
+  if (page.value) {
+    form.title = page.value.title || '';
+    form.slug = page.value.slug || '';
+    form.content = page.value.content || '';
+    form.status = (page.value.status as 'draft' | 'published') || 'draft';
+    form.seo_title = page.value.seo_title || '';
+    form.seo_description = page.value.seo_description || '';
+    form.seo_keywords = page.value.seo_keywords || '';
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -168,29 +172,25 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && pageId) {
-      await cmsPagesStore.updateItem(pageId, form);
+      await updateMutation.mutateAsync({ id: pageId, payload: form });
       successMessage.value = 'CMS page updated successfully!';
     } else {
-      await cmsPagesStore.createItem(form);
+      await createMutation.mutateAsync(form);
       successMessage.value = 'CMS page created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/cms-pages');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update CMS page' : 'Failed to create CMS page');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update CMS page' : 'Failed to create CMS page');
     }
   }
 };
-
-onMounted(() => {
-  if (isEdit.value) {
-    loadPage();
-  }
-});
 </script>
 

@@ -131,7 +131,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -140,17 +139,15 @@ import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../.
 import StatusBadge from '../../components/StatusBadge.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { useGroupListQuery, useGroupDeleteMutation } from '../../queries/groups';
 import type { Group } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const groupsStore = useGroupsStore();
 
-const groups = computed(() => groupsStore.items);
-const loading = computed(() => groupsStore.loading);
-const pagination = computed(() => groupsStore.pagination);
 const showConfirm = ref(false);
 const pendingDelete = ref<Group | null>(null);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -184,7 +181,7 @@ const updateQueryParams = (page: number = 1): void => {
 };
 
 const debouncedFetchGroups = debounce((page: number) => {
-  fetchGroups(page);
+  currentPage.value = page;
 }, 300);
 
 watch(
@@ -194,17 +191,6 @@ watch(
     debouncedFetchGroups(1);
   }
 );
-
-const fetchGroups = async (page: number = 1): Promise<void> => {
-  const params: Record<string, any> = {
-    page,
-    per_page: filters.per_page,
-    q: filters.q,
-    sort: sortField.value,
-    dir: sortDir.value,
-  };
-  await groupsStore.fetchItems(params);
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -245,14 +231,17 @@ const handleDelete = (group: Group): void => {
 const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const group = pendingDelete.value;
-  await groupsStore.deleteItem(group.id);
-  if (groups.value.length === 0 && pagination.value.current_page > 1) {
-    const newPage = pagination.value.current_page - 1;
-    updateQueryParams(newPage);
-    fetchGroups(newPage);
+  try {
+    await deleteMutation.mutateAsync(group.id);
+    if (groups.value.length <= 1 && pagination.value.current_page > 1) {
+      const newPage = pagination.value.current_page - 1;
+      updateQueryParams(newPage);
+      debouncedFetchGroups(newPage);
+    }
+  } finally {
+    showConfirm.value = false;
+    pendingDelete.value = null;
   }
-  showConfirm.value = false;
-  pendingDelete.value = null;
 };
 
 const confirmMessage = computed(() =>
@@ -263,8 +252,34 @@ onMounted(() => {
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
-  fetchGroups(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useGroupListQuery(listParams);
+const deleteMutation = useGroupDeleteMutation();
+const groups = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>
 
 

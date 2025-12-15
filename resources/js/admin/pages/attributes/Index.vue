@@ -144,9 +144,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch, ref } from 'vue';
+import { reactive, computed, watch, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAttributesStore, useProductCategoriesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
@@ -157,18 +156,21 @@ import EmptyState from '../../components/EmptyState.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { useAttributeListQuery, useAttributeDeleteMutation } from '../../queries/attributes';
+import { useProductCategoryListQuery } from '../../queries/productCategories';
 import type { Attribute } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const attributesStore = useAttributesStore();
-const productCategoriesStore = useProductCategoriesStore();
-
-// Reactive state from store
-const attributes = computed(() => attributesStore.items);
-const loading = computed(() => attributesStore.loading);
-const pagination = computed(() => attributesStore.pagination);
-const categoryOptions = computed(() => [{ id: '', name: 'All categories' }, ...productCategoriesStore.items.map((c: any) => ({ id: c.id, name: c.name, group: c.group }))]);
+const {
+  data: categoriesData,
+  isLoading: categoriesLoading,
+  isFetching: categoriesFetching,
+} = useProductCategoryListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const categoryOptions = computed(() => [
+  { id: '', name: 'All categories' },
+  ...(((categoriesData?.value as any)?.items || []) as any[]).map((c: any) => ({ id: c.id, name: c.name, group: c.group })),
+]);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -180,6 +182,7 @@ const filters = reactive<{ q: string; group_id: string; product_category_id: str
   product_category_id: (route.query.product_category_id as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return (
@@ -216,7 +219,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchAttributes = debounce((page: number) => {
-  fetchAttributes(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -227,26 +230,6 @@ watch(
     debouncedFetchAttributes(1);
   }
 );
-
-const fetchAttributes = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      group_id: filters.group_id || undefined,
-      product_category_id: filters.product_category_id || undefined,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await attributesStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching attributes:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -306,11 +289,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
 
   try {
-    await attributesStore.deleteItem(pendingDelete.value.id);
-    if (attributes.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(pendingDelete.value.id);
+    if (attributes.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchAttributes(newPage);
+      debouncedFetchAttributes(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting attribute:', error);
@@ -325,8 +308,34 @@ onMounted(() => {
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
-
-  productCategoriesStore.fetchItems({ per_page: 500 }).catch(() => {});
-  fetchAttributes(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  product_category_id: filters.product_category_id || undefined,
+  group_id: filters.group_id || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useAttributeListQuery(listParams);
+const deleteMutation = useAttributeDeleteMutation();
+const attributes = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value || categoriesLoading.value || categoriesFetching.value);
 </script>

@@ -161,7 +161,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { usePartnersStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -169,16 +168,11 @@ import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../.
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import ConfirmModal from '../../components/ConfirmModal.vue';
+import { usePartnerListQuery, usePartnerDeleteMutation } from '../../queries/partners';
 import type { Partner } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const partnersStore = usePartnersStore();
-
-// Reactive state from store
-const partners = computed(() => partnersStore.items);
-const loading = computed(() => partnersStore.loading);
-const pagination = computed(() => partnersStore.pagination);
 const showConfirm = ref(false);
 const pendingDelete = ref<Partner | null>(null);
 
@@ -190,6 +184,7 @@ const filters = reactive<{ q: string; per_page: number }>({
   q: (route.query.q as string) || '',
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -219,7 +214,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchPartners = debounce((page: number) => {
-  fetchPartners(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -230,24 +225,6 @@ watch(
     debouncedFetchPartners(1);
   }
 );
-
-const fetchPartners = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await partnersStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching partners:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -289,11 +266,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const partner = pendingDelete.value;
   try {
-    await partnersStore.deleteItem(partner.id);
-    if (partners.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(partner.id);
+    if (partners.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchPartners(newPage);
+      debouncedFetchPartners(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting partner:', error);
@@ -314,6 +291,32 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchPartners(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = usePartnerListQuery(listParams);
+const deleteMutation = usePartnerDeleteMutation();
+const partners = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

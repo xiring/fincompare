@@ -240,20 +240,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useProductsStore, useLeadsStore, usePartnersStore, useUsersStore, useActivityStore } from '../stores';
+import { ref, computed, onMounted } from 'vue';
 import { adminApi } from '../services/api';
 import PageHeader from '../components/PageHeader.vue';
 import FormCard from '../components/FormCard.vue';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import { ProductsIcon, PartnersIcon, UsersIcon, LeadsIcon, FormsIcon, BlogsIcon, InfoIcon, ChevronRightIcon, PlusIcon } from '../components/icons';
 import type { Product, Lead, ActivityLog } from '../types/index';
-
-const productsStore = useProductsStore();
-const leadsStore = useLeadsStore();
-const partnersStore = usePartnersStore();
-const usersStore = useUsersStore();
-const activityStore = useActivityStore();
+import {
+  useDashboardStatsQuery,
+  useRecentProductsQuery,
+  useRecentLeadsQuery,
+  useRecentActivityQuery,
+} from '../queries/dashboard';
 
 const userName = ref<string>('Admin');
 
@@ -264,20 +263,22 @@ interface Stats {
   users: number;
 }
 
-const stats = ref<Stats>({
-  products: 0,
-  leads: 0,
-  partners: 0,
-  users: 0,
-});
+const { data: statsData } = useDashboardStatsQuery();
+const stats = computed<Stats>(() => ({
+  products: statsData.value?.products || 0,
+  leads: statsData.value?.leads || 0,
+  partners: statsData.value?.partners || 0,
+  users: statsData.value?.users || 0,
+}));
 
-const recentProducts = ref<Product[]>([]);
-const recentLeads = ref<Lead[]>([]);
-const recentActivities = ref<ActivityLog[]>([]);
+const { data: recentProductsData, isLoading: loadingProducts } = useRecentProductsQuery();
+const recentProducts = computed<Product[]>(() => recentProductsData.value || []);
 
-const loadingProducts = ref<boolean>(false);
-const loadingLeads = ref<boolean>(false);
-const loadingActivity = ref<boolean>(false);
+const { data: recentLeadsData, isLoading: loadingLeads } = useRecentLeadsQuery();
+const recentLeads = computed<Lead[]>(() => recentLeadsData.value || []);
+
+const { data: recentActivityData, isLoading: loadingActivity } = useRecentActivityQuery();
+const recentActivities = computed<ActivityLog[]>(() => recentActivityData.value || []);
 
 const formatTime = (dateString: string | null | undefined): string => {
   if (!dateString) return '';
@@ -339,79 +340,13 @@ const getActivityIconClass = (logName: string | null | undefined): string => {
   return classes[logName || ''] || 'bg-charcoal-50 text-charcoal-600';
 };
 
-const fetchStats = async (): Promise<void> => {
-  try {
-    // Optimized: Use dedicated stats endpoint for better performance
-    // Single API call instead of 4 separate pagination queries
-    const response = await adminApi.stats.index();
-    const statsData = (response.data as any)?.data || response.data;
-
-    stats.value.products = statsData.products || 0;
-    stats.value.leads = statsData.leads || 0;
-    stats.value.partners = statsData.partners || 0;
-    stats.value.users = statsData.users || 0;
-  } catch (error: any) {
-    console.error('Error fetching stats:', error);
-    // Fallback to individual store fetches if stats endpoint fails
-    try {
-      await Promise.all([
-        productsStore.fetchItems({ per_page: 1, page: 1 }),
-        leadsStore.fetchItems({ per_page: 1, page: 1 }),
-        partnersStore.fetchItems({ per_page: 1, page: 1 }),
-        usersStore.fetchItems({ per_page: 1, page: 1 }),
-      ]);
-      stats.value.products = productsStore.pagination.total || 0;
-      stats.value.leads = leadsStore.pagination.total || 0;
-      stats.value.partners = partnersStore.pagination.total || 0;
-      stats.value.users = usersStore.pagination.total || 0;
-    } catch (fallbackError: any) {
-      console.error('Error in fallback stats fetch:', fallbackError);
-    }
-  }
-};
-
-const fetchRecentProducts = async (): Promise<void> => {
-  loadingProducts.value = true;
-  try {
-    await productsStore.fetchItems({ per_page: 5, sort: 'created_at', dir: 'desc' });
-    recentProducts.value = productsStore.items.slice(0, 5);
-  } catch (error: any) {
-    console.error('Error fetching recent products:', error);
-  } finally {
-    loadingProducts.value = false;
-  }
-};
-
-const fetchRecentLeads = async (): Promise<void> => {
-  loadingLeads.value = true;
-  try {
-    await leadsStore.fetchItems({ per_page: 50, status: 'new' });
-    // Filter to only show "new" leads and take first 5
-    recentLeads.value = leadsStore.items
-      .filter((lead) => (lead.status || 'new').toLowerCase() === 'new')
-      .slice(0, 5);
-  } catch (error: any) {
-    console.error('Error fetching recent leads:', error);
-  } finally {
-    loadingLeads.value = false;
-  }
-};
-
-const fetchRecentActivity = async (): Promise<void> => {
-  loadingActivity.value = true;
-  try {
-    await activityStore.fetchItems({ per_page: 5 });
-    recentActivities.value = activityStore.items.slice(0, 5);
-  } catch (error: any) {
-    console.error('Error fetching recent activity:', error);
-  } finally {
-    loadingActivity.value = false;
-  }
-};
-
 onMounted(async () => {
-  // Fetch user name from auth store or API
-  // For now, using placeholder
-  await Promise.all([fetchStats(), fetchRecentProducts(), fetchRecentLeads(), fetchRecentActivity()]);
+  try {
+    const response = await adminApi.profile.show();
+    const data = (response.data as any)?.data || response.data;
+    userName.value = data?.name || 'Admin';
+  } catch (error: any) {
+    console.error('Error fetching user profile:', error);
+  }
 });
 </script>

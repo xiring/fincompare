@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useGroupsStore } from '../stores';
+import { computed } from 'vue';
+import { useGroupListQuery } from '../queries/groups';
 
 const props = withDefaults(
   defineProps<{
@@ -25,10 +25,10 @@ const emit = defineEmits<{
   'update:modelValue': [value: string];
 }>();
 
-const groupsStore = useGroupsStore();
+const { data } = useGroupListQuery({ per_page: 1000, sort: 'name', dir: 'asc' });
 
 const options = computed(() =>
-  groupsStore.items.map((g: any) => ({
+  ((data.value?.items || []) as any[]).map((g: any) => ({
     value: g.id,
     label: g.name,
   }))
@@ -37,12 +37,6 @@ const options = computed(() =>
 const internalValue = computed({
   get: () => props.modelValue,
   set: (val: string) => emit('update:modelValue', val),
-});
-
-onMounted(async () => {
-  if (!groupsStore.items.length) {
-    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});
-  }
 });
 </script>
 

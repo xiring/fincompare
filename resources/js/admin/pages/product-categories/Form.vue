@@ -96,9 +96,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductCategoriesStore, useFormsStore, useGroupsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -111,17 +110,30 @@ import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
+import {
+  useProductCategoryCreateMutation,
+  useProductCategoryDetailQuery,
+  useProductCategoryUpdateMutation,
+} from '../../queries/productCategories';
+import { useFormListQuery } from '../../queries/forms';
 import type { Form, FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const categoryId = route.params.id as string | undefined;
 
-const productCategoriesStore = useProductCategoriesStore();
-const formsStore = useFormsStore();
 const isEdit = computed(() => !!categoryId);
-const loading = computed(() => productCategoriesStore.loading);
-const category = computed(() => productCategoriesStore.currentItem);
+const {
+  data: category,
+  isLoading: detailLoading,
+  error: detailError,
+} = useProductCategoryDetailQuery(computed(() => (isEdit.value ? categoryId : undefined)));
+const createMutation = useProductCategoryCreateMutation();
+const updateMutation = useProductCategoryUpdateMutation();
+const loading = computed(() => {
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value;
+  return createMutation.isPending.value;
+});
 
 interface FormData {
   name: string;
@@ -143,65 +155,50 @@ const form = reactive<FormData>({
   post_form_id: null,
 });
 
-const groupsStore = useGroupsStore();
-const preForms = ref<Form[]>([]);
-const postForms = ref<Form[]>([]);
+const { data: formsData } = useFormListQuery({ per_page: 1000 });
+const preForms = computed<Form[]>(() => (formsData.value?.items || []).filter((f: any) => f.type === 'pre_form'));
+const postForms = computed<Form[]>(() => (formsData.value?.items || []).filter((f: any) => f.type === 'post_form'));
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
 const imagePreview = ref<string | null>(null);
 
 // Watch for image changes to show preview
-watch(() => form.image, (newFile) => {
-  if (newFile) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(newFile);
-  } else {
-    imagePreview.value = null;
+watch(
+  () => form.image,
+  (newFile) => {
+    if (newFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.value = e.target?.result as string;
+      };
+      reader.readAsDataURL(newFile);
+    } else {
+      imagePreview.value = null;
+    }
   }
+);
+
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load category';
 });
 
-const loadForms = async (): Promise<void> => {
-  try {
-    // Load all forms and filter by type
-    await formsStore.fetchItems({ per_page: 1000 });
-    const allForms = formsStore.items;
-
-    // Filter forms by type
-    preForms.value = allForms.filter((form: Form) => form.type === 'pre_form');
-    postForms.value = allForms.filter((form: Form) => form.type === 'post_form');
-  } catch (error: any) {
-    console.error('Error loading forms:', error);
-    // Don't show error for forms, just log it
+watchEffect(() => {
+  if (category.value) {
+    const cat = category.value as any;
+    form.name = cat.name || '';
+    form.slug = cat.slug || '';
+    form.description = cat.description || '';
+    form.group_id = cat.group_id ?? null;
+    form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
+    form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
   }
-};
-
-const loadCategory = async (): Promise<void> => {
-  if (!categoryId) return;
-
-  try {
-    await productCategoriesStore.fetchItem(categoryId);
-    if (category.value) {
-      const cat = category.value as any;
-      form.name = cat.name || '';
-      form.slug = cat.slug || '';
-      form.description = cat.description || '';
-      form.group_id = cat.group_id ?? null;
-      form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
-      form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
-    }
-  } catch (error: any) {
-    console.error('Error loading category:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Category not found';
-    } else {
-      errorMessage.value = 'Failed to load category';
-    }
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
   }
-};
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -237,39 +234,28 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     if (isEdit.value && categoryId) {
-      await productCategoriesStore.updateItem(categoryId, data);
+      await updateMutation.mutateAsync({ id: categoryId, payload: data });
       successMessage.value = 'Category updated successfully!';
     } else {
-      await productCategoriesStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Category created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/product-categories');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update category' : 'Failed to create category');
+      errorMessage.value = err.response?.data?.message || (isEdit.value ? 'Failed to update category' : 'Failed to create category');
     }
   }
 };
 
-onMounted(async () => {
-  try {
-    // Load forms for dropdowns
-    await loadForms();
-    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});
-
-    // Load category if in edit mode
-    if (isEdit.value) {
-      await loadCategory();
-    }
-  } catch (error: any) {
-    console.error('Error loading form data:', error);
-    errorMessage.value = 'Failed to load form data';
-  }
+onMounted(() => {
+  // queries auto-load; detail handled by hook
 });
 </script>
 

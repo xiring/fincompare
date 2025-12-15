@@ -141,7 +141,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useUsersStore, useRolesStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormSelect from '../../components/FormSelect.vue';
@@ -150,20 +149,15 @@ import ConfirmModal from '../../components/ConfirmModal.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import { useUserListQuery, useUserDeleteMutation } from '../../queries/users';
+import { useRoleListQuery } from '../../queries/roles';
 import type { User } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const usersStore = useUsersStore();
-const rolesStore = useRolesStore();
-
-// Reactive state from store
-const users = computed(() => usersStore.items);
-const loading = computed(() => usersStore.loading);
-const pagination = computed(() => usersStore.pagination);
-const roleOptions = computed(() => [{ id: '', name: 'All roles' }, ...rolesStore.items.map((r: any) => ({ id: r.id, name: r.name }))]);
 const showConfirm = ref(false);
 const pendingDelete = ref<User | null>(null);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
@@ -204,7 +198,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchUsers = debounce((page: number) => {
-  fetchUsers(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -215,25 +209,6 @@ watch(
     debouncedFetchUsers(1);
   }
 );
-
-const fetchUsers = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      role_id: filters.role_id,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await usersStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching users:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -276,11 +251,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const user = pendingDelete.value;
   try {
-    await usersStore.deleteItem(user.id);
-    if (users.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(user.id);
+    if (users.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchUsers(newPage);
+      debouncedFetchUsers(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting user:', error);
@@ -301,7 +276,39 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  rolesStore.fetchItems({ per_page: 100 });
-  fetchUsers(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  role_id: filters.role_id || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useUserListQuery(listParams);
+const deleteMutation = useUserDeleteMutation();
+const users = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
+
+const { data: rolesData } = useRoleListQuery({ per_page: 1000 });
+const roleOptions = computed(() => [
+  { id: '', name: 'All roles' },
+  ...((rolesData.value?.items || rolesData.value?.data || []) as any[]).map((r) => ({ id: r.id, name: r.name })),
+]);
 </script>

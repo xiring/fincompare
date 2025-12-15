@@ -157,7 +157,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useBlogsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import FormInput from '../../components/FormInput.vue';
@@ -167,16 +166,11 @@ import { debounce } from '../../utils/debounce';
 import FormSelect from '../../components/FormSelect.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
 import ConfirmModal from '../../components/ConfirmModal.vue';
+import { useBlogListQuery, useBlogDeleteMutation } from '../../queries/blogs';
 import type { BlogPost } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const blogsStore = useBlogsStore();
-
-// Reactive state from store
-const blogs = computed(() => blogsStore.items);
-const loading = computed(() => blogsStore.loading);
-const pagination = computed(() => blogsStore.pagination);
 const statusOptions = ConstantOptions.blogStatuses();
 const showConfirm = ref(false);
 const pendingDelete = ref<BlogPost | null>(null);
@@ -190,6 +184,7 @@ const filters = reactive<{ q: string; per_page: number; status: string }>({
   per_page: parseInt((route.query.per_page as string) || '5') || 5,
   status: (route.query.status as string) || '',
 });
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 
 const hasFilters = computed(() => {
   return filters.q || filters.per_page !== 5 || filters.status || sortField.value !== 'id' || sortDir.value !== 'desc';
@@ -220,7 +215,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchBlogs = debounce((page: number) => {
-  fetchBlogs(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -231,25 +226,6 @@ watch(
     debouncedFetchBlogs(1);
   }
 );
-
-const fetchBlogs = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      status: filters.status,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await blogsStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching blogs:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -292,11 +268,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const blog = pendingDelete.value;
   try {
-    await blogsStore.deleteItem(blog.id);
-    if (blogs.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(blog.id);
+    if (blogs.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchBlogs(newPage);
+      debouncedFetchBlogs(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting blog:', error);
@@ -317,6 +293,33 @@ onMounted(() => {
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchBlogs(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  status: filters.status || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useBlogListQuery(listParams);
+const deleteMutation = useBlogDeleteMutation();
+const blogs = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>

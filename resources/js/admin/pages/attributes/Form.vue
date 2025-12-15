@@ -61,9 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useAttributesStore, useProductCategoriesStore, useGroupsStore } from '../../stores';
 import { extractValidationErrors, getError } from '../../utils/validation';
 import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
@@ -76,18 +75,41 @@ import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';
 import SuccessMessage from '../../components/SuccessMessage.vue';
 import { ConstantOptions } from '../../constants/ConstantOptions';
+import {
+  useAttributeCreateMutation,
+  useAttributeDetailQuery,
+  useAttributeUpdateMutation,
+} from '../../queries/attributes';
+import { useProductCategoryListQuery } from '../../queries/productCategories';
+import { useGroupListQuery } from '../../queries/groups';
 import type { FormErrors } from '../../types/index';
 
 const route = useRoute();
 const router = useRouter();
 const attributeId = route.params.id as string | undefined;
 
-const attributesStore = useAttributesStore();
-const productCategoriesStore = useProductCategoriesStore();
-const groupsStore = useGroupsStore();
 const isEdit = computed(() => !!attributeId);
-const loading = computed(() => attributesStore.loading || productCategoriesStore.loading);
-const attribute = computed(() => attributesStore.currentItem);
+const {
+  data: attribute,
+  isLoading: detailLoading,
+  error: detailError,
+} = useAttributeDetailQuery(computed(() => (isEdit.value ? attributeId : undefined)));
+const createMutation = useAttributeCreateMutation();
+const updateMutation = useAttributeUpdateMutation();
+const {
+  data: categoriesData,
+  isLoading: categoriesLoading,
+  isFetching: categoriesFetching,
+} = useProductCategoryListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const { data: groupsData } = useGroupListQuery({ per_page: 500, sort: 'name', dir: 'asc' });
+const categories = computed(() => (categoriesData.value?.items || []) as any[]);
+const groups = computed(() => (groupsData.value?.items || []) as any[]);
+
+const loading = computed(() => {
+  const catLoading = categoriesLoading.value || categoriesFetching.value;
+  if (isEdit.value) return detailLoading.value || updateMutation.isPending.value || catLoading;
+  return createMutation.isPending.value || catLoading;
+});
 
 interface FormData {
   name: string;
@@ -105,7 +127,6 @@ const form = reactive<FormData>({
 
 const typeOptions = ConstantOptions.attributeDataTypes();
 
-const categories = computed(() => productCategoriesStore.items);
 const filteredCategories = computed(() => {
   if (!form.group_id) return categories.value;
   return categories.value.filter((c: any) => c.group_id === form.group_id);
@@ -117,28 +138,24 @@ const categoryOptions = computed(() => {
 const errors = ref<FormErrors>({});
 const errorMessage = ref<string>('');
 const successMessage = ref<string>('');
+const detailErrorMessage = computed(() => {
+  if (!detailError.value) return '';
+  const err = detailError.value as any;
+  return err?.response?.data?.message || 'Failed to load attribute';
+});
 
-const loadAttribute = async (): Promise<void> => {
-  if (!attributeId) return;
-
-  try {
-    await attributesStore.fetchItem(attributeId);
-    if (attribute.value) {
-      form.name = attribute.value.name || '';
-      form.data_type = attribute.value.data_type || 'text';
-      form.product_category_id = attribute.value.product_category_id || null;
-      const matchedCategory = productCategoriesStore.items.find((c: any) => c.id === form.product_category_id);
-      form.group_id = matchedCategory?.group_id ?? matchedCategory?.group?.id ?? null;
-    }
-  } catch (error: any) {
-    console.error('Error loading attribute:', error);
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Attribute not found';
-    } else {
-      errorMessage.value = 'Failed to load attribute';
-    }
+watchEffect(() => {
+  if (attribute.value) {
+    form.name = attribute.value.name || '';
+    form.data_type = attribute.value.data_type || 'text';
+    form.product_category_id = attribute.value.product_category_id || null;
+    const matchedCategory = categories.value.find((c: any) => c.id === form.product_category_id);
+    form.group_id = matchedCategory?.group_id ?? matchedCategory?.group?.id ?? null;
   }
-};
+  if (detailErrorMessage.value) {
+    errorMessage.value = detailErrorMessage.value;
+  }
+});
 
 const handleSubmit = async (): Promise<void> => {
   errors.value = {};
@@ -152,38 +169,25 @@ const handleSubmit = async (): Promise<void> => {
     };
 
     if (isEdit.value && attributeId) {
-      await attributesStore.updateItem(attributeId, data);
+      await updateMutation.mutateAsync({ id: attributeId, payload: data });
       successMessage.value = 'Attribute updated successfully!';
     } else {
-      await attributesStore.createItem(data);
+      await createMutation.mutateAsync(data);
       successMessage.value = 'Attribute created successfully!';
     }
 
     setTimeout(() => {
       router.push('/admin/attributes');
     }, 1500);
-  } catch (error: any) {
-    if (error.response?.status === 422) {
-      errors.value = extractValidationErrors(error);
+  } catch (error: unknown) {
+    const err = error as any;
+    if (err?.response?.status === 422) {
+      errors.value = extractValidationErrors(err);
     } else {
-      errorMessage.value = error.response?.data?.message || (isEdit.value ? 'Failed to update attribute' : 'Failed to create attribute');
+      errorMessage.value =
+        err?.response?.data?.message || (isEdit.value ? 'Failed to update attribute' : 'Failed to create attribute');
     }
   }
 };
-
-onMounted(async () => {
-  try {
-    await Promise.all([
-      productCategoriesStore.fetchItems({ per_page: 500 }),
-      groupsStore.fetchItems({ per_page: 500 }),
-    ]);
-    if (isEdit.value) {
-      await loadAttribute();
-    }
-  } catch (error: any) {
-    console.error('Error loading form data:', error);
-    errorMessage.value = 'Failed to load form data';
-  }
-});
 </script>
 

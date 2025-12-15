@@ -126,7 +126,6 @@
 <script setup lang="ts">
 import { reactive, computed, onMounted, watch, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useProductCategoriesStore, useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
@@ -136,17 +135,15 @@ import FormInput from '../../components/FormInput.vue';
 import ConfirmModal from '../../components/ConfirmModal.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
+import {
+  useProductCategoryListQuery,
+  useProductCategoryDeleteMutation,
+} from '../../queries/productCategories';
 import type { ProductCategory } from '../../types/index';
 
 const router = useRouter();
 const route = useRoute();
-const productCategoriesStore = useProductCategoriesStore();
-const groupsStore = useGroupsStore();
-
-// Reactive state from store
-const categories = computed(() => productCategoriesStore.items);
-const loading = computed(() => productCategoriesStore.loading);
-const pagination = computed(() => productCategoriesStore.pagination);
+const currentPage = ref<number>(parseInt((route.query.page as string) || '1') || 1);
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 
@@ -188,7 +185,7 @@ const updateQueryParams = (page: number = 1): void => {
 
 // Debounced fetch function to prevent rapid API calls
 const debouncedFetchCategories = debounce((page: number) => {
-  fetchCategories(page);
+  currentPage.value = page;
 }, 300);
 
 // Watch for per_page changes and automatically fetch
@@ -199,25 +196,6 @@ watch(
     debouncedFetchCategories(1);
   }
 );
-
-const fetchCategories = async (page: number = 1): Promise<void> => {
-  try {
-    const params: Record<string, any> = {
-      page,
-      per_page: filters.per_page,
-      q: filters.q,
-      group_id: filters.group_id || undefined,
-      sort: sortField.value,
-      dir: sortDir.value,
-    };
-    await productCategoriesStore.fetchItems(params);
-  } catch (error: any) {
-    console.error('Error fetching categories:', error);
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
-  }
-};
 
 const applyFilters = (): void => {
   updateQueryParams(1);
@@ -260,11 +238,11 @@ const confirmDelete = async (): Promise<void> => {
   if (!pendingDelete.value) return;
   const category = pendingDelete.value;
   try {
-    await productCategoriesStore.deleteItem(category.id);
-    if (categories.value.length === 0 && pagination.value.current_page > 1) {
+    await deleteMutation.mutateAsync(category.id);
+    if (categories.value.length <= 1 && pagination.value.current_page > 1) {
       const newPage = pagination.value.current_page - 1;
       updateQueryParams(newPage);
-      fetchCategories(newPage);
+      debouncedFetchCategories(newPage);
     }
   } catch (error: any) {
     console.error('Error deleting category:', error);
@@ -280,12 +258,38 @@ const confirmMessage = computed(() =>
 );
 
 onMounted(() => {
-  groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});
   // Initialize from URL query params
   const page = parseInt((route.query.page as string) || '1') || 1;
   sortField.value = (route.query.sort as string) || 'id';
   sortDir.value = (route.query.dir as 'asc' | 'desc') || 'desc';
 
-  fetchCategories(page);
+  currentPage.value = page;
 });
+
+const listParams = computed(() => ({
+  page: currentPage.value,
+  per_page: filters.per_page,
+  q: filters.q || undefined,
+  group_id: filters.group_id || undefined,
+  sort: sortField.value,
+  dir: sortDir.value,
+}));
+
+const { data, isLoading, isFetching } = useProductCategoryListQuery(listParams);
+const deleteMutation = useProductCategoryDeleteMutation();
+const categories = computed(() => data.value?.items || []);
+const pagination = computed(
+  () =>
+    data.value?.pagination || {
+      current_page: 1,
+      last_page: 1,
+      per_page: filters.per_page,
+      total: 0,
+      from: 0,
+      to: 0,
+      prev_page_url: null,
+      next_page_url: null,
+    }
+);
+const loading = computed(() => isLoading.value || isFetching.value);
 </script>
