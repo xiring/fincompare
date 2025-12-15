@@ -22,13 +22,7 @@
           placeholder="Search by name"
           class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
         />
-        <select
-          v-model="filters.group_id"
-          class="min-w-[200px] px-4 py-2 border border-charcoal-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-charcoal-900"
-        >
-          <option value="">All groups</option>
-          <option v-for="group in groups" :key="group.id" :value="String(group.id)">{{ group.name }}</option>
-        </select>
+        <GroupFilterSelect v-model="filters.group_id" />
         <PerPageSelector v-model="filters.per_page" />
         <button
           type="submit"
@@ -89,7 +83,9 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ category.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-charcoal-800">{{ category.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ category.slug }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">{{ (category as any).group?.name || '-' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-charcoal-600">
+                <GroupBadge :name="(category as any).group?.name" />
+              </td>
               <td class="px-6 py-4 text-sm text-charcoal-600">{{ category.description || '-' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
@@ -127,6 +123,8 @@ import { useProductCategoriesStore, useGroupsStore } from '../../stores';
 import Pagination from '../../components/Pagination.vue';
 import PerPageSelector from '../../components/PerPageSelector.vue';
 import { PlusIcon, EditIcon, DeleteIcon, ArrowUpIcon, ArrowDownIcon } from '../../components/icons';
+import GroupFilterSelect from '../../components/GroupFilterSelect.vue';
+import GroupBadge from '../../components/GroupBadge.vue';
 import { debounceRouteUpdate } from '../../utils/routeDebounce';
 import { debounce } from '../../utils/debounce';
 import type { ProductCategory } from '../../types/index';
@@ -140,8 +138,6 @@ const groupsStore = useGroupsStore();
 const categories = computed(() => productCategoriesStore.items);
 const loading = computed(() => productCategoriesStore.loading);
 const pagination = computed(() => productCategoriesStore.pagination);
-const groups = computed(() => groupsStore.items);
-
 const sortField = reactive<{ value: string }>({ value: (route.query.sort as string) || 'id' });
 const sortDir = reactive<{ value: 'asc' | 'desc' }>({ value: (route.query.dir as 'asc' | 'desc') || 'desc' });
 

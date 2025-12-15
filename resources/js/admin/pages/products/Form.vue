@@ -80,19 +80,12 @@
                 </div>
               </div>
 
-              <div class="mb-6">
-                <div class="flex items-center gap-3">
-                  <input
-                    id="is_featured"
-                    v-model="form.is_featured"
-                    type="checkbox"
-                    class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
-                  />
-                  <label for="is_featured" class="block text-sm font-medium text-charcoal-700">
-                    Featured
-                  </label>
-                </div>
-              </div>
+              <FormCheckbox
+                id="is_featured"
+                v-model="form.is_featured"
+                label="Featured"
+                :options="[{ id: true, name: 'Featured' }]"
+              />
 
               <FormSelect
                 id="status"
@@ -160,6 +153,7 @@ import FormSection from '../../components/FormSection.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import FormCheckbox from '../../components/FormCheckbox.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import AttributeInput from '../../components/AttributeInput.vue';

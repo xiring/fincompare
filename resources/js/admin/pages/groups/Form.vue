@@ -33,7 +33,7 @@
           :error="getError(errors, 'description')"
         />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <FormInput
             id="sort_order"
             v-model.number="form.sort_order"
@@ -43,15 +43,13 @@
             :error="getError(errors, 'sort_order')"
           />
 
-          <label class="flex items-center gap-3 mt-2 md:mt-6">
-            <input
-              id="is_active"
-              v-model="form.is_active"
-              type="checkbox"
-              class="h-4 w-4 text-primary-500 focus:ring-primary-500 border-charcoal-300 rounded"
-            />
-            <span class="text-sm text-charcoal-700">Active</span>
-          </label>
+          <FormCheckbox
+            id="is_active"
+            v-model="form.is_active"
+            label="Active"
+            :options="[{ id: true, name: 'Active' }]"
+            :error="getError(errors, 'is_active')"
+          />
         </div>
 
         <FormActions
@@ -74,6 +72,7 @@ import PageHeader from '../../components/PageHeader.vue';
 import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
+import FormCheckbox from '../../components/FormCheckbox.vue';
 import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
 import ErrorMessage from '../../components/ErrorMessage.vue';

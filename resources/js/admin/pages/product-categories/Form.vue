@@ -33,13 +33,10 @@
           :error="getError(errors, 'description')"
         />
 
-        <FormSelect
+        <GroupSelect
           id="group_id"
           v-model="form.group_id"
           label="Group"
-          :options="groups"
-          option-value="value"
-          option-label="label"
           placeholder="-- Select Group --"
           :error="getError(errors, 'group_id')"
         />
@@ -108,6 +105,7 @@ import FormCard from '../../components/FormCard.vue';
 import FormInput from '../../components/FormInput.vue';
 import FormTextarea from '../../components/FormTextarea.vue';
 import FormSelect from '../../components/FormSelect.vue';
+import GroupSelect from '../../components/GroupSelect.vue';
 import FormFileInput from '../../components/FormFileInput.vue';
 import FormActions from '../../components/FormActions.vue';
 import LoadingSpinner from '../../components/LoadingSpinner.vue';
@@ -130,7 +128,7 @@ interface FormData {
   slug: string;
   description: string;
   image: File | null;
-  group_id: string | null;
+  group_id: string | number | null;
   pre_form_id: string | null;
   post_form_id: string | null;
 }
@@ -146,7 +144,6 @@ const form = reactive<FormData>({
 });
 
 const groupsStore = useGroupsStore();
-const groups = ref<{ value: string; label: string }[]>([]);
 const preForms = ref<Form[]>([]);
 const postForms = ref<Form[]>([]);
 const errors = ref<FormErrors>({});
@@ -182,18 +179,6 @@ const loadForms = async (): Promise<void> => {
   }
 };
 
-const loadGroups = async (): Promise<void> => {
-  try {
-    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' });
-    groups.value = groupsStore.items.map((g: any) => ({
-      value: String(g.id),
-      label: g.name,
-    }));
-  } catch (error: any) {
-    console.error('Error loading groups:', error);
-  }
-};
-
 const loadCategory = async (): Promise<void> => {
   if (!categoryId) return;
 
@@ -204,7 +189,7 @@ const loadCategory = async (): Promise<void> => {
       form.name = cat.name || '';
       form.slug = cat.slug || '';
       form.description = cat.description || '';
-      form.group_id = cat.group_id ? String(cat.group_id) : null;
+      form.group_id = cat.group_id ?? null;
       form.pre_form_id = cat.pre_form_id ? String(cat.pre_form_id) : null;
       form.post_form_id = cat.post_form_id ? String(cat.post_form_id) : null;
     }
@@ -234,7 +219,7 @@ const handleSubmit = async (): Promise<void> => {
       description: form.description,
     };
 
-    if (form.group_id) {
+    if (form.group_id !== null && form.group_id !== '') {
       data.group_id = typeof form.group_id === 'string' ? parseInt(form.group_id) : form.group_id;
     }
 
@@ -275,7 +260,7 @@ onMounted(async () => {
   try {
     // Load forms for dropdowns
     await loadForms();
-    await loadGroups();
+    await groupsStore.fetchItems({ per_page: 1000, sort: 'name', dir: 'asc' }).catch(() => {});
 
     // Load category if in edit mode
     if (isEdit.value) {
