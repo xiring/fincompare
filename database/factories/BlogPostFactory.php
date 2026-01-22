@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Src\Content\Domain\Entities\BlogPost;
@@ -15,19 +16,20 @@ class BlogPostFactory extends Factory
 
     public function definition(): array
     {
-        $title = ucfirst(fake()->unique()->sentence(4));
+        $faker = Faker::create();
+        $title = ucfirst($faker->unique()->sentence(4));
 
         return [
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 999),
-            'category' => fake()->randomElement(['news', 'guides', 'updates', 'tips']),
-            'content' => '<p>'.implode('</p><p>', fake()->paragraphs(3)).'</p>',
+            'slug' => Str::slug($title).'-'.$faker->unique()->numberBetween(100, 999),
+            'category' => $faker->randomElement(['news', 'guides', 'updates', 'tips']),
+            'content' => '<p>'.implode('</p><p>', $faker->paragraphs(3)).'</p>',
             'featured_image' => null,
-            'status' => fake()->randomElement(['draft', 'published']),
+            'status' => $faker->randomElement(['draft', 'published']),
             'seo_title' => $title,
-            'seo_description' => fake()->sentence(12),
-            'seo_keywords' => implode(', ', fake()->words(6)),
-            'tags' => [fake()->word(), fake()->word()],
+            'seo_description' => $faker->sentence(12),
+            'seo_keywords' => implode(', ', $faker->words(6)),
+            'tags' => [$faker->word(), $faker->word()],
         ];
     }
 }
